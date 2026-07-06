@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 import type { AuditEntry } from '../types';
 import { INITIAL_AUDIT } from '../data/mockData';
 import { useAuth } from './AuthContext';
+import { fetchNui } from '../utils/fivem';
 
 interface AuditContextType {
   entries: AuditEntry[];
@@ -26,6 +27,13 @@ export function AuditProvider({ children }: { children: ReactNode }) {
         details,
       };
       setEntries((prev) => [entry, ...prev]);
+      fetchNui('logAction', {
+        action,
+        module,
+        details,
+        officerId: currentOfficer.id,
+        officerName: currentOfficer.name,
+      });
     },
     [currentOfficer]
   );

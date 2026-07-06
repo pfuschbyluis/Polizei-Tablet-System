@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { FiveMProvider, useFiveM } from './context/FiveMContext';
 import { AuthProvider } from './context/AuthContext';
 import { AuditProvider } from './context/AuditContext';
 import { DataProvider } from './context/DataContext';
@@ -25,29 +26,60 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="personen" element={<PersonenPage />} />
+        <Route path="personen/:id" element={<PersonDetailPage />} />
+        <Route path="akten" element={<AktenPage />} />
+        <Route path="akten/neu" element={<AkteCreatePage />} />
+        <Route path="akten/:id" element={<AkteDetailPage />} />
+        <Route path="waffen" element={<WaffenPage />} />
+        <Route path="waffen/:id" element={<WaffenPage />} />
+        <Route path="fahrzeuge" element={<FahrzeugePage />} />
+        <Route path="fahrzeuge/:id" element={<FahrzeugePage />} />
+        <Route path="fahndung" element={<FahndungPage />} />
+        <Route path="einsaetze" element={<EinsaetzePage />} />
+        <Route path="einsaetze/:id" element={<EinsaetzePage />} />
+        <Route path="protokoll" element={<AuditLogPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
+  );
+}
+
+function TabletShell() {
+  const { visible, isInGame } = useFiveM();
+
+  if (isInGame && !visible) {
+    return null;
+  }
+
+  return (
+    <div className={isInGame ? 'fivem-tablet-shell' : 'dev-shell'}>
+      {isInGame && (
+        <div className="fivem-tablet-bezel">
+          <div className="fivem-tablet-camera" />
+        </div>
+      )}
+      <div className={`fivem-tablet-screen ${isInGame ? 'in-game' : ''}`}>
+        <AppProviders>
+          <HashRouter>
+            <AppRoutes />
+          </HashRouter>
+        </AppProviders>
+      </div>
+      {isInGame && <div className="fivem-tablet-home-bar" />}
+    </div>
+  );
+}
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppProviders>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="personen" element={<PersonenPage />} />
-            <Route path="personen/:id" element={<PersonDetailPage />} />
-            <Route path="akten" element={<AktenPage />} />
-            <Route path="akten/neu" element={<AkteCreatePage />} />
-            <Route path="akten/:id" element={<AkteDetailPage />} />
-            <Route path="waffen" element={<WaffenPage />} />
-            <Route path="waffen/:id" element={<WaffenPage />} />
-            <Route path="fahrzeuge" element={<FahrzeugePage />} />
-            <Route path="fahrzeuge/:id" element={<FahrzeugePage />} />
-            <Route path="fahndung" element={<FahndungPage />} />
-            <Route path="einsaetze" element={<EinsaetzePage />} />
-            <Route path="einsaetze/:id" element={<EinsaetzePage />} />
-            <Route path="protokoll" element={<AuditLogPage />} />
-          </Route>
-        </Routes>
-      </AppProviders>
-    </BrowserRouter>
+    <FiveMProvider>
+      <TabletShell />
+    </FiveMProvider>
   );
 }

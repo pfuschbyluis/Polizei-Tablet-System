@@ -1,11 +1,14 @@
-import { Bell, Clock, UserCircle } from 'lucide-react';
+import { Bell, Clock, UserCircle, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useFiveM } from '../../context/FiveMContext';
 import { RANK_LABELS, type Rank } from '../../types';
 import Badge from '../ui/Badge';
 import Select from '../ui/Select';
+import Button from '../ui/Button';
 
 export default function Header() {
-  const { currentOfficer, rankLabel, switchRank, login, allOfficers } = useAuth();
+  const { currentOfficer, rankLabel, switchRank, login, allOfficers, isDevMode } = useAuth();
+  const { close, isInGame } = useFiveM();
   const now = new Date().toLocaleString('de-DE', {
     weekday: 'short',
     day: '2-digit',
@@ -23,6 +26,9 @@ export default function Header() {
           <span>{now}</span>
         </div>
         <Badge variant="blue">{currentOfficer.unit}</Badge>
+        {isInGame && (
+          <Badge variant="green">FiveM</Badge>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
@@ -32,27 +38,31 @@ export default function Header() {
         </button>
 
         <div className="flex items-center gap-3 border-l border-police-700/50 pl-4">
-          <div className="hidden md:block w-40">
-            <Select
-              label=""
-              value={currentOfficer.id}
-              onChange={(e) => login(e.target.value)}
-              options={allOfficers.map((o) => ({
-                value: o.id,
-                label: o.name.split(' ').slice(-1)[0],
-              }))}
-              className="!py-1.5 !text-xs"
-            />
-          </div>
-          <div className="hidden lg:block w-36">
-            <Select
-              label=""
-              value={currentOfficer.rank}
-              onChange={(e) => switchRank(e.target.value as Rank)}
-              options={Object.entries(RANK_LABELS).map(([value, label]) => ({ value, label }))}
-              className="!py-1.5 !text-xs"
-            />
-          </div>
+          {isDevMode && (
+            <>
+              <div className="hidden md:block w-40">
+                <Select
+                  label=""
+                  value={currentOfficer.id}
+                  onChange={(e) => login(e.target.value)}
+                  options={allOfficers.map((o) => ({
+                    value: o.id,
+                    label: o.name.split(' ').slice(-1)[0],
+                  }))}
+                  className="!py-1.5 !text-xs"
+                />
+              </div>
+              <div className="hidden lg:block w-36">
+                <Select
+                  label=""
+                  value={currentOfficer.rank}
+                  onChange={(e) => switchRank(e.target.value as Rank)}
+                  options={Object.entries(RANK_LABELS).map(([value, label]) => ({ value, label }))}
+                  className="!py-1.5 !text-xs"
+                />
+              </div>
+            </>
+          )}
           <div className="flex items-center gap-2.5">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-police-100">{currentOfficer.name}</p>
@@ -64,6 +74,11 @@ export default function Header() {
               <UserCircle className="h-6 w-6 text-police-accent" />
             </div>
           </div>
+          {isInGame && (
+            <Button variant="ghost" size="sm" onClick={close} title="Schließen (ESC)">
+              <X className="h-5 w-5" />
+            </Button>
+          )}
         </div>
       </div>
     </header>
