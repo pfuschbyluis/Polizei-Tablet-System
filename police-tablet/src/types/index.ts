@@ -87,6 +87,7 @@ export interface CaseFile {
   createdAt: string;
   updatedAt: string;
   assignedOfficerId: string;
+  assignedOfficerName: string;
   participants: CaseParticipant[];
   evidence: Evidence[];
   witnesses: Witness[];

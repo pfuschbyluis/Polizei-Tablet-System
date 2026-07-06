@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { fetchNui, isFiveM, type NuiMessage, type NuiOpenPayload } from '../utils/fivem';
 
 interface FiveMContextType {
@@ -27,6 +20,15 @@ export function FiveMProvider({ children }: { children: ReactNode }) {
     if (isInGame) {
       fetchNui('close');
     }
+  }, [isInGame]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('fivem-nui', isInGame);
+    document.body.classList.toggle('fivem-nui', isInGame);
+    return () => {
+      document.documentElement.classList.remove('fivem-nui');
+      document.body.classList.remove('fivem-nui');
+    };
   }, [isInGame]);
 
   useEffect(() => {

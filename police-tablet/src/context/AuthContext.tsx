@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { Officer, Rank, Permission } from '../types';
 import { PERMISSIONS, RANK_LABELS } from '../types';
-import { OFFICERS } from '../data/mockData';
+import { DEFAULT_DEV_OFFICER } from '../data/defaults';
 import { useFiveM } from './FiveMContext';
 import { isFiveM, type NuiOpenPayload } from '../utils/fivem';
 
@@ -9,9 +9,7 @@ interface AuthContextType {
   currentOfficer: Officer;
   permissions: Permission;
   rankLabel: string;
-  login: (officerId: string) => void;
   switchRank: (rank: Rank) => void;
-  allOfficers: Officer[];
   isDevMode: boolean;
 }
 
@@ -38,7 +36,7 @@ function officerFromNui(data: NuiOpenPayload['officer']): Officer | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { openPayload, isInGame } = useFiveM();
   const isDevMode = !isInGame;
-  const [currentOfficer, setCurrentOfficer] = useState<Officer>(OFFICERS[0]);
+  const [currentOfficer, setCurrentOfficer] = useState<Officer>(DEFAULT_DEV_OFFICER);
 
   useEffect(() => {
     const nuiOfficer = officerFromNui(openPayload?.officer);
@@ -50,12 +48,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const permissions = PERMISSIONS[currentOfficer.rank];
   const rankLabel = RANK_LABELS[currentOfficer.rank];
 
-  const login = useCallback((officerId: string) => {
-    if (isFiveM()) return;
-    const officer = OFFICERS.find((o) => o.id === officerId);
-    if (officer) setCurrentOfficer(officer);
-  }, []);
-
   const switchRank = useCallback((rank: Rank) => {
     if (isFiveM()) return;
     setCurrentOfficer((prev) => ({ ...prev, rank }));
@@ -63,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ currentOfficer, permissions, rankLabel, login, switchRank, allOfficers: OFFICERS, isDevMode }}
+      value={{ currentOfficer, permissions, rankLabel, switchRank, isDevMode }}
     >
       {children}
     </AuthContext.Provider>

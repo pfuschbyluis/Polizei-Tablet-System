@@ -4,7 +4,6 @@ import { FolderOpen, Plus, ChevronRight } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { Card, SearchBar, StatusBadge, Button, EmptyState } from '../components/ui';
-import { OFFICERS } from '../data/mockData';
 
 export default function AktenPage() {
   const { cases } = useData();
@@ -23,22 +22,22 @@ export default function AktenPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-police-50">Akten-System</h1>
+          <h1 className="text-xl font-bold text-police-50 sm:text-2xl">Akten-System</h1>
           <p className="mt-1 text-sm text-police-400">{cases.length} Akten im System</p>
         </div>
         {permissions.createCases && (
           <Link to="/akten/neu">
-            <Button>
+            <Button size="sm">
               <Plus className="h-4 w-4" /> Neue Akte
             </Button>
           </Link>
         )}
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex-1">
           <SearchBar value={search} onChange={setSearch} placeholder="Aktenzeichen, Titel oder Delikt..." />
         </div>
@@ -54,35 +53,40 @@ export default function AktenPage() {
         </select>
       </div>
 
-      {filtered.length === 0 ? (
+      {cases.length === 0 ? (
         <Card>
-          <EmptyState icon={FolderOpen} title="Keine Akten gefunden" />
+          <EmptyState
+            icon={FolderOpen}
+            title="Noch keine Akten"
+            description="Erstelle eine neue Akte über den Button oben."
+          />
+        </Card>
+      ) : filtered.length === 0 ? (
+        <Card>
+          <EmptyState icon={FolderOpen} title="Keine Akten gefunden" description="Passen Sie Ihre Suche an." />
         </Card>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((c) => {
-            const officer = OFFICERS.find((o) => o.id === c.assignedOfficerId);
-            return (
-              <Link
-                key={c.id}
-                to={`/akten/${c.id}`}
-                className="flex items-center justify-between rounded-xl border border-police-700/40 bg-police-900/40 p-5 hover:border-police-accent/30 transition-all"
-              >
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm text-police-accent">{c.caseNumber}</span>
-                    <StatusBadge status={c.status} />
-                    <span className="text-xs text-police-500">{c.offense}</span>
-                  </div>
-                  <p className="mt-1 font-medium text-police-100">{c.title}</p>
-                  <p className="text-xs text-police-400">
-                    Zuständig: {officer?.name ?? 'Unbekannt'} · Aktualisiert: {c.updatedAt}
-                  </p>
+        <div className="space-y-2">
+          {filtered.map((c) => (
+            <Link
+              key={c.id}
+              to={`/akten/${c.id}`}
+              className="flex items-center justify-between rounded-xl border border-police-700/40 bg-police-900/40 p-4 hover:border-police-accent/30 transition-all"
+            >
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-sm text-police-accent">{c.caseNumber}</span>
+                  <StatusBadge status={c.status} />
+                  <span className="text-xs text-police-500">{c.offense}</span>
                 </div>
-                <ChevronRight className="h-5 w-5 text-police-500" />
-              </Link>
-            );
-          })}
+                <p className="mt-1 truncate font-medium text-police-100">{c.title}</p>
+                <p className="text-xs text-police-400">
+                  Zuständig: {c.assignedOfficerName} · Aktualisiert: {c.updatedAt}
+                </p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-police-500" />
+            </Link>
+          ))}
         </div>
       )}
     </div>

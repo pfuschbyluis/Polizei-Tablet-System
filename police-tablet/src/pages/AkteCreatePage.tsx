@@ -4,7 +4,6 @@ import { ArrowLeft } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { OFFENSES } from '../types';
-import { OFFICERS } from '../data/mockData';
 import { Card, Button, Input, Select } from '../components/ui';
 
 export default function AkteCreatePage() {
@@ -16,7 +15,6 @@ export default function AkteCreatePage() {
     title: '',
     offense: OFFENSES[0],
     description: '',
-    assignedOfficerId: currentOfficer.id,
   });
 
   if (!permissions.createCases) {
@@ -35,7 +33,8 @@ export default function AkteCreatePage() {
       title: form.title.trim(),
       offense: form.offense,
       status: 'offen',
-      assignedOfficerId: form.assignedOfficerId,
+      assignedOfficerId: currentOfficer.id,
+      assignedOfficerName: currentOfficer.name,
       participants: [],
       evidence: [],
       witnesses: [],
@@ -47,13 +46,13 @@ export default function AkteCreatePage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-5">
       <Link to="/akten" className="inline-flex items-center gap-2 text-sm text-police-400 hover:text-police-accent">
         <ArrowLeft className="h-4 w-4" /> Zurück
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-police-50">Neue Akte erstellen</h1>
+        <h1 className="text-xl font-bold text-police-50 sm:text-2xl">Neue Akte erstellen</h1>
         <p className="mt-1 text-sm text-police-400">Ermittlungsakte anlegen</p>
       </div>
 
@@ -63,7 +62,7 @@ export default function AkteCreatePage() {
             label="Titel"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="z.B. Raubüberfall Juwelier..."
+            placeholder="z.B. Raubüberfall..."
             required
           />
           <Select
@@ -72,15 +71,11 @@ export default function AkteCreatePage() {
             onChange={(e) => setForm({ ...form, offense: e.target.value })}
             options={OFFENSES.map((o) => ({ value: o, label: o }))}
           />
-          <Select
-            label="Zuständiger Beamter"
-            value={form.assignedOfficerId}
-            onChange={(e) => setForm({ ...form, assignedOfficerId: e.target.value })}
-            options={OFFICERS.filter((o) => o.rank === 'ermittler' || o.rank === 'admin').map((o) => ({
-              value: o.id,
-              label: o.name,
-            }))}
-          />
+          <div className="rounded-lg border border-police-700/30 bg-police-800/30 px-4 py-3">
+            <p className="text-xs text-police-500">Zuständiger Beamter</p>
+            <p className="text-sm font-medium text-police-100">{currentOfficer.name}</p>
+            <p className="text-xs text-police-400">{currentOfficer.badgeNumber}</p>
+          </div>
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-police-300">Beschreibung</label>
             <textarea

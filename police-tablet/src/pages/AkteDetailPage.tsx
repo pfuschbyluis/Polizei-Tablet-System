@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { OFFICERS } from '../data/mockData';
 import {
   Card,
   Button,
@@ -60,7 +59,6 @@ export default function AkteDetailPage() {
     );
   }
 
-  const officer = OFFICERS.find((o) => o.id === caseFile.assignedOfficerId);
   const linkedVehicles = caseFile.linkedVehicleIds.map((vid) => getVehicle(vid)).filter(Boolean);
 
   const tabs = [
@@ -85,7 +83,7 @@ export default function AkteDetailPage() {
           </div>
           <h1 className="mt-1 text-2xl font-bold text-police-50">{caseFile.title}</h1>
           <p className="text-sm text-police-400">
-            {caseFile.offense} · Zuständig: {officer?.name} · Erstellt: {caseFile.createdAt}
+            {caseFile.offense} · Zuständig: {caseFile.assignedOfficerName} · Erstellt: {caseFile.createdAt}
           </p>
         </div>
         {permissions.editCases && (
