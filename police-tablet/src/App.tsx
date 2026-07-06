@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuditProvider } from './context/AuditContext';
 import { DataProvider } from './context/DataContext';
+import { NotifyProvider } from './context/NotifyContext';
 import ProtectedLayout from './components/ProtectedRoute';
 import WindowFrame from './components/shell/WindowFrame';
 import Layout from './components/layout/Layout';
@@ -23,12 +24,14 @@ import MitarbeiterPage from './pages/MitarbeiterPage';
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-surface-base">
-      <AuthProvider>
-        <SessionReset />
-        <AuditProvider>
-          <DataProvider>{children}</DataProvider>
-        </AuditProvider>
-      </AuthProvider>
+      <NotifyProvider>
+        <AuthProvider>
+          <SessionReset />
+          <AuditProvider>
+            <DataProvider>{children}</DataProvider>
+          </AuditProvider>
+        </AuthProvider>
+      </NotifyProvider>
     </div>
   );
 }

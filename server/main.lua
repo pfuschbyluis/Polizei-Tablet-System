@@ -38,6 +38,13 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
         return
     end
 
+    if Password.NeedsRehash(emp.passwordHash) then
+        local newHash = Password.Rehash(password)
+        if newHash then
+            MySQL.update.await('UPDATE polis_employees SET password_hash = ? WHERE id = ?', { newHash, emp.id })
+        end
+    end
+
     local sessionToken = Repository.CreateSession(emp.id, src)
     local officer = {
         id = emp.id,

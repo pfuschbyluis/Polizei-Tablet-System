@@ -3,7 +3,7 @@ Password = {}
 
 local sha256 = PolisSHA256
 
-local ITERATIONS = 12000
+local ITERATIONS = 2000
 local SALT_LENGTH = 16
 local KEY_LENGTH = 32
 
@@ -113,4 +113,13 @@ function Password.Verify(plainPassword, storedHash)
     local actual = pbkdf2(plainPassword, salt, tonumber(iterations), #expected)
 
     return constantTimeEquals(actual, expected)
+end
+
+function Password.NeedsRehash(storedHash)
+    local iterations = storedHash and storedHash:match('^%$pbkdf2%-sha256%$(%d+)%$')
+    return iterations and tonumber(iterations) > ITERATIONS
+end
+
+function Password.Rehash(plainPassword)
+    return Password.Hash(plainPassword)
 end

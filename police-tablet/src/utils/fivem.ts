@@ -9,18 +9,37 @@ export function getResourceName(): string {
   return 'polis';
 }
 
+const NUI_TIMEOUT_MS = 15000;
+
 export async function fetchNui<T = unknown>(event: string, data?: unknown): Promise<T> {
   if (!isFiveM()) {
     return {} as T;
   }
 
-  const response = await fetch(`https://${getResourceName()}/${event}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data ?? {}),
-  });
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), NUI_TIMEOUT_MS);
 
-  return response.json() as Promise<T>;
+  try {
+    const response = await fetch(`https://${getResourceName()}/${event}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data ?? {}),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`NUI request failed (${response.status})`);
+    }
+
+    return (await response.json()) as T;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('Zeitüberschreitung – Server antwortet nicht.');
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 }
 
 export interface NuiOpenPayload {

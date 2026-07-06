@@ -39,7 +39,8 @@ export type IconName =
   | 'map-pin'
   | 'phone'
   | 'bell'
-  | 'user-plus';
+  | 'user-plus'
+  | 'check';
 
 interface IconProps extends SVGProps<SVGSVGElement> {
   name: IconName;
@@ -241,6 +242,12 @@ const paths: Record<IconName, ReactNode> = {
       <circle cx="9" cy="8" r="3.5" fill="none" />
       <path d="M3 19c0-3.3 2.7-6 6-6" fill="none" />
       <path d="M16 11v6M13 14h6" fill="none" />
+    </>
+  ),
+  check: (
+    <>
+      <circle cx="12" cy="12" r="9" fill="none" />
+      <path d="M8 12.5l2.5 2.5L16 9" fill="none" />
     </>
   ),
 };

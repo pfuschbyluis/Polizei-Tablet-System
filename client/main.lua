@@ -217,6 +217,13 @@ local function TriggerServerNui(event, data, cb)
         payload.sessionToken = sessionToken
     end
     TriggerServerEvent(event, reqId, payload)
+
+    SetTimeout(15000, function()
+        if pendingCallbacks[reqId] then
+            pendingCallbacks[reqId]({ success = false, error = 'Zeitüberschreitung – Server antwortet nicht.' })
+            pendingCallbacks[reqId] = nil
+        end
+    end)
 end
 
 RegisterNetEvent('polis:client:nuiResult', function(reqId, result)
@@ -236,6 +243,13 @@ RegisterNUICallback('login', function(data, cb)
         cb(result)
     end
     TriggerServerEvent('polis:server:login', reqId, data)
+
+    SetTimeout(15000, function()
+        if pendingCallbacks[reqId] then
+            pendingCallbacks[reqId]({ success = false, error = 'Zeitüberschreitung – Server antwortet nicht.' })
+            pendingCallbacks[reqId] = nil
+        end
+    end)
 end)
 
 RegisterNUICallback('logout', function(_, cb)

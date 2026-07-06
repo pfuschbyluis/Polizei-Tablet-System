@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '../components/icons/Icon';
 import { useAuth } from '../context/AuthContext';
+import { useNotify } from '../context/NotifyContext';
 import { RANK_LABELS, UNITS, type Rank, type EmployeeInput } from '../types';
 import {
   Card,
@@ -11,6 +12,7 @@ import {
   Badge,
   EmptyState,
   SearchBar,
+  ConfirmDialog,
 } from '../components/ui';
 
 const emptyForm: EmployeeInput = {
@@ -25,11 +27,16 @@ const emptyForm: EmployeeInput = {
 export default function MitarbeiterPage() {
   const { employees, permissions, currentOfficer, createEmployee, updateEmployee, deleteEmployee } =
     useAuth();
+  const { notify } = useNotify();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<EmployeeInput>(emptyForm);
   const [error, setError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!permissions.viewEmployees) {
     return (
@@ -70,40 +77,77 @@ export default function MitarbeiterPage() {
     setShowModal(true);
   };
 
+  const closeModal = () => {
+    if (isSaving) return;
+    setShowModal(false);
+    setError('');
+  };
+
   const handleSubmit = async () => {
     if (!form.badgeNumber.trim() || !form.name.trim()) {
-      setError('Dienstnummer und Name sind Pflichtfelder.');
+      const message = 'Fehlende Daten eingeben';
+      setError(message);
+      notify(message, 'warning');
       return;
     }
     if (!editingId && !form.password) {
-      setError('Passwort ist erforderlich.');
+      const message = 'Passwort ist erforderlich';
+      setError(message);
+      notify(message, 'warning');
       return;
     }
 
-    let ok: boolean;
-    if (editingId) {
-      const payload: Partial<EmployeeInput> = { ...form };
-      if (!payload.password) delete payload.password;
-      ok = await updateEmployee(editingId, payload);
-    } else {
-      ok = await createEmployee(form);
-    }
+    setIsSaving(true);
+    setError('');
 
-    if (ok) {
-      setShowModal(false);
-      setForm(emptyForm);
-    } else {
-      setError(editingId ? 'Speichern fehlgeschlagen.' : 'Dienstnummer bereits vergeben.');
+    try {
+      let result: { success: boolean; error?: string };
+      if (editingId) {
+        const payload: Partial<EmployeeInput> = { ...form };
+        if (!payload.password) delete payload.password;
+        result = await updateEmployee(editingId, payload);
+      } else {
+        result = await createEmployee(form);
+      }
+
+      if (result.success) {
+        notify(editingId ? 'Mitarbeiter gespeichert' : 'Mitarbeiter angelegt', 'success');
+        setShowModal(false);
+        setForm(emptyForm);
+      } else {
+        const message = result.error ?? (editingId ? 'Speichern fehlgeschlagen.' : 'Dienstnummer bereits vergeben.');
+        setError(message);
+        notify(message, 'error');
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const openDeleteConfirm = (id: string) => {
     if (id === currentOfficer?.id) {
-      setError('Eigener Account kann nicht gelöscht werden.');
+      notify('Eigener Account kann nicht gelöscht werden.', 'warning');
       return;
     }
-    if (confirm('Mitarbeiter wirklich löschen?')) {
-      await deleteEmployee(id);
+    setDeleteTargetId(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTargetId) return;
+
+    setIsDeleting(true);
+    try {
+      const result = await deleteEmployee(deleteTargetId);
+      if (result.success) {
+        notify('Mitarbeiter gelöscht', 'success');
+        setShowDeleteConfirm(false);
+        setDeleteTargetId(null);
+      } else {
+        notify(result.error ?? 'Löschen fehlgeschlagen.', 'error');
+      }
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -163,7 +207,7 @@ export default function MitarbeiterPage() {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => handleDelete(emp.id)}
+                    onClick={() => openDeleteConfirm(emp.id)}
                     disabled={emp.id === currentOfficer?.id}
                   >
                     <Icon name="trash" size={14} />
@@ -177,7 +221,7 @@ export default function MitarbeiterPage() {
 
       <Modal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={closeModal}
         title={editingId ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter'}
       >
         <div className="space-y-4">
@@ -225,11 +269,24 @@ export default function MitarbeiterPage() {
             />
           )}
           {error && <p className="text-sm text-danger">{error}</p>}
-          <Button className="w-full" onClick={handleSubmit}>
-            {editingId ? 'Speichern' : 'Mitarbeiter anlegen'}
+          <Button className="w-full" onClick={handleSubmit} disabled={isSaving}>
+            {isSaving ? 'Speichern...' : editingId ? 'Speichern' : 'Mitarbeiter anlegen'}
           </Button>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Mitarbeiter löschen"
+        message="Möchten Sie diesen Mitarbeiter wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+        confirmLabel={isDeleting ? 'Löschen...' : 'Löschen'}
+        onConfirm={handleDelete}
+        onCancel={() => {
+          if (isDeleting) return;
+          setShowDeleteConfirm(false);
+          setDeleteTargetId(null);
+        }}
+      />
     </div>
   );
 }

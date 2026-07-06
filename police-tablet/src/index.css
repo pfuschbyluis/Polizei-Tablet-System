@@ -162,6 +162,24 @@ html.fivem-nui .fivem-tablet-shell {
   animation: flux-fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+form:invalid button[type='submit'] {
+  box-shadow: none;
+}
+
+input:invalid,
+select:invalid,
+textarea:invalid {
+  box-shadow: none;
+}
+
+.flux-notify-stack {
+  pointer-events: none;
+}
+
+.flux-notify {
+  animation: flux-fade-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* ── Shell ── */
 .dev-shell {
   width: 100%;

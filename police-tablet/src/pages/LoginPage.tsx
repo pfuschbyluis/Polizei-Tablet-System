@@ -1,18 +1,28 @@
 import { useState } from 'react';
 import Icon, { IconSpinner } from '../components/icons/Icon';
 import { useAuth } from '../context/AuthContext';
+import { useNotify } from '../context/NotifyContext';
 import { Input, Button } from '../components/ui';
 
 export default function LoginPage() {
-  const { login, loginError, isLoading, isDevMode } = useAuth();
+  const { login, isLoading, isDevMode } = useAuth();
+  const { notify } = useNotify();
   const [badgeNumber, setBadgeNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!badgeNumber.trim() || !password) return;
-    await login(badgeNumber.trim(), password);
+
+    if (!badgeNumber.trim() || !password) {
+      notify('Fehlende Daten eingeben', 'warning');
+      return;
+    }
+
+    const ok = await login(badgeNumber.trim(), password);
+    if (!ok) {
+      notify('Passwort ist falsch', 'error');
+    }
   };
 
   return (
@@ -26,14 +36,13 @@ export default function LoginPage() {
           <p className="mt-1 text-sm text-text-secondary">Polizei Information System</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <Input
             label="Dienstnummer"
             value={badgeNumber}
             onChange={(e) => setBadgeNumber(e.target.value)}
             placeholder="z.B. PD-1001"
             autoComplete="username"
-            required
           />
 
           <div className="relative">
@@ -44,7 +53,6 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               autoComplete="current-password"
-              required
             />
             <button
               type="button"
@@ -55,12 +63,6 @@ export default function LoginPage() {
               <Icon name={showPassword ? 'eye-off' : 'eye'} size={16} />
             </button>
           </div>
-
-          {loginError && (
-            <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
-              {loginError}
-            </div>
-          )}
 
           <Button type="submit" className="w-full !py-2.5" disabled={isLoading}>
             {isLoading ? (

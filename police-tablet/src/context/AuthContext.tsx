@@ -23,10 +23,9 @@ interface AuthContextType {
   login: (badgeNumber: string, password: string) => Promise<boolean>;
   logout: () => void;
   switchRank: (rank: Rank) => void;
-  createEmployee: (input: EmployeeInput) => Promise<boolean>;
-  updateEmployee: (id: string, input: Partial<EmployeeInput>) => Promise<boolean>;
-  deleteEmployee: (id: string) => Promise<boolean>;
-  loginError: string | null;
+  createEmployee: (input: EmployeeInput) => Promise<{ success: boolean; error?: string }>;
+  updateEmployee: (id: string, input: Partial<EmployeeInput>) => Promise<{ success: boolean; error?: string }>;
+  deleteEmployee: (id: string) => Promise<{ success: boolean; error?: string }>;
   isLoading: boolean;
 }
 
@@ -73,7 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isDevMode = !isInGame;
   const [currentOfficer, setCurrentOfficer] = useState<Officer | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const isAuthenticated = currentOfficer !== null;
@@ -83,13 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (badgeNumber: string, password: string): Promise<boolean> => {
       setIsLoading(true);
-      setLoginError(null);
       try {
         let result: LoginResult;
         if (isFiveM()) {
           result = await fetchNui<LoginResult>('login', { badgeNumber, password });
         } else {
-          await new Promise((r) => setTimeout(r, 400));
+          await new Promise((r) => setTimeout(r, 150));
           result = devLogin(badgeNumber, password);
         }
         if (result.success && result.officer) {
@@ -100,10 +97,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setEmployees(result.employees ?? []);
           return true;
         }
-        setLoginError(result.error ?? 'Anmeldung fehlgeschlagen.');
         return false;
       } catch {
-        setLoginError('Verbindungsfehler. Bitte erneut versuchen.');
         return false;
       } finally {
         setIsLoading(false);
@@ -115,7 +110,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     setCurrentOfficer(null);
     setEmployees([]);
-    setLoginError(null);
     navigate('/', { replace: true });
     if (isFiveM()) fetchNui('logout');
   }, [navigate]);
@@ -126,20 +120,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [currentOfficer]);
 
   const createEmployee = useCallback(
-    async (input: EmployeeInput): Promise<boolean> => {
+    async (input: EmployeeInput): Promise<{ success: boolean; error?: string }> => {
       if (isFiveM()) {
-        const result = await fetchNui<{ success: boolean; employee?: Employee; error?: string }>(
-          'createEmployee',
-          input
-        );
-        if (result.success && result.employee) {
-          setEmployees((prev) => [...prev, result.employee!]);
-          return true;
+        try {
+          const result = await fetchNui<{ success: boolean; employee?: Employee; error?: string }>(
+            'createEmployee',
+            input
+          );
+          if (result.success && result.employee) {
+            setEmployees((prev) => [...prev, result.employee!]);
+            return { success: true };
+          }
+          return { success: false, error: result.error ?? 'Erstellen fehlgeschlagen.' };
+        } catch (error) {
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Verbindungsfehler.',
+          };
         }
-        return false;
       }
       const exists = DEV_EMPLOYEES.some((e) => e.badgeNumber === input.badgeNumber);
-      if (exists) return false;
+      if (exists) return { success: false, error: 'Dienstnummer bereits vergeben.' };
       const emp = {
         id: `emp-${Date.now()}`,
         ...input,
@@ -148,47 +149,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
       DEV_EMPLOYEES.push(emp);
       setEmployees(DEV_EMPLOYEES.map(stripPassword) as Employee[]);
-      return true;
+      return { success: true };
     },
     []
   );
 
   const updateEmployee = useCallback(
-    async (id: string, input: Partial<EmployeeInput>): Promise<boolean> => {
+    async (id: string, input: Partial<EmployeeInput>): Promise<{ success: boolean; error?: string }> => {
       if (isFiveM()) {
-        const result = await fetchNui<{ success: boolean; employee?: Employee }>('updateEmployee', {
-          id,
-          ...input,
-        });
-        if (result.success && result.employee) {
-          setEmployees((prev) => prev.map((e) => (e.id === id ? result.employee! : e)));
-          return true;
+        try {
+          const result = await fetchNui<{ success: boolean; employee?: Employee; error?: string }>(
+            'updateEmployee',
+            { id, ...input }
+          );
+          if (result.success && result.employee) {
+            setEmployees((prev) => prev.map((e) => (e.id === id ? result.employee! : e)));
+            return { success: true };
+          }
+          return { success: false, error: result.error ?? 'Speichern fehlgeschlagen.' };
+        } catch (error) {
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Verbindungsfehler.',
+          };
         }
-        return false;
       }
       const idx = DEV_EMPLOYEES.findIndex((e) => e.id === id);
-      if (idx === -1) return false;
+      if (idx === -1) return { success: false, error: 'Mitarbeiter nicht gefunden.' };
       DEV_EMPLOYEES[idx] = { ...DEV_EMPLOYEES[idx], ...input };
       setEmployees(DEV_EMPLOYEES.map(stripPassword) as Employee[]);
-      return true;
+      return { success: true };
     },
     []
   );
 
-  const deleteEmployee = useCallback(async (id: string): Promise<boolean> => {
+  const deleteEmployee = useCallback(async (id: string): Promise<{ success: boolean; error?: string }> => {
     if (isFiveM()) {
-      const result = await fetchNui<{ success: boolean }>('deleteEmployee', { id });
-      if (result.success) {
-        setEmployees((prev) => prev.filter((e) => e.id !== id));
-        return true;
+      try {
+        const result = await fetchNui<{ success: boolean; error?: string }>('deleteEmployee', { id });
+        if (result.success) {
+          setEmployees((prev) => prev.filter((e) => e.id !== id));
+          return { success: true };
+        }
+        return { success: false, error: result.error ?? 'Löschen fehlgeschlagen.' };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Verbindungsfehler.',
+        };
       }
-      return false;
     }
     const idx = DEV_EMPLOYEES.findIndex((e) => e.id === id);
-    if (idx === -1) return false;
+    if (idx === -1) return { success: false, error: 'Mitarbeiter nicht gefunden.' };
     DEV_EMPLOYEES.splice(idx, 1);
     setEmployees(DEV_EMPLOYEES.map(stripPassword) as Employee[]);
-    return true;
+    return { success: true };
   }, []);
 
   return (
@@ -206,7 +221,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createEmployee,
         updateEmployee,
         deleteEmployee,
-        loginError,
         isLoading,
       }}
     >

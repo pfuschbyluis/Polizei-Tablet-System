@@ -9,3 +9,4 @@ export { default as StatCard } from './StatCard';
 export { default as StatusBadge } from './StatusBadge';
 export { default as EmptyState } from './EmptyState';
 export { default as Tabs } from './Tabs';
+export { default as ConfirmDialog } from './ConfirmDialog';
