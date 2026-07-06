@@ -1,14 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import {
-  ArrowLeft,
-  FileText,
-  Users,
-  Upload,
-  Eye,
-  MessageSquare,
-  Car,
-} from 'lucide-react';
+import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -55,8 +47,8 @@ export default function AkteDetailPage() {
   if (!caseFile) {
     return (
       <div className="text-center py-20">
-        <p className="text-police-400">Akte nicht gefunden</p>
-        <Link to="/akten" className="mt-4 text-police-accent hover:underline text-sm">Zurück</Link>
+        <p className="text-text-secondary">Akte nicht gefunden</p>
+        <Link to="/akten" className="mt-4 text-accent hover:underline text-sm">Zurück</Link>
       </div>
     );
   }
@@ -73,18 +65,18 @@ export default function AkteDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/akten" className="inline-flex items-center gap-2 text-sm text-police-400 hover:text-police-accent">
-        <ArrowLeft className="h-4 w-4" /> Zurück
+      <Link to="/akten" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent">
+        <Icon name="arrow-left" size={16} /> Zurück
       </Link>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <span className="font-mono text-lg text-police-accent">{caseFile.caseNumber}</span>
+            <span className="font-mono text-lg text-accent-light">{caseFile.caseNumber}</span>
             <StatusBadge status={caseFile.status} />
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-police-50">{caseFile.title}</h1>
-          <p className="text-sm text-police-400">
+          <h1 className="mt-1 page-title">{caseFile.title}</h1>
+          <p className="text-sm text-text-secondary">
             {caseFile.offense} · Zuständig: {caseFile.assignedOfficerName} · Erstellt: {caseFile.createdAt}
           </p>
         </div>
@@ -107,16 +99,16 @@ export default function AkteDetailPage() {
       {activeTab === 'overview' && (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card title="Beschreibung">
-            <p className="text-sm text-police-200 leading-relaxed">{caseFile.description}</p>
+            <p className="text-sm text-text-primary leading-relaxed">{caseFile.description}</p>
           </Card>
           <Card title="Verknüpfte Fahrzeuge">
             {linkedVehicles.length === 0 ? (
-              <EmptyState icon={Car} title="Keine Fahrzeuge" />
+              <EmptyState icon="car" title="Keine Fahrzeuge" />
             ) : (
               linkedVehicles.map((v) => (
-                <Link key={v!.id} to={`/fahrzeuge/${v!.id}`} className="block rounded-lg bg-police-800/40 p-3 mb-2">
-                  <span className="font-mono text-police-accent">{v!.plate}</span>
-                  <p className="text-xs text-police-400">{v!.brand} {v!.model}</p>
+                <Link key={v!.id} to={`/fahrzeuge/${v!.id}`} className="block rounded-lg bg-surface-tertiary/40 p-3 mb-2">
+                  <span className="font-mono text-accent-light">{v!.plate}</span>
+                  <p className="text-xs text-text-secondary">{v!.brand} {v!.model}</p>
                 </Link>
               ))
             )}
@@ -130,22 +122,22 @@ export default function AkteDetailPage() {
           action={
             permissions.editCases && (
               <Button size="sm" onClick={() => setShowEvidenceModal(true)}>
-                <Upload className="h-3.5 w-3.5" /> Hochladen
+                <Icon name="upload" size={14} /> Hochladen
               </Button>
             )
           }
         >
           {caseFile.evidence.length === 0 ? (
-            <EmptyState icon={FileText} title="Keine Beweise" description="Laden Sie Beweismittel hoch." />
+            <EmptyState icon="file" title="Keine Beweise" description="Laden Sie Beweismittel hoch." />
           ) : (
             <div className="space-y-3">
               {caseFile.evidence.map((ev) => (
-                <div key={ev.id} className="flex items-start gap-4 rounded-lg bg-police-800/40 p-4">
-                  <FileText className="h-5 w-5 text-police-accent shrink-0 mt-0.5" />
+                <div key={ev.id} className="flex items-start gap-4 rounded-lg bg-surface-tertiary/40 p-4">
+                  <Icon name="file" size={20} className="text-accent-light shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-police-100">{ev.name}</p>
-                    <p className="text-xs text-police-400">{ev.description}</p>
-                    <p className="mt-1 text-[10px] text-police-500">
+                    <p className="text-sm font-medium text-text-primary">{ev.name}</p>
+                    <p className="text-xs text-text-secondary">{ev.description}</p>
+                    <p className="mt-1 text-[10px] text-text-muted">
                       {ev.type} · {ev.uploadedBy} · {ev.uploadedAt}
                     </p>
                   </div>
@@ -162,19 +154,19 @@ export default function AkteDetailPage() {
           action={
             permissions.editCases && (
               <Button size="sm" onClick={() => setShowWitnessModal(true)}>
-                <Eye className="h-3.5 w-3.5" /> Zeuge eintragen
+                <Icon name="eye" size={14} /> Zeuge eintragen
               </Button>
             )
           }
         >
           {caseFile.witnesses.length === 0 ? (
-            <EmptyState icon={Eye} title="Keine Zeugen" />
+            <EmptyState icon="eye" title="Keine Zeugen" />
           ) : (
             caseFile.witnesses.map((w) => (
-              <div key={w.id} className="rounded-lg bg-police-800/40 p-4 mb-3">
-                <p className="font-medium text-police-100">{w.name}</p>
-                <p className="text-xs text-police-400">{w.phone}</p>
-                <p className="mt-2 text-sm text-police-300">{w.statement}</p>
+              <div key={w.id} className="rounded-lg bg-surface-tertiary/40 p-4 mb-3">
+                <p className="font-medium text-text-primary">{w.name}</p>
+                <p className="text-xs text-text-secondary">{w.phone}</p>
+                <p className="mt-2 text-sm text-text-primary">{w.statement}</p>
               </div>
             ))
           )}
@@ -187,13 +179,13 @@ export default function AkteDetailPage() {
           action={
             permissions.editCases && (
               <Button size="sm" onClick={() => setShowParticipantModal(true)}>
-                <Users className="h-3.5 w-3.5" /> Person hinzufügen
+                <Icon name="users" size={14} /> Person hinzufügen
               </Button>
             )
           }
         >
           {caseFile.participants.length === 0 ? (
-            <EmptyState icon={Users} title="Keine Beteiligten" />
+            <EmptyState icon="users" title="Keine Beteiligten" />
           ) : (
             caseFile.participants.map((p, i) => {
               const person = getPerson(p.personId);
@@ -201,9 +193,9 @@ export default function AkteDetailPage() {
                 <Link
                   key={i}
                   to={`/personen/${p.personId}`}
-                  className="flex items-center justify-between rounded-lg bg-police-800/40 p-4 mb-2 hover:bg-police-800/60"
+                  className="flex items-center justify-between rounded-lg bg-surface-tertiary/40 p-4 mb-2 hover:bg-surface-hover/60"
                 >
-                  <span className="text-sm text-police-100">
+                  <span className="text-sm text-text-primary">
                     {person ? `${person.firstName} ${person.lastName}` : p.personId}
                   </span>
                   <Badge variant="blue">{p.role}</Badge>
@@ -220,21 +212,21 @@ export default function AkteDetailPage() {
           action={
             permissions.editCases && (
               <Button size="sm" onClick={() => setShowNoteModal(true)}>
-                <MessageSquare className="h-3.5 w-3.5" /> Notiz
+                <Icon name="message" size={14} /> Notiz
               </Button>
             )
           }
         >
           {caseFile.internalNotes.length === 0 ? (
-            <EmptyState icon={MessageSquare} title="Keine Notizen" />
+            <EmptyState icon="message" title="Keine Notizen" />
           ) : (
             caseFile.internalNotes.map((n) => (
-              <div key={n.id} className="rounded-lg border border-police-700/30 p-4 mb-3">
+              <div key={n.id} className="rounded-lg border border-border p-4 mb-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-medium text-police-300">{n.officerName}</span>
+                  <span className="text-xs font-medium text-text-secondary">{n.officerName}</span>
                   <Badge variant="gray">{n.date}</Badge>
                 </div>
-                <p className="text-sm text-police-200">{n.content}</p>
+                <p className="text-sm text-text-primary">{n.content}</p>
               </div>
             ))
           )}
@@ -256,7 +248,7 @@ export default function AkteDetailPage() {
             ]}
           />
           <Input label="Beschreibung" value={evidenceForm.description} onChange={(e) => setEvidenceForm({ ...evidenceForm, description: e.target.value })} />
-          <div className="rounded-lg border border-dashed border-police-600/50 p-8 text-center text-sm text-police-500">
+          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-text-muted">
             Datei-Upload simuliert · Nur fiktive Daten
           </div>
           <Button

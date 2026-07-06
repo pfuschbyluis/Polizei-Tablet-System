@@ -1,10 +1,12 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { FiveMProvider, useFiveM } from './context/FiveMContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuditProvider } from './context/AuditContext';
 import { DataProvider } from './context/DataContext';
 import ProtectedLayout from './components/ProtectedRoute';
+import WindowFrame from './components/shell/WindowFrame';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import PersonenPage from './pages/PersonenPage';
@@ -74,13 +76,13 @@ function TabletShell() {
 
   return (
     <div className={isInGame ? 'fivem-tablet-shell' : 'dev-shell'}>
-      <div className={`fivem-tablet-screen ${isInGame ? 'in-game' : ''}`}>
+      <WindowFrame>
         <AppProviders>
           <HashRouter>
             <AppRoutes />
           </HashRouter>
         </AppProviders>
-      </div>
+      </WindowFrame>
     </div>
   );
 }
@@ -88,7 +90,9 @@ function TabletShell() {
 export default function App() {
   return (
     <FiveMProvider>
-      <TabletShell />
+      <ThemeProvider>
+        <TabletShell />
+      </ThemeProvider>
     </FiveMProvider>
   );
 }

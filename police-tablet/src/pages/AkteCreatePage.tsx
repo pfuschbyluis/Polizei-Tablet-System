@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { OFFENSES } from '../types';
@@ -22,8 +22,8 @@ export default function AkteCreatePage() {
   if (!permissions.createCases) {
     return (
       <div className="text-center py-20">
-        <p className="text-police-400">Keine Berechtigung zum Erstellen von Akten</p>
-        <Link to="/akten" className="mt-4 text-police-accent hover:underline text-sm">Zurück</Link>
+        <p className="text-text-secondary">Keine Berechtigung zum Erstellen von Akten</p>
+        <Link to="/akten" className="mt-4 text-accent hover:underline text-sm">Zurück</Link>
       </div>
     );
   }
@@ -49,13 +49,13 @@ export default function AkteCreatePage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <Link to="/akten" className="inline-flex items-center gap-2 text-sm text-police-400 hover:text-police-accent">
-        <ArrowLeft className="h-4 w-4" /> Zurück
+      <Link to="/akten" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent">
+        <Icon name="arrow-left" size={16} /> Zurück
       </Link>
 
       <div>
-        <h1 className="text-xl font-bold text-police-50 sm:text-2xl">Neue Akte erstellen</h1>
-        <p className="mt-1 text-sm text-police-400">Ermittlungsakte anlegen</p>
+        <h1 className="page-title">Neue Akte erstellen</h1>
+        <p className="page-subtitle">Ermittlungsakte anlegen</p>
       </div>
 
       <Card title="Akteninformationen">
@@ -73,18 +73,18 @@ export default function AkteCreatePage() {
             onChange={(e) => setForm({ ...form, offense: e.target.value })}
             options={OFFENSES.map((o) => ({ value: o, label: o }))}
           />
-          <div className="rounded-lg border border-police-700/30 bg-police-800/30 px-4 py-3">
-            <p className="text-xs text-police-500">Zuständiger Beamter</p>
-            <p className="text-sm font-medium text-police-100">{currentOfficer.name}</p>
-            <p className="text-xs text-police-400">{currentOfficer.badgeNumber}</p>
+          <div className="rounded-lg border border-border bg-surface-tertiary/40 px-4 py-3">
+            <p className="text-xs text-text-muted">Zuständiger Beamter</p>
+            <p className="text-sm font-medium text-text-primary">{currentOfficer.name}</p>
+            <p className="text-xs text-text-secondary">{currentOfficer.badgeNumber}</p>
           </div>
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-police-300">Beschreibung</label>
+            <label className="block text-xs font-medium text-text-secondary">Beschreibung</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={4}
-              className="w-full rounded-lg border border-police-600/50 bg-police-800/80 px-3 py-2 text-sm text-police-100 placeholder:text-police-500 focus:border-police-accent focus:outline-none focus:ring-1 focus:ring-police-accent/50"
+              className="w-full rounded-lg border border-border bg-surface-tertiary/60 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
               placeholder="Sachverhalt beschreiben..."
             />
           </div>

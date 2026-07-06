@@ -1,31 +1,19 @@
 import { NavLink } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Users,
-  FolderOpen,
-  Crosshair,
-  Car,
-  Search,
-  Shield,
-  ScrollText,
-  UserCog,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-} from 'lucide-react';
+import type { IconName } from '../icons/Icon';
+import Icon from '../icons/Icon';
 import { useAuth } from '../../context/AuthContext';
 import { useFiveM } from '../../context/FiveMContext';
 import { useState } from 'react';
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard', perm: 'viewDashboard' as const },
-  { to: '/personen', icon: Users, label: 'Personen', perm: 'viewPersons' as const },
-  { to: '/akten', icon: FolderOpen, label: 'Akten', perm: 'viewCases' as const },
-  { to: '/waffen', icon: Crosshair, label: 'Waffen', perm: 'viewWeapons' as const },
-  { to: '/fahrzeuge', icon: Car, label: 'Fahrzeuge', perm: 'viewVehicles' as const },
-  { to: '/fahndung', icon: Search, label: 'Fahndung', perm: 'viewWanted' as const },
-  { to: '/mitarbeiter', icon: UserCog, label: 'Mitarbeiter', perm: 'viewEmployees' as const },
-  { to: '/protokoll', icon: ScrollText, label: 'Protokoll', perm: 'viewAuditLog' as const },
+const navItems: { to: string; icon: IconName; label: string; perm: 'viewDashboard' | 'viewPersons' | 'viewCases' | 'viewWeapons' | 'viewVehicles' | 'viewWanted' | 'viewEmployees' | 'viewAuditLog' }[] = [
+  { to: '/', icon: 'dashboard', label: 'Dashboard', perm: 'viewDashboard' },
+  { to: '/personen', icon: 'users', label: 'Personen', perm: 'viewPersons' },
+  { to: '/akten', icon: 'folder', label: 'Akten', perm: 'viewCases' },
+  { to: '/waffen', icon: 'crosshair', label: 'Waffen', perm: 'viewWeapons' },
+  { to: '/fahrzeuge', icon: 'car', label: 'Fahrzeuge', perm: 'viewVehicles' },
+  { to: '/fahndung', icon: 'search', label: 'Fahndung', perm: 'viewWanted' },
+  { to: '/mitarbeiter', icon: 'user-cog', label: 'Mitarbeiter', perm: 'viewEmployees' },
+  { to: '/protokoll', icon: 'scroll', label: 'Protokoll', perm: 'viewAuditLog' },
 ];
 
 export default function Sidebar() {
@@ -41,23 +29,7 @@ export default function Sidebar() {
         collapsed ? 'w-[52px]' : isInGame ? 'w-48' : 'w-56'
       }`}
     >
-      <div
-        className={`flex items-center border-b border-border ${
-          collapsed ? 'justify-center px-2 py-3.5' : 'gap-2.5 px-4 py-4'
-        }`}
-      >
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/15">
-          <Shield className="h-4 w-4 text-accent-light" />
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <h1 className="truncate text-sm font-semibold text-text-primary">POLIS</h1>
-            <p className="truncate text-[10px] text-text-muted">Polizei-System</p>
-          </div>
-        )}
-      </div>
-
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-2 pt-3">
         {visibleItems.map((item) => (
           <NavLink
             key={item.to}
@@ -74,7 +46,7 @@ export default function Sidebar() {
               }`
             }
           >
-            <item.icon className="h-[17px] w-[17px] shrink-0" />
+            <Icon name={item.icon} size={17} className="shrink-0" />
             {!collapsed && <span className="truncate">{item.label}</span>}
           </NavLink>
         ))}
@@ -88,14 +60,14 @@ export default function Sidebar() {
             collapsed ? 'justify-center px-2 py-2' : 'gap-2.5 px-3 py-2'
           }`}
         >
-          <LogOut className="h-[17px] w-[17px] shrink-0" />
+          <Icon name="logout" size={17} className="shrink-0" />
           {!collapsed && <span>Abmelden</span>}
         </button>
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex w-full items-center justify-center rounded-lg py-2 text-text-muted hover:bg-surface-hover hover:text-text-secondary transition-colors"
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} size={16} />
         </button>
       </div>
     </aside>

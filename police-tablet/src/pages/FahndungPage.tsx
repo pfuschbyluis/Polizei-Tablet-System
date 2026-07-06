@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, User, Car, Crosshair, MapPin, AlertTriangle } from 'lucide-react';
+import type { IconName } from '../components/icons/Icon';
+import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { Card, SearchBar, StatusBadge, Tabs, Badge, EmptyState } from '../components/ui';
 import type { WantedType } from '../types';
 
-const typeIcons = { person: User, fahrzeug: Car, waffe: Crosshair };
+const typeIcons: Record<WantedType, IconName> = { person: 'user', fahrzeug: 'car', waffe: 'crosshair' };
 const typeLabels = { person: 'Personenfahndung', fahrzeug: 'Fahrzeugfahndung', waffe: 'Waffenfahndung' };
 
 export default function FahndungPage() {
@@ -37,8 +38,8 @@ export default function FahndungPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-police-50">Fahndungssystem</h1>
-        <p className="mt-1 text-sm text-police-400">{active.length} aktive Fahndungen</p>
+        <h1 className="page-title">Fahndungssystem</h1>
+        <p className="page-subtitle">{active.length} aktive Fahndungen</p>
       </div>
 
       <Tabs
@@ -50,39 +51,43 @@ export default function FahndungPage() {
       <SearchBar value={search} onChange={setSearch} placeholder="Name, Kennzeichen oder Beschreibung..." />
 
       {filtered.length === 0 ? (
-        <Card><EmptyState icon={Search} title="Keine Fahndungen gefunden" /></Card>
+        <Card><EmptyState icon="search" title="Keine Fahndungen gefunden" /></Card>
       ) : (
         <div className="space-y-4">
           {filtered.map((w) => {
-            const Icon = typeIcons[w.type];
+            const iconName = typeIcons[w.type];
             const isCritical = w.priority === 'kritisch' || w.priority === 'hoch';
             return (
               <Link
                 key={w.id}
                 to={getDetailLink(w)}
-                className={`block rounded-xl border p-5 transition-all hover:border-police-accent/30 ${
-                  isCritical ? 'border-red-500/30 bg-red-500/5' : 'border-police-700/40 bg-police-900/40'
+                className={`block rounded-xl border p-5 transition-all hover:border-accent/30 ${
+                  isCritical ? 'border-danger/30 bg-danger/5' : 'border-border bg-surface-card/60'
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className={`rounded-lg p-3 ${isCritical ? 'bg-red-500/10' : 'bg-police-800/50'}`}>
-                    <Icon className={`h-5 w-5 ${isCritical ? 'text-red-400' : 'text-police-accent'}`} />
+                  <div className={`rounded-lg p-3 ${isCritical ? 'bg-danger/10' : 'bg-surface-tertiary/60'}`}>
+                    <Icon
+                      name={iconName}
+                      size={20}
+                      className={isCritical ? 'text-danger' : 'text-accent-light'}
+                    />
                   </div>
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="blue">{typeLabels[w.type]}</Badge>
                       <StatusBadge status={w.priority} />
                       {isCritical && (
-                        <span className="flex items-center gap-1 text-xs text-red-400">
-                          <AlertTriangle className="h-3 w-3" /> Vorsicht
+                        <span className="flex items-center gap-1 text-xs text-danger">
+                          <Icon name="alert" size={12} /> Vorsicht
                         </span>
                       )}
                     </div>
-                    <h3 className="mt-2 text-lg font-semibold text-police-50">{w.targetName}</h3>
-                    <p className="mt-1 text-sm text-police-300">{w.description}</p>
-                    <div className="mt-3 flex flex-wrap gap-4 text-xs text-police-400">
+                    <h3 className="mt-2 text-lg font-semibold text-text-primary">{w.targetName}</h3>
+                    <p className="mt-1 text-sm text-text-secondary">{w.description}</p>
+                    <div className="mt-3 flex flex-wrap gap-4 text-xs text-text-secondary">
                       <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {w.lastKnownLocation}
+                        <Icon name="map-pin" size={12} /> {w.lastKnownLocation}
                       </span>
                       <span>Einheit: {w.responsibleUnit}</span>
                       <span>Ausgestellt: {new Date(w.issuedAt).toLocaleDateString('de-DE')}</span>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, AlertTriangle, ChevronRight } from 'lucide-react';
+import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { Card, SearchBar, EmptyState, Badge } from '../components/ui';
 
@@ -17,8 +17,8 @@ export default function PersonenPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold text-police-50 sm:text-2xl">Personenakte</h1>
-        <p className="mt-1 text-sm text-police-400">{persons.length} Personen im Register</p>
+        <h1 className="page-title">Personenakte</h1>
+        <p className="page-subtitle">{persons.length} Personen im Register</p>
       </div>
 
       <SearchBar value={search} onChange={setSearch} placeholder="Name, Adresse oder Stadt suchen..." />
@@ -26,14 +26,14 @@ export default function PersonenPage() {
       {persons.length === 0 ? (
         <Card>
           <EmptyState
-            icon={User}
+            icon="user"
             title="Keine Personen registriert"
             description="Personenakten werden über das Spiel-Backend befüllt."
           />
         </Card>
       ) : filtered.length === 0 ? (
         <Card>
-          <EmptyState icon={User} title="Keine Personen gefunden" description="Passen Sie Ihre Suche an." />
+          <EmptyState icon="user" title="Keine Personen gefunden" description="Passen Sie Ihre Suche an." />
         </Card>
       ) : (
         <div className="grid gap-2">
@@ -43,24 +43,24 @@ export default function PersonenPage() {
               <Link
                 key={person.id}
                 to={`/personen/${person.id}`}
-                className="flex items-center justify-between rounded-xl border border-police-700/40 bg-police-900/40 p-4 hover:border-police-accent/30 transition-all"
+                className="flex items-center justify-between rounded-xl border border-border bg-surface-card/60 p-4 hover:border-accent/30 transition-all"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-police-800 text-police-300">
-                    <User className="h-5 w-5" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-tertiary text-text-secondary">
+                    <Icon name="user" size={20} />
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-semibold text-police-100">
+                      <h3 className="font-semibold text-text-primary">
                         {person.firstName} {person.lastName}
                       </h3>
                       {hasWarrant && (
-                        <span className="flex items-center gap-1 text-xs text-red-400">
-                          <AlertTriangle className="h-3 w-3" /> Haftbefehl
+                        <span className="flex items-center gap-1 text-xs text-danger">
+                          <Icon name="alert" size={12} /> Haftbefehl
                         </span>
                       )}
                     </div>
-                    <p className="truncate text-sm text-police-400">
+                    <p className="truncate text-sm text-text-secondary">
                       *{new Date(person.dateOfBirth).toLocaleDateString('de-DE')} · {person.address}, {person.city}
                     </p>
                     <div className="mt-1 flex gap-2">
@@ -70,7 +70,7 @@ export default function PersonenPage() {
                     </div>
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 shrink-0 text-police-500" />
+                <Icon name="chevron-right" size={20} className="shrink-0 text-text-muted" />
               </Link>
             );
           })}

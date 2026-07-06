@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserPlus, Pencil, Trash2, UserCog, Shield } from 'lucide-react';
+import Icon from '../components/icons/Icon';
 import { useAuth } from '../context/AuthContext';
 import { RANK_LABELS, UNITS, type Rank, type EmployeeInput } from '../types';
 import {
@@ -34,7 +34,7 @@ export default function MitarbeiterPage() {
   if (!permissions.viewEmployees) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Shield className="h-10 w-10 text-text-muted" />
+        <Icon name="shield" size={40} className="text-text-muted" />
         <p className="mt-4 text-text-secondary">Kein Zugriff auf Mitarbeiterverwaltung</p>
       </div>
     );
@@ -116,7 +116,7 @@ export default function MitarbeiterPage() {
         </div>
         {permissions.manageEmployees && (
           <Button onClick={openCreate} size="sm">
-            <UserPlus className="h-4 w-4" /> Neuer Mitarbeiter
+            <Icon name="user-plus" size={16} /> Neuer Mitarbeiter
           </Button>
         )}
       </div>
@@ -126,14 +126,14 @@ export default function MitarbeiterPage() {
       {employees.length === 0 ? (
         <Card>
           <EmptyState
-            icon={UserCog}
+            icon="user-cog"
             title="Keine Mitarbeiter"
             description="Lege den ersten Mitarbeiter an, um Zugänge zu verwalten."
           />
         </Card>
       ) : filtered.length === 0 ? (
         <Card>
-          <EmptyState icon={UserCog} title="Keine Treffer" description="Passen Sie die Suche an." />
+          <EmptyState icon="user-cog" title="Keine Treffer" description="Passen Sie die Suche an." />
         </Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -142,7 +142,7 @@ export default function MitarbeiterPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent-light">
-                    <UserCog className="h-5 w-5" />
+                    <Icon name="user-cog" size={20} />
                   </div>
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-text-primary">{emp.name}</p>
@@ -158,7 +158,7 @@ export default function MitarbeiterPage() {
               {permissions.manageEmployees && (
                 <div className="mt-4 flex gap-2 border-t border-border pt-3">
                   <Button variant="secondary" size="sm" className="flex-1" onClick={() => openEdit(emp)}>
-                    <Pencil className="h-3.5 w-3.5" /> Bearbeiten
+                    <Icon name="pencil" size={14} /> Bearbeiten
                   </Button>
                   <Button
                     variant="danger"
@@ -166,7 +166,7 @@ export default function MitarbeiterPage() {
                     onClick={() => handleDelete(emp.id)}
                     disabled={emp.id === currentOfficer?.id}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Icon name="trash" size={14} />
                   </Button>
                 </div>
               )}

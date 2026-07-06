@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FolderOpen, Plus, ChevronRight } from 'lucide-react';
+import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { Card, SearchBar, StatusBadge, Button, EmptyState } from '../components/ui';
@@ -25,13 +25,13 @@ export default function AktenPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-police-50 sm:text-2xl">Akten-System</h1>
-          <p className="mt-1 text-sm text-police-400">{cases.length} Akten im System</p>
+          <h1 className="page-title">Akten-System</h1>
+          <p className="page-subtitle">{cases.length} Akten im System</p>
         </div>
         {permissions.createCases && (
           <Link to="/akten/neu">
             <Button size="sm">
-              <Plus className="h-4 w-4" /> Neue Akte
+              <Icon name="plus" size={16} /> Neue Akte
             </Button>
           </Link>
         )}
@@ -44,7 +44,7 @@ export default function AktenPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-police-600/50 bg-police-800/80 px-4 py-2 text-sm text-police-100"
+          className="rounded-lg border border-border bg-surface-tertiary/60 px-4 py-2 text-sm text-text-primary"
         >
           <option value="all">Alle Status</option>
           <option value="offen">Offen</option>
@@ -56,14 +56,14 @@ export default function AktenPage() {
       {cases.length === 0 ? (
         <Card>
           <EmptyState
-            icon={FolderOpen}
+            icon="folder"
             title="Noch keine Akten"
             description="Erstelle eine neue Akte über den Button oben."
           />
         </Card>
       ) : filtered.length === 0 ? (
         <Card>
-          <EmptyState icon={FolderOpen} title="Keine Akten gefunden" description="Passen Sie Ihre Suche an." />
+          <EmptyState icon="folder" title="Keine Akten gefunden" description="Passen Sie Ihre Suche an." />
         </Card>
       ) : (
         <div className="space-y-2">
@@ -71,20 +71,20 @@ export default function AktenPage() {
             <Link
               key={c.id}
               to={`/akten/${c.id}`}
-              className="flex items-center justify-between rounded-xl border border-police-700/40 bg-police-900/40 p-4 hover:border-police-accent/30 transition-all"
+              className="flex items-center justify-between rounded-xl border border-border bg-surface-card/60 p-4 hover:border-accent/30 transition-all"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-sm text-police-accent">{c.caseNumber}</span>
+                  <span className="font-mono text-sm text-accent-light">{c.caseNumber}</span>
                   <StatusBadge status={c.status} />
-                  <span className="text-xs text-police-500">{c.offense}</span>
+                  <span className="text-xs text-text-muted">{c.offense}</span>
                 </div>
-                <p className="mt-1 truncate font-medium text-police-100">{c.title}</p>
-                <p className="text-xs text-police-400">
+                <p className="mt-1 truncate font-medium text-text-primary">{c.title}</p>
+                <p className="text-xs text-text-secondary">
                   Zuständig: {c.assignedOfficerName} · Aktualisiert: {c.updatedAt}
                 </p>
               </div>
-              <ChevronRight className="h-5 w-5 shrink-0 text-police-500" />
+              <Icon name="chevron-right" size={20} className="shrink-0 text-text-muted" />
             </Link>
           ))}
         </div>

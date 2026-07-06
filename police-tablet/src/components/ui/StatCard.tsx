@@ -1,9 +1,10 @@
-import type { LucideIcon } from 'lucide-react';
+import type { IconName } from '../icons/Icon';
+import Icon from '../icons/Icon';
 
 interface StatCardProps {
   title: string;
   value: number | string;
-  icon: LucideIcon;
+  icon: IconName;
   trend?: string;
   color?: 'blue' | 'green' | 'yellow' | 'red' | 'purple';
 }
@@ -16,7 +17,7 @@ const iconColors = {
   purple: 'text-purple-400 bg-purple-500/15',
 };
 
-export default function StatCard({ title, value, icon: Icon, trend, color = 'blue' }: StatCardProps) {
+export default function StatCard({ title, value, icon, trend, color = 'blue' }: StatCardProps) {
   return (
     <div className="rounded-xl border border-border bg-surface-card/60 p-4 transition-colors hover:bg-surface-hover/40">
       <div className="flex items-start justify-between">
@@ -26,7 +27,7 @@ export default function StatCard({ title, value, icon: Icon, trend, color = 'blu
           {trend && <p className="mt-0.5 text-xs text-text-muted">{trend}</p>}
         </div>
         <div className={`rounded-lg p-2 ${iconColors[color]}`}>
-          <Icon className="h-4 w-4" />
+          <Icon name={icon} size={16} />
         </div>
       </div>
     </div>

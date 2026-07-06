@@ -1,14 +1,11 @@
-import { Clock, UserCircle, X } from 'lucide-react';
+import Icon from '../icons/Icon';
 import { useAuth } from '../../context/AuthContext';
-import { useFiveM } from '../../context/FiveMContext';
 import { RANK_LABELS, type Rank } from '../../types';
 import Badge from '../ui/Badge';
 import Select from '../ui/Select';
-import Button from '../ui/Button';
 
 export default function Header() {
   const { currentOfficer, rankLabel, switchRank, isDevMode } = useAuth();
-  const { close, isInGame } = useFiveM();
   const now = new Date().toLocaleString('de-DE', {
     weekday: 'short',
     day: '2-digit',
@@ -20,14 +17,10 @@ export default function Header() {
   if (!currentOfficer) return null;
 
   return (
-    <header
-      className={`flex shrink-0 items-center justify-between border-b border-border bg-surface/80 backdrop-blur-md ${
-        isInGame ? 'px-4 py-2' : 'px-5 py-2.5'
-      }`}
-    >
+    <header className="flex shrink-0 items-center justify-between border-b border-border bg-surface/80 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5">
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex items-center gap-2 text-xs text-text-secondary">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
+          <Icon name="clock" size={14} className="shrink-0" />
           <span className="whitespace-nowrap">{now}</span>
         </div>
         <Badge variant="blue">{currentOfficer.unit}</Badge>
@@ -55,13 +48,8 @@ export default function Header() {
             </p>
           </div>
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-subtle ring-1 ring-accent/20">
-            <UserCircle className="h-5 w-5 text-accent-light" />
+            <Icon name="user" size={20} className="text-accent-light" />
           </div>
-          {isInGame && (
-            <Button variant="ghost" size="sm" onClick={close} title="Schließen (ESC)" className="!p-1.5">
-              <X className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </div>
     </header>

@@ -1,13 +1,5 @@
 import { Link } from 'react-router-dom';
-import {
-  FolderOpen,
-  Search,
-  Car,
-  Megaphone,
-  Users,
-  Crosshair,
-  AlertTriangle,
-} from 'lucide-react';
+import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { Card, StatCard, StatusBadge, Badge } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
@@ -22,11 +14,11 @@ export default function Dashboard() {
   const wantedVehicles = vehicles.filter((v) => v.isWanted);
 
   const quickLinks = [
-    { to: '/personen', icon: Users, label: 'Personensuche', show: permissions.viewPersons },
-    { to: '/akten/neu', icon: FolderOpen, label: 'Neue Akte', show: permissions.createCases },
-    { to: '/fahndung', icon: Search, label: 'Fahndung', show: permissions.viewWanted },
-    { to: '/waffen', icon: Crosshair, label: 'Waffenregister', show: permissions.viewWeapons },
-    { to: '/fahrzeuge', icon: Car, label: 'Fahrzeugregister', show: permissions.viewVehicles },
+    { to: '/personen', icon: 'users' as const, label: 'Personensuche', show: permissions.viewPersons },
+    { to: '/akten/neu', icon: 'folder' as const, label: 'Neue Akte', show: permissions.createCases },
+    { to: '/fahndung', icon: 'search' as const, label: 'Fahndung', show: permissions.viewWanted },
+    { to: '/waffen', icon: 'crosshair' as const, label: 'Waffenregister', show: permissions.viewWeapons },
+    { to: '/fahrzeuge', icon: 'car' as const, label: 'Fahrzeugregister', show: permissions.viewVehicles },
   ].filter((l) => l.show);
 
   const priorityColors = {
@@ -43,9 +35,9 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:gap-4">
-        <StatCard title="Offene Akten" value={openCases.length} icon={FolderOpen} color="blue" />
-        <StatCard title="Fahndungen" value={activeWanted.length} icon={Search} color="yellow" />
-        <StatCard title="Fahrzeugmeldungen" value={wantedVehicles.length} icon={Car} color="purple" />
+        <StatCard title="Offene Akten" value={openCases.length} icon="folder" color="blue" />
+        <StatCard title="Fahndungen" value={activeWanted.length} icon="search" color="yellow" />
+        <StatCard title="Fahrzeugmeldungen" value={wantedVehicles.length} icon="car" color="purple" />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -57,7 +49,7 @@ export default function Dashboard() {
                 to={link.to}
                 className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface-tertiary/40 p-3 hover:border-accent/30 hover:bg-accent-subtle transition-all text-center"
               >
-                <link.icon className="h-5 w-5 text-accent-light" />
+                <Icon name={link.icon} size={20} className="text-accent-light" />
                 <span className="text-xs font-medium text-text-secondary">{link.label}</span>
               </Link>
             ))}
@@ -75,7 +67,7 @@ export default function Dashboard() {
                   className="flex items-center justify-between rounded-lg bg-surface-tertiary/40 px-3 py-2.5"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <AlertTriangle className="h-4 w-4 shrink-0 text-danger" />
+                    <Icon name="alert" size={16} className="shrink-0 text-danger" />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-text-primary">{w.targetName}</p>
                       <p className="truncate text-xs text-text-secondary">{w.lastKnownLocation}</p>
@@ -121,8 +113,10 @@ export default function Dashboard() {
                 key={msg.id}
                 className="flex gap-3 rounded-lg border border-border bg-surface-tertiary/30 p-3"
               >
-                <Megaphone
-                  className={`h-5 w-5 shrink-0 ${
+                <Icon
+                  name="megaphone"
+                  size={20}
+                  className={`shrink-0 ${
                     msg.priority === 'dringend'
                       ? 'text-danger'
                       : msg.priority === 'warnung'

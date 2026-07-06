@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Eye, EyeOff, Loader2 } from 'lucide-react';
+import Icon, { IconSpinner } from '../components/icons/Icon';
 import { useAuth } from '../context/AuthContext';
 import { Input, Button } from '../components/ui';
 
@@ -20,7 +20,7 @@ export default function LoginPage() {
       <div className="login-card w-full max-w-[400px]">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15 ring-1 ring-accent/25">
-            <Shield className="h-7 w-7 text-accent-light" />
+            <Icon name="shield" size={28} className="text-accent-light" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-text-primary">POLIS</h1>
           <p className="mt-1 text-sm text-text-secondary">Polizei Information System</p>
@@ -52,7 +52,7 @@ export default function LoginPage() {
               className="absolute right-3 top-[34px] text-text-muted hover:text-text-secondary transition-colors"
               tabIndex={-1}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              <Icon name={showPassword ? 'eye-off' : 'eye'} size={16} />
             </button>
           </div>
 
@@ -65,7 +65,7 @@ export default function LoginPage() {
           <Button type="submit" className="w-full !py-2.5" disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Anmelden...
+                <IconSpinner size={16} /> Anmelden...
               </>
             ) : (
               'Anmelden'

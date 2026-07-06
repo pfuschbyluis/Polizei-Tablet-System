@@ -1,15 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import {
-  ArrowLeft,
-  User,
-  MapPin,
-  Phone,
-  AlertTriangle,
-  Car,
-  Crosshair,
-  MessageSquare,
-} from 'lucide-react';
+import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { Card, Button, StatusBadge, Badge, Input, EmptyState } from '../components/ui';
@@ -26,8 +17,8 @@ export default function PersonDetailPage() {
   if (!person) {
     return (
       <div className="text-center py-20">
-        <p className="text-police-400">Person nicht gefunden</p>
-        <Link to="/personen" className="mt-4 text-police-accent hover:underline text-sm">
+        <p className="text-text-secondary">Person nicht gefunden</p>
+        <Link to="/personen" className="mt-4 text-accent hover:underline text-sm">
           Zurück zur Übersicht
         </Link>
       </div>
@@ -50,22 +41,22 @@ export default function PersonDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/personen" className="inline-flex items-center gap-2 text-sm text-police-400 hover:text-police-accent">
-        <ArrowLeft className="h-4 w-4" /> Zurück
+      <Link to="/personen" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent">
+        <Icon name="arrow-left" size={16} /> Zurück
       </Link>
 
       <div className="flex items-start gap-6">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-police-800 border border-police-700/50">
-          <User className="h-10 w-10 text-police-400" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-surface-tertiary border border-border">
+          <Icon name="user" size={40} className="text-text-muted" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-police-50">
+          <h1 className="page-title">
             {person.firstName} {person.lastName}
           </h1>
-          <p className="text-sm text-police-400">Personen-ID: {person.id}</p>
+          <p className="text-sm text-text-secondary">Personen-ID: {person.id}</p>
           {person.arrestWarrants.some((w) => w.active) && (
-            <div className="mt-2 flex items-center gap-2 text-red-400">
-              <AlertTriangle className="h-4 w-4" />
+            <div className="mt-2 flex items-center gap-2 text-danger">
+              <Icon name="alert" size={16} />
               <span className="text-sm font-medium">Aktiver Haftbefehl</span>
             </div>
           )}
@@ -76,29 +67,29 @@ export default function PersonDetailPage() {
         <Card title="Stammdaten">
           <dl className="space-y-3">
             <div className="flex items-center gap-3">
-              <User className="h-4 w-4 text-police-500" />
+              <Icon name="user" size={16} className="text-text-muted" />
               <div>
-                <dt className="text-xs text-police-500">Geburtsdatum</dt>
-                <dd className="text-sm text-police-100">
+                <dt className="text-xs text-text-muted">Geburtsdatum</dt>
+                <dd className="text-sm text-text-primary">
                   {new Date(person.dateOfBirth).toLocaleDateString('de-DE')}
                 </dd>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 text-police-500" />
+              <Icon name="map-pin" size={16} className="text-text-muted" />
               <div>
-                <dt className="text-xs text-police-500">Adresse</dt>
-                <dd className="text-sm text-police-100">
+                <dt className="text-xs text-text-muted">Adresse</dt>
+                <dd className="text-sm text-text-primary">
                   {person.address}, {person.city}
                 </dd>
               </div>
             </div>
             {person.phone && (
               <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-police-500" />
+                <Icon name="phone" size={16} className="text-text-muted" />
                 <div>
-                  <dt className="text-xs text-police-500">Telefon</dt>
-                  <dd className="text-sm text-police-100">{person.phone}</dd>
+                  <dt className="text-xs text-text-muted">Telefon</dt>
+                  <dd className="text-sm text-text-primary">{person.phone}</dd>
                 </div>
               </div>
             )}
@@ -107,15 +98,15 @@ export default function PersonDetailPage() {
 
         <Card title="Offene Haftbefehle">
           {person.arrestWarrants.filter((w) => w.active).length === 0 ? (
-            <p className="text-sm text-police-500">Keine aktiven Haftbefehle</p>
+            <p className="text-sm text-text-muted">Keine aktiven Haftbefehle</p>
           ) : (
             <div className="space-y-3">
               {person.arrestWarrants
                 .filter((w) => w.active)
                 .map((w) => (
-                  <div key={w.id} className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
-                    <p className="text-sm font-medium text-red-300">{w.reason}</p>
-                    <p className="mt-1 text-xs text-police-400">
+                  <div key={w.id} className="rounded-lg border border-danger/20 bg-danger/5 p-4">
+                    <p className="text-sm font-medium text-danger">{w.reason}</p>
+                    <p className="mt-1 text-xs text-text-secondary">
                       Ausgestellt: {new Date(w.issuedDate).toLocaleDateString('de-DE')} · {w.issuingJudge}
                     </p>
                   </div>
@@ -126,16 +117,16 @@ export default function PersonDetailPage() {
 
         <Card title="Vorstrafen">
           {person.priorConvictions.length === 0 ? (
-            <p className="text-sm text-police-500">Keine Vorstrafen registriert</p>
+            <p className="text-sm text-text-muted">Keine Vorstrafen registriert</p>
           ) : (
             <div className="space-y-2">
               {person.priorConvictions.map((pc) => (
-                <div key={pc.id} className="flex justify-between rounded-lg bg-police-800/40 px-4 py-3">
+                <div key={pc.id} className="flex justify-between rounded-lg bg-surface-tertiary/40 px-4 py-3">
                   <div>
-                    <p className="text-sm text-police-100">{pc.offense}</p>
-                    <p className="text-xs text-police-400">{pc.sentence}</p>
+                    <p className="text-sm text-text-primary">{pc.offense}</p>
+                    <p className="text-xs text-text-secondary">{pc.sentence}</p>
                   </div>
-                  <span className="text-xs text-police-500">
+                  <span className="text-xs text-text-muted">
                     {new Date(pc.date).toLocaleDateString('de-DE')}
                   </span>
                 </div>
@@ -146,18 +137,18 @@ export default function PersonDetailPage() {
 
         <Card title="Verknüpfte Fahrzeuge">
           {linkedVehicles.length === 0 ? (
-            <EmptyState icon={Car} title="Keine Fahrzeuge verknüpft" />
+            <EmptyState icon="car" title="Keine Fahrzeuge verknüpft" />
           ) : (
             <div className="space-y-2">
               {linkedVehicles.map((v) => (
                 <Link
                   key={v!.id}
                   to={`/fahrzeuge/${v!.id}`}
-                  className="flex items-center justify-between rounded-lg bg-police-800/40 px-4 py-3 hover:bg-police-800/60"
+                  className="flex items-center justify-between rounded-lg bg-surface-tertiary/40 px-4 py-3 hover:bg-surface-hover/60"
                 >
                   <div>
-                    <span className="font-mono text-sm text-police-accent">{v!.plate}</span>
-                    <p className="text-xs text-police-400">
+                    <span className="font-mono text-sm text-accent-light">{v!.plate}</span>
+                    <p className="text-xs text-text-secondary">
                       {v!.brand} {v!.model} · {v!.color}
                     </p>
                   </div>
@@ -170,18 +161,18 @@ export default function PersonDetailPage() {
 
         <Card title="Verknüpfte Waffen">
           {linkedWeapons.length === 0 ? (
-            <EmptyState icon={Crosshair} title="Keine Waffen verknüpft" />
+            <EmptyState icon="crosshair" title="Keine Waffen verknüpft" />
           ) : (
             <div className="space-y-2">
               {linkedWeapons.map((w) => (
                 <Link
                   key={w!.id}
                   to={`/waffen/${w!.id}`}
-                  className="flex items-center justify-between rounded-lg bg-police-800/40 px-4 py-3 hover:bg-police-800/60"
+                  className="flex items-center justify-between rounded-lg bg-surface-tertiary/40 px-4 py-3 hover:bg-surface-hover/60"
                 >
                   <div>
-                    <span className="font-mono text-sm text-police-accent">{w!.serialNumber}</span>
-                    <p className="text-xs text-police-400">
+                    <span className="font-mono text-sm text-accent-light">{w!.serialNumber}</span>
+                    <p className="text-xs text-text-secondary">
                       {w!.type} · {w!.caliber}
                     </p>
                   </div>
@@ -196,13 +187,13 @@ export default function PersonDetailPage() {
       <Card title="Beamtennotizen">
         <div className="space-y-4">
           {person.notes.map((note) => (
-            <div key={note.id} className="rounded-lg border border-police-700/30 bg-police-800/30 p-4">
+            <div key={note.id} className="rounded-lg border border-border bg-surface-tertiary/30 p-4">
               <div className="flex items-center gap-2 mb-2">
-                <MessageSquare className="h-3.5 w-3.5 text-police-500" />
-                <span className="text-xs font-medium text-police-300">{note.officerName}</span>
+                <Icon name="message" size={14} className="text-text-muted" />
+                <span className="text-xs font-medium text-text-secondary">{note.officerName}</span>
                 <Badge variant="gray">{note.date}</Badge>
               </div>
-              <p className="text-sm text-police-200">{note.content}</p>
+              <p className="text-sm text-text-primary">{note.content}</p>
             </div>
           ))}
 

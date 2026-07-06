@@ -1,48 +1,93 @@
 @import "tailwindcss";
 
+/* ── Flux Design System – original palette, Win11-inspired layout only ── */
+
+:root[data-theme="dark"] {
+  --flux-surface-base: #16161a;
+  --flux-surface: #1e1e24;
+  --flux-surface-secondary: #26262e;
+  --flux-surface-tertiary: #2f2f38;
+  --flux-surface-card: #24242c;
+  --flux-surface-hover: #363640;
+  --flux-border: rgba(255, 255, 255, 0.07);
+  --flux-border-strong: rgba(255, 255, 255, 0.13);
+  --flux-accent: #4f7cff;
+  --flux-accent-hover: #3d6bef;
+  --flux-accent-light: #7ea4ff;
+  --flux-accent-subtle: rgba(79, 124, 255, 0.14);
+  --flux-text-primary: #f0f0f5;
+  --flux-text-secondary: #a8a8b8;
+  --flux-text-muted: #6b6b7a;
+  --flux-success: #4ade80;
+  --flux-warning: #fbbf24;
+  --flux-danger: #f87171;
+  --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --flux-titlebar-bg: rgba(30, 30, 36, 0.92);
+  --flux-backdrop: radial-gradient(ellipse at 20% 20%, #1a1a2e 0%, #0f0f14 50%, #121218 100%);
+  --flux-scrollbar: #454550;
+}
+
+:root[data-theme="light"] {
+  --flux-surface-base: #eef0f6;
+  --flux-surface: #ffffff;
+  --flux-surface-secondary: #f8f9fc;
+  --flux-surface-tertiary: #eef1f7;
+  --flux-surface-card: #ffffff;
+  --flux-surface-hover: #e4e8f0;
+  --flux-border: rgba(0, 0, 0, 0.08);
+  --flux-border-strong: rgba(0, 0, 0, 0.14);
+  --flux-accent: #3b6de8;
+  --flux-accent-hover: #2d5fd4;
+  --flux-accent-light: #5b84f0;
+  --flux-accent-subtle: rgba(59, 109, 232, 0.12);
+  --flux-text-primary: #1a1a24;
+  --flux-text-secondary: #5c5c6e;
+  --flux-text-muted: #9494a8;
+  --flux-success: #22c55e;
+  --flux-warning: #d97706;
+  --flux-danger: #ef4444;
+  --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --flux-titlebar-bg: rgba(248, 249, 252, 0.95);
+  --flux-backdrop: radial-gradient(ellipse at 30% 20%, #dce4f5 0%, #c8d4ea 40%, #b8c8e0 100%);
+  --flux-scrollbar: #c4c8d4;
+}
+
 @theme {
-  /* Windows 11 Dark Theme */
-  --color-surface-base: #1c1c1c;
-  --color-surface: #242424;
-  --color-surface-secondary: #2d2d2d;
-  --color-surface-tertiary: #383838;
-  --color-surface-card: #2b2b2b;
-  --color-surface-hover: #3a3a3a;
-
-  --color-border: rgba(255, 255, 255, 0.069);
-  --color-border-strong: rgba(255, 255, 255, 0.12);
-
-  --color-accent: #0078d4;
-  --color-accent-hover: #106ebe;
-  --color-accent-light: #60cdff;
-  --color-accent-subtle: rgba(0, 120, 212, 0.15);
-
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #adadad;
-  --color-text-muted: #6e6e6e;
-
-  --color-success: #6ccb5f;
-  --color-warning: #fce100;
-  --color-danger: #ff6b6b;
-
-  /* Legacy aliases */
+  --color-surface-base: var(--flux-surface-base);
+  --color-surface: var(--flux-surface);
+  --color-surface-secondary: var(--flux-surface-secondary);
+  --color-surface-tertiary: var(--flux-surface-tertiary);
+  --color-surface-card: var(--flux-surface-card);
+  --color-surface-hover: var(--flux-surface-hover);
+  --color-border: var(--flux-border);
+  --color-border-strong: var(--flux-border-strong);
+  --color-accent: var(--flux-accent);
+  --color-accent-hover: var(--flux-accent-hover);
+  --color-accent-light: var(--flux-accent-light);
+  --color-accent-subtle: var(--flux-accent-subtle);
+  --color-text-primary: var(--flux-text-primary);
+  --color-text-secondary: var(--flux-text-secondary);
+  --color-text-muted: var(--flux-text-muted);
+  --color-success: var(--flux-success);
+  --color-warning: var(--flux-warning);
+  --color-danger: var(--flux-danger);
   --color-police-50: #f0f4ff;
   --color-police-100: #e0e9ff;
   --color-police-200: #c7d6fe;
   --color-police-300: #a4b8fc;
-  --color-police-400: #60cdff;
-  --color-police-500: #0078d4;
-  --color-police-600: #106ebe;
-  --color-police-700: #383838;
-  --color-police-800: #2d2d2d;
-  --color-police-900: #242424;
-  --color-police-950: #1c1c1c;
-  --color-police-accent: #0078d4;
+  --color-police-400: var(--flux-accent-light);
+  --color-police-500: var(--flux-accent);
+  --color-police-600: var(--flux-accent-hover);
+  --color-police-700: var(--flux-surface-tertiary);
+  --color-police-800: var(--flux-surface-secondary);
+  --color-police-900: var(--flux-surface);
+  --color-police-950: var(--flux-surface-base);
+  --color-police-accent: var(--flux-accent);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #4a4a4a transparent;
+  scrollbar-color: var(--flux-scrollbar) transparent;
   box-sizing: border-box;
 }
 
@@ -56,10 +101,11 @@ body {
 }
 
 body {
-  font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: #1c1c1c;
-  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--flux-backdrop);
+  color: var(--flux-text-primary);
   -webkit-font-smoothing: antialiased;
+  transition: background 0.35s ease, color 0.25s ease;
 }
 
 html.fivem-nui,
@@ -72,14 +118,7 @@ html.fivem-nui body {
   height: 100%;
 }
 
-.dev-shell {
-  width: 100%;
-  height: 100%;
-  min-height: 100vh;
-  background: #1c1c1c;
-}
-
-/* Typography helpers */
+/* ── Typography ── */
 .page-title {
   @apply text-xl font-semibold tracking-tight text-text-primary sm:text-2xl;
 }
@@ -88,12 +127,24 @@ html.fivem-nui body {
   @apply mt-0.5 text-sm text-text-secondary;
 }
 
-/* Login card – Win11 acrylic style */
+/* ── Login ── */
 .login-card {
-  @apply rounded-2xl border border-border bg-surface-secondary/90 p-8 shadow-2xl backdrop-blur-xl;
+  @apply rounded-2xl border border-border bg-surface-secondary/95 p-8 shadow-xl backdrop-blur-xl;
+  animation: flux-fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* FiveM Tablet Shell */
+/* ── Shell ── */
+.dev-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--flux-backdrop);
+}
+
 .fivem-tablet-shell {
   position: fixed;
   inset: 0;
@@ -105,39 +156,137 @@ html.fivem-nui body {
   z-index: 9999;
 }
 
-.fivem-tablet-shell .fivem-tablet-screen {
+.fivem-tablet-shell .flux-window {
   pointer-events: auto;
 }
 
-.fivem-tablet-screen {
-  position: relative;
+/* ── Window Frame ── */
+.flux-window {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #1c1c1c;
+  background: var(--flux-surface);
+  border: 1px solid var(--flux-border-strong);
+  border-radius: 12px;
+  box-shadow: var(--flux-shadow);
+  width: min(92vw, 1280px);
+  height: min(88vh, 860px);
+  transition: width 0.25s ease, height 0.25s ease, border-radius 0.25s ease, box-shadow 0.25s ease;
 }
 
-.fivem-tablet-screen.in-game {
+.flux-window-maximized {
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0;
+  border: none;
+}
+
+.flux-window-in-game {
   width: min(90vw, 1240px);
   height: min(84vh, 820px);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.3),
-    0 32px 64px rgba(0, 0, 0, 0.55);
-  animation: tablet-open 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.fivem-tablet-screen.in-game > * {
+.flux-window-minimized {
+  width: min(92vw, 360px);
+  height: auto;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flux-window-minimized:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--flux-shadow), 0 4px 12px rgba(79, 124, 255, 0.15);
+}
+
+.flux-window-content {
   flex: 1;
   min-height: 0;
-  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes tablet-open {
+/* ── Title Bar ── */
+.flux-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+  background: var(--flux-titlebar-bg);
+  border-bottom: 1px solid var(--flux-border);
+  backdrop-filter: blur(12px);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.flux-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--flux-accent-subtle);
+  flex-shrink: 0;
+}
+
+.flux-app-icon-sm {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.flux-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--flux-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.flux-icon-btn:hover {
+  background: var(--flux-surface-hover);
+  color: var(--flux-text-primary);
+}
+
+/* ── Window Controls ── */
+.flux-win-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--flux-text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.flux-win-btn:hover {
+  background: var(--flux-surface-hover);
+  color: var(--flux-text-primary);
+}
+
+.flux-win-btn-close:hover {
+  background: var(--flux-danger);
+  color: #fff;
+}
+
+/* ── Animations ── */
+@keyframes flux-open {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(12px);
+    transform: scale(0.97) translateY(10px);
   }
   to {
     opacity: 1;
@@ -145,16 +294,51 @@ html.fivem-nui body {
   }
 }
 
+@keyframes flux-minimize {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flux-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-flux-open {
+  animation: flux-open 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-flux-minimize {
+  animation: flux-minimize 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-flux-fade-up {
+  animation: flux-fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Scrollbar ── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4a4a4a;
+  background: var(--flux-scrollbar);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5a5a5a;
+  filter: brightness(1.15);
 }
