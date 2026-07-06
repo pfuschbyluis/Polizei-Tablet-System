@@ -172,12 +172,91 @@ textarea:invalid {
   box-shadow: none;
 }
 
-.flux-notify-stack {
+.flux-notify-root {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
+  z-index: 9999;
+  overflow: visible;
+}
+
+.flux-notify-stack {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92%, 380px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+  z-index: 9999;
 }
 
 .flux-notify {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   animation: flux-fade-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.flux-notify--error {
+  background: #3b1214;
+  border-color: #f87171;
+  color: #fecaca;
+}
+
+.flux-notify--warning {
+  background: #3b2a0a;
+  border-color: #fbbf24;
+  color: #fde68a;
+}
+
+.flux-notify--success {
+  background: #0f2e1a;
+  border-color: #4ade80;
+  color: #bbf7d0;
+}
+
+.flux-notify--info {
+  background: #152040;
+  border-color: #7ea4ff;
+  color: #dbeafe;
+}
+
+.flux-notify-icon {
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.flux-notify-text {
+  margin: 0;
+  flex: 1;
+}
+
+.flux-notify-close {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.75;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 6px;
+  line-height: 0;
+}
+
+.flux-notify-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* ── Shell ── */
@@ -212,6 +291,7 @@ textarea:invalid {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
   background: var(--flux-surface);
   border: 1px solid var(--flux-border-strong);
   border-radius: 12px;

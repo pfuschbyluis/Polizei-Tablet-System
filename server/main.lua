@@ -30,19 +30,10 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
     local badgeNumber = data and data.badgeNumber or ''
     local password = data and data.password or ''
 
-    Database.EnsureSchema()
-
     local emp = Repository.FindEmployeeByBadge(badgeNumber)
     if not emp or not emp.active or not Password.Verify(password, emp.passwordHash) then
         NuiError(src, reqId, 'Dienstnummer oder Passwort ungültig.')
         return
-    end
-
-    if Password.NeedsRehash(emp.passwordHash) then
-        local newHash = Password.Rehash(password)
-        if newHash then
-            MySQL.update.await('UPDATE polis_employees SET password_hash = ? WHERE id = ?', { newHash, emp.id })
-        end
     end
 
     local sessionToken = Repository.CreateSession(emp.id, src)
@@ -67,6 +58,15 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
         officer = officer,
         employees = employees,
     })
+
+    if Password.NeedsRehash(emp.passwordHash) then
+        CreateThread(function()
+            local newHash = Password.Rehash(password)
+            if newHash then
+                MySQL.update.await('UPDATE polis_employees SET password_hash = ? WHERE id = ?', { newHash, emp.id })
+            end
+        end)
+    end
 
     DebugPrint(('Login: %s (%s)'):format(emp.name, emp.badgeNumber))
 end)

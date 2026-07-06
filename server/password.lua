@@ -1,11 +1,9 @@
--- Secure password hashing (PBKDF2-HMAC-SHA256)
+-- Password hashing for POLIS (fast HMAC-SHA256 for FiveM)
 Password = {}
 
 local sha256 = PolisSHA256
 
-local ITERATIONS = 2000
 local SALT_LENGTH = 16
-local KEY_LENGTH = 32
 
 local function randomBytes(length)
     local bytes = {}
@@ -53,6 +51,15 @@ local function base64Decode(data)
     end))
 end
 
+local function constantTimeEquals(a, b)
+    if #a ~= #b then return false end
+    local diff = 0
+    for i = 1, #a do
+        diff = diff | (a:byte(i) ~ b:byte(i))
+    end
+    return diff == 0
+end
+
 local function pbkdf2(password, salt, iterations, keyLength)
     local blocks = math.ceil(keyLength / 32)
     local result = {}
@@ -79,30 +86,14 @@ local function pbkdf2(password, salt, iterations, keyLength)
     return table.concat(result):sub(1, keyLength)
 end
 
-local function constantTimeEquals(a, b)
-    if #a ~= #b then return false end
-    local diff = 0
-    for i = 1, #a do
-        diff = diff | (a:byte(i) ~ b:byte(i))
-    end
-    return diff == 0
+local function verifyFast(plainPassword, saltB64, hashB64)
+    local salt = base64Decode(saltB64)
+    local expected = base64Decode(hashB64)
+    local actual = sha256.hmac(plainPassword, salt)
+    return constantTimeEquals(actual, expected)
 end
 
-function Password.Hash(plainPassword)
-    if not plainPassword or plainPassword == '' then
-        return nil
-    end
-    math.randomseed(os.time() + math.random(1, 999999))
-    local salt = randomBytes(SALT_LENGTH)
-    local hash = pbkdf2(plainPassword, salt, ITERATIONS, KEY_LENGTH)
-    return ('$pbkdf2-sha256$%d$%s$%s'):format(ITERATIONS, base64Encode(salt), base64Encode(hash))
-end
-
-function Password.Verify(plainPassword, storedHash)
-    if not plainPassword or not storedHash or storedHash == '' then
-        return false
-    end
-
+local function verifyLegacyPbkdf2(plainPassword, storedHash)
     local iterations, saltB64, hashB64 = storedHash:match('^%$pbkdf2%-sha256%$(%d+)%$([^$]+)%$([^$]+)$')
     if not iterations then
         return false
@@ -111,13 +102,34 @@ function Password.Verify(plainPassword, storedHash)
     local salt = base64Decode(saltB64)
     local expected = base64Decode(hashB64)
     local actual = pbkdf2(plainPassword, salt, tonumber(iterations), #expected)
-
     return constantTimeEquals(actual, expected)
 end
 
+function Password.Hash(plainPassword)
+    if not plainPassword or plainPassword == '' then
+        return nil
+    end
+    math.randomseed(os.time() + math.random(1, 999999))
+    local salt = randomBytes(SALT_LENGTH)
+    local hash = sha256.hmac(plainPassword, salt)
+    return ('$polis$v2$%s$%s'):format(base64Encode(salt), base64Encode(hash))
+end
+
+function Password.Verify(plainPassword, storedHash)
+    if not plainPassword or not storedHash or storedHash == '' then
+        return false
+    end
+
+    local saltB64, hashB64 = storedHash:match('^%$polis$v2%$([^$]+)%$([^$]+)$')
+    if saltB64 then
+        return verifyFast(plainPassword, saltB64, hashB64)
+    end
+
+    return verifyLegacyPbkdf2(plainPassword, storedHash)
+end
+
 function Password.NeedsRehash(storedHash)
-    local iterations = storedHash and storedHash:match('^%$pbkdf2%-sha256%$(%d+)%$')
-    return iterations and tonumber(iterations) > ITERATIONS
+    return storedHash and not storedHash:match('^%$polis$v2%$')
 end
 
 function Password.Rehash(plainPassword)

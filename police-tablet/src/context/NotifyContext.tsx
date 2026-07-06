@@ -2,10 +2,12 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
+import { createPortal } from 'react-dom';
 import Icon from '../components/icons/Icon';
 
 export type NotifyType = 'error' | 'success' | 'info' | 'warning';
@@ -22,11 +24,11 @@ interface NotifyContextType {
 
 const NotifyContext = createContext<NotifyContextType | null>(null);
 
-const typeStyles: Record<NotifyType, string> = {
-  error: 'border-danger/40 bg-danger/12 text-danger',
-  success: 'border-success/40 bg-success/12 text-success',
-  warning: 'border-warning/40 bg-warning/12 text-warning',
-  info: 'border-accent/40 bg-accent/12 text-accent-light',
+const typeClass: Record<NotifyType, string> = {
+  error: 'flux-notify--error',
+  success: 'flux-notify--success',
+  warning: 'flux-notify--warning',
+  info: 'flux-notify--info',
 };
 
 const typeIcons: Record<NotifyType, 'alert' | 'check' | 'bell'> = {
@@ -37,29 +39,36 @@ const typeIcons: Record<NotifyType, 'alert' | 'check' | 'bell'> = {
 };
 
 function NotifyContainer({ items, onDismiss }: { items: NotifyItem[]; onDismiss: (id: string) => void }) {
-  if (items.length === 0) return null;
+  const [root, setRoot] = useState<HTMLElement | null>(null);
 
-  return (
-    <div className="flux-notify-stack pointer-events-none absolute inset-x-0 top-3 z-[100] flex flex-col items-center gap-2 px-4">
+  useEffect(() => {
+    setRoot(document.getElementById('flux-notify-root'));
+  }, []);
+
+  if (!root || items.length === 0) return null;
+
+  return createPortal(
+    <div className="flux-notify-stack">
       {items.map((item) => (
         <div
           key={item.id}
-          className={`flux-notify pointer-events-auto flex w-full max-w-sm items-start gap-2.5 rounded-xl border px-4 py-3 text-sm shadow-lg backdrop-blur-sm ${typeStyles[item.type]}`}
+          className={`flux-notify ${typeClass[item.type]}`}
           role="alert"
         >
-          <Icon name={typeIcons[item.type]} size={18} className="mt-0.5 shrink-0" />
-          <p className="flex-1 leading-snug">{item.message}</p>
+          <Icon name={typeIcons[item.type]} size={18} className="flux-notify-icon shrink-0" />
+          <p className="flux-notify-text flex-1">{item.message}</p>
           <button
             type="button"
             onClick={() => onDismiss(item.id)}
-            className="shrink-0 rounded-md p-0.5 opacity-70 transition-opacity hover:opacity-100"
+            className="flux-notify-close"
             aria-label="Schließen"
           >
             <Icon name="close" size={14} />
           </button>
         </div>
       ))}
-    </div>
+    </div>,
+    root
   );
 }
 
@@ -73,17 +82,15 @@ export function NotifyProvider({ children }: { children: ReactNode }) {
   const notify = useCallback((message: string, type: NotifyType = 'info') => {
     const id = `notify-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setItems((prev) => [...prev.slice(-4), { id, message, type }]);
-    window.setTimeout(() => dismiss(id), 4500);
+    window.setTimeout(() => dismiss(id), 5000);
   }, [dismiss]);
 
   const value = useMemo(() => ({ notify }), [notify]);
 
   return (
     <NotifyContext.Provider value={value}>
-      <div className="relative flex h-full min-h-0 flex-col">
-        <NotifyContainer items={items} onDismiss={dismiss} />
-        {children}
-      </div>
+      <NotifyContainer items={items} onDismiss={dismiss} />
+      {children}
     </NotifyContext.Provider>
   );
 }

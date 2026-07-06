@@ -1,6 +1,7 @@
 Database = {}
 
 local seeded = false
+local schemaReady = false
 
 local SCHEMA = {
     [[CREATE TABLE IF NOT EXISTS polis_employees (
@@ -131,14 +132,47 @@ local function DebugPrint(msg)
 end
 
 function Database.EnsureSchema()
+    if schemaReady then
+        return
+    end
+
     for _, query in ipairs(SCHEMA) do
         MySQL.query.await(query)
     end
 
     if not seeded then
         Database.SeedDefaultEmployees()
+        Database.UpgradeDefaultEmployeePasswords()
         seeded = true
     end
+
+    schemaReady = true
+end
+
+function Database.UpgradeDefaultEmployeePasswords()
+    if not Config.DefaultEmployees or #Config.DefaultEmployees == 0 then
+        return
+    end
+
+    for _, emp in ipairs(Config.DefaultEmployees) do
+        if emp.badgeNumber and emp.password then
+            local row = MySQL.single.await(
+                'SELECT id, password_hash FROM polis_employees WHERE badge_number = ? LIMIT 1',
+                { emp.badgeNumber }
+            )
+            if row and Password.NeedsRehash(row.password_hash) then
+                local hash = Password.Hash(emp.password)
+                if hash then
+                    MySQL.update.await(
+                        'UPDATE polis_employees SET password_hash = ? WHERE id = ?',
+                        { hash, row.id }
+                    )
+                end
+            end
+        end
+    end
+
+    DebugPrint('Standard-Passwörter auf schnelles Format aktualisiert')
 end
 
 function Database.SeedDefaultEmployees()

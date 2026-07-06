@@ -62,6 +62,7 @@ export default function WindowFrame({
         isInGame ? 'flux-window-in-game' : ''
       }`}
     >
+      <div id="flux-notify-root" className="flux-notify-root" aria-live="polite" />
       <TitleBar
         title={title}
         subtitle={subtitle}
