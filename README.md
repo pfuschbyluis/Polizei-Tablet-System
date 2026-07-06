@@ -108,7 +108,6 @@ polis/                    ← FiveM Resource (Repo-Root)
 - Dashboard, Personenakten, Akten-System
 - Waffen- & Fahrzeugregister
 - Fahndungssystem
-- Einsatzverwaltung
 - Rang- & Rechtesystem
 - Audit-Protokoll
 

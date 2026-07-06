@@ -5,13 +5,11 @@ import type {
   Weapon,
   Vehicle,
   WantedEntry,
-  Operation,
   OfficerNote,
   Evidence,
   Witness,
   CaseParticipant,
   CaseStatus,
-  OperationStatus,
   InternalMessage,
 } from '../types';
 import { useAudit } from './AuditContext';
@@ -22,7 +20,6 @@ interface DataContextType {
   weapons: Weapon[];
   vehicles: Vehicle[];
   wanted: WantedEntry[];
-  operations: Operation[];
   internalMessages: InternalMessage[];
   getPerson: (id: string) => Person | undefined;
   getCase: (id: string) => CaseFile | undefined;
@@ -35,10 +32,6 @@ interface DataContextType {
   addCaseWitness: (caseId: string, witness: Omit<Witness, 'id'>) => void;
   addCaseParticipant: (caseId: string, participant: CaseParticipant) => void;
   addCaseNote: (caseId: string, note: Omit<OfficerNote, 'id'>) => void;
-  createOperation: (data: Omit<Operation, 'id' | 'code' | 'createdAt' | 'updatedAt'>) => string;
-  updateOperationStatus: (opId: string, status: OperationStatus) => void;
-  updateOperationReport: (opId: string, report: string) => void;
-  updateOperationUnits: (opId: string, units: Operation['assignedUnits']) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -48,11 +41,6 @@ function generateCaseNumber(): string {
   return `AZ-${new Date().getFullYear()}-${num}`;
 }
 
-function generateOpCode(): string {
-  const num = Math.floor(Math.random() * 9000) + 1000;
-  return `E-${new Date().getFullYear()}-${num}`;
-}
-
 export function DataProvider({ children }: { children: ReactNode }) {
   const { logAction } = useAudit();
   const [persons, setPersons] = useState<Person[]>([]);
@@ -60,7 +48,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [weapons] = useState<Weapon[]>([]);
   const [vehicles] = useState<Vehicle[]>([]);
   const [wanted] = useState<WantedEntry[]>([]);
-  const [operations, setOperations] = useState<Operation[]>([]);
   const [internalMessages] = useState<InternalMessage[]>([]);
 
   const getPerson = useCallback((id: string) => persons.find((p) => p.id === id), [persons]);
@@ -186,62 +173,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [logAction]
   );
 
-  const createOperation = useCallback(
-    (data: Omit<Operation, 'id' | 'code' | 'createdAt' | 'updatedAt'>) => {
-      const id = `ops-${Date.now()}`;
-      const now = new Date().toISOString();
-      const newOp: Operation = {
-        ...data,
-        id,
-        code: generateOpCode(),
-        createdAt: now,
-        updatedAt: now,
-      };
-      setOperations((prev) => [newOp, ...prev]);
-      logAction('Einsatz erstellt', 'Einsätze', newOp.code);
-      return id;
-    },
-    [logAction]
-  );
-
-  const updateOperationStatus = useCallback(
-    (opId: string, status: OperationStatus) => {
-      setOperations((prev) =>
-        prev.map((o) =>
-          o.id === opId ? { ...o, status, updatedAt: new Date().toISOString() } : o
-        )
-      );
-      logAction('Einsatzstatus geändert', 'Einsätze', `${opId} → ${status}`);
-    },
-    [logAction]
-  );
-
-  const updateOperationReport = useCallback(
-    (opId: string, report: string) => {
-      setOperations((prev) =>
-        prev.map((o) =>
-          o.id === opId ? { ...o, report, updatedAt: new Date().toISOString() } : o
-        )
-      );
-      logAction('Einsatzbericht aktualisiert', 'Einsätze', opId);
-    },
-    [logAction]
-  );
-
-  const updateOperationUnits = useCallback(
-    (opId: string, units: Operation['assignedUnits']) => {
-      setOperations((prev) =>
-        prev.map((o) =>
-          o.id === opId
-            ? { ...o, assignedUnits: units, updatedAt: new Date().toISOString() }
-            : o
-        )
-      );
-      logAction('Einheiten zugewiesen', 'Einsätze', opId);
-    },
-    [logAction]
-  );
-
   return (
     <DataContext.Provider
       value={{
@@ -250,7 +181,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         weapons,
         vehicles,
         wanted,
-        operations,
         internalMessages,
         getPerson,
         getCase,
@@ -263,10 +193,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         addCaseWitness,
         addCaseParticipant,
         addCaseNote,
-        createOperation,
-        updateOperationStatus,
-        updateOperationReport,
-        updateOperationUnits,
       }}
     >
       {children}
