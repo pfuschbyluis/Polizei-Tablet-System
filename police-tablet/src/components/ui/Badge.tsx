@@ -7,12 +7,12 @@ interface BadgeProps {
 }
 
 const variants = {
-  default: 'bg-police-700/50 text-police-200 border-police-600/50',
-  blue: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-  green: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  yellow: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  red: 'bg-red-500/15 text-red-400 border-red-500/30',
-  gray: 'bg-gray-500/15 text-gray-400 border-gray-500/30',
+  default: 'bg-surface-hover text-text-secondary border-border',
+  blue: 'bg-accent-subtle text-accent-light border-accent/20',
+  green: 'bg-success/15 text-success border-success/25',
+  yellow: 'bg-warning/15 text-warning border-warning/25',
+  red: 'bg-danger/15 text-danger border-danger/25',
+  gray: 'bg-surface-hover text-text-muted border-border',
 };
 
 export default function Badge({ children, variant = 'default', size = 'sm' }: BadgeProps) {

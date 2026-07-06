@@ -8,7 +8,7 @@ export default function Layout() {
 
   return (
     <div
-      className={`flex min-h-0 w-full overflow-hidden bg-police-950 ${
+      className={`flex min-h-0 w-full overflow-hidden bg-surface-base ${
         isInGame ? 'h-full' : 'h-screen'
       }`}
     >

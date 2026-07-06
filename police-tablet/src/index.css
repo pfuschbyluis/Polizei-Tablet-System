@@ -1,23 +1,48 @@
 @import "tailwindcss";
 
 @theme {
+  /* Windows 11 Dark Theme */
+  --color-surface-base: #1c1c1c;
+  --color-surface: #242424;
+  --color-surface-secondary: #2d2d2d;
+  --color-surface-tertiary: #383838;
+  --color-surface-card: #2b2b2b;
+  --color-surface-hover: #3a3a3a;
+
+  --color-border: rgba(255, 255, 255, 0.069);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
+
+  --color-accent: #0078d4;
+  --color-accent-hover: #106ebe;
+  --color-accent-light: #60cdff;
+  --color-accent-subtle: rgba(0, 120, 212, 0.15);
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #adadad;
+  --color-text-muted: #6e6e6e;
+
+  --color-success: #6ccb5f;
+  --color-warning: #fce100;
+  --color-danger: #ff6b6b;
+
+  /* Legacy aliases */
   --color-police-50: #f0f4ff;
   --color-police-100: #e0e9ff;
   --color-police-200: #c7d6fe;
   --color-police-300: #a4b8fc;
-  --color-police-400: #8093f7;
-  --color-police-500: #6366f1;
-  --color-police-600: #4f46e5;
-  --color-police-700: #3730a3;
-  --color-police-800: #1e1b4b;
-  --color-police-900: #131029;
-  --color-police-950: #0a0818;
-  --color-police-accent: #3b82f6;
+  --color-police-400: #60cdff;
+  --color-police-500: #0078d4;
+  --color-police-600: #106ebe;
+  --color-police-700: #383838;
+  --color-police-800: #2d2d2d;
+  --color-police-900: #242424;
+  --color-police-950: #1c1c1c;
+  --color-police-accent: #0078d4;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3730a3 #0a0818;
+  scrollbar-color: #4a4a4a transparent;
   box-sizing: border-box;
 }
 
@@ -31,14 +56,12 @@ body {
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #0a0818;
-  color: #e0e9ff;
+  font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #1c1c1c;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* FiveM: transparenter Hintergrund, kein schwarzer Rand */
 html.fivem-nui,
 html.fivem-nui body {
   background: transparent !important;
@@ -53,9 +76,24 @@ html.fivem-nui body {
   width: 100%;
   height: 100%;
   min-height: 100vh;
+  background: #1c1c1c;
 }
 
-/* FiveM Tablet-Shell */
+/* Typography helpers */
+.page-title {
+  @apply text-xl font-semibold tracking-tight text-text-primary sm:text-2xl;
+}
+
+.page-subtitle {
+  @apply mt-0.5 text-sm text-text-secondary;
+}
+
+/* Login card – Win11 acrylic style */
+.login-card {
+  @apply rounded-2xl border border-border bg-surface-secondary/90 p-8 shadow-2xl backdrop-blur-xl;
+}
+
+/* FiveM Tablet Shell */
 .fivem-tablet-shell {
   position: fixed;
   inset: 0;
@@ -76,18 +114,18 @@ html.fivem-nui body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #0a0818;
+  background: #1c1c1c;
 }
 
 .fivem-tablet-screen.in-game {
-  width: min(88vw, 1200px);
-  height: min(82vh, 780px);
-  border-radius: 16px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  width: min(90vw, 1240px);
+  height: min(84vh, 820px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 30px 90px rgba(0, 0, 0, 0.75);
-  animation: tablet-open 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    0 0 0 1px rgba(0, 0, 0, 0.3),
+    0 32px 64px rgba(0, 0, 0, 0.55);
+  animation: tablet-open 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fivem-tablet-screen.in-game > * {
@@ -99,7 +137,7 @@ html.fivem-nui body {
 @keyframes tablet-open {
   from {
     opacity: 0;
-    transform: scale(0.94) translateY(16px);
+    transform: scale(0.96) translateY(12px);
   }
   to {
     opacity: 1;
@@ -108,19 +146,15 @@ html.fivem-nui body {
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3730a3;
-  border-radius: 3px;
+  background: #4a4a4a;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5;
+  background: #5a5a5a;
 }

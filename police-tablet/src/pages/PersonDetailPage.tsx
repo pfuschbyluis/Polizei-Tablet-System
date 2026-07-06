@@ -21,6 +21,8 @@ export default function PersonDetailPage() {
   const { currentOfficer, permissions } = useAuth();
   const [newNote, setNewNote] = useState('');
 
+  if (!currentOfficer) return null;
+
   const person = getPerson(id!);
   if (!person) {
     return (

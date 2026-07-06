@@ -17,6 +17,25 @@ export interface Officer {
   avatar?: string;
 }
 
+export interface Employee {
+  id: string;
+  badgeNumber: string;
+  name: string;
+  rank: Rank;
+  unit: string;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface EmployeeInput {
+  badgeNumber: string;
+  password: string;
+  name: string;
+  rank: Rank;
+  unit: string;
+  active?: boolean;
+}
+
 export interface PriorConviction {
   id: string;
   offense: string;
@@ -195,6 +214,8 @@ export interface Permission {
   editOperations: boolean;
   viewAuditLog: boolean;
   adminFunctions: boolean;
+  viewEmployees: boolean;
+  manageEmployees: boolean;
 }
 
 export const RANK_LABELS: Record<Rank, string> = {
@@ -223,6 +244,8 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editOperations: true,
     viewAuditLog: true,
     adminFunctions: true,
+    viewEmployees: true,
+    manageEmployees: true,
   },
   leitstelle: {
     viewDashboard: true,
@@ -242,6 +265,8 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editOperations: true,
     viewAuditLog: false,
     adminFunctions: false,
+    viewEmployees: true,
+    manageEmployees: false,
   },
   ermittler: {
     viewDashboard: true,
@@ -261,6 +286,8 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editOperations: false,
     viewAuditLog: false,
     adminFunctions: false,
+    viewEmployees: false,
+    manageEmployees: false,
   },
   beamter: {
     viewDashboard: true,
@@ -280,6 +307,8 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editOperations: false,
     viewAuditLog: false,
     adminFunctions: false,
+    viewEmployees: false,
+    manageEmployees: false,
   },
 };
 

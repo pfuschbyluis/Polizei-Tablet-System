@@ -27,6 +27,19 @@ ensure polis
 | Tablet öffnen/schließen | **F6** oder `/polis` |
 | Schließen | **ESC** oder X-Button |
 
+## Anmeldung
+
+Beim Öffnen erscheint ein Login-Fenster. Anmeldung mit **Dienstnummer** und **Passwort**.
+
+Standard-Zugänge (in `config.lua` anpassbar):
+
+| Dienstnummer | Passwort | Rang |
+|--------------|----------|------|
+| PD-1001 | admin123 | Administrator |
+| PD-4521 | beamter123 | Beamter |
+
+Administratoren können unter **Mitarbeiter** neue Zugänge anlegen und verwalten.
+
 ## Framework-Konfiguration
 
 In `config.lua` anpassen:

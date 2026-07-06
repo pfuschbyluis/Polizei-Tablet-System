@@ -7,16 +7,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: 'bg-police-accent hover:bg-police-accent/90 text-white shadow-lg shadow-police-accent/20',
-  secondary: 'bg-police-800 hover:bg-police-700 text-police-100 border border-police-600/50',
-  danger: 'bg-red-600/80 hover:bg-red-600 text-white',
-  ghost: 'hover:bg-police-800/80 text-police-300 hover:text-police-100',
+  primary:
+    'bg-accent hover:bg-accent-hover text-white shadow-sm active:scale-[0.98]',
+  secondary:
+    'bg-surface-tertiary hover:bg-surface-hover text-text-primary border border-border',
+  danger: 'bg-danger/90 hover:bg-danger text-white',
+  ghost: 'hover:bg-surface-hover text-text-secondary hover:text-text-primary',
 };
 
 const sizes = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+  sm: 'px-3 py-1.5 text-xs rounded-lg',
+  md: 'px-4 py-2 text-sm rounded-lg',
+  lg: 'px-6 py-2.5 text-sm rounded-xl',
 };
 
 export default function Button({
@@ -29,7 +31,7 @@ export default function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled}
       {...props}
     >
