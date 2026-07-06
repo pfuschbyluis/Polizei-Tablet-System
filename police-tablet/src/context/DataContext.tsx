@@ -12,15 +12,8 @@ import type {
   CaseParticipant,
   CaseStatus,
   OperationStatus,
+  InternalMessage,
 } from '../types';
-import {
-  PERSONS,
-  CASES,
-  WEAPONS,
-  VEHICLES,
-  WANTED,
-  OPERATIONS,
-} from '../data/mockData';
 import { useAudit } from './AuditContext';
 
 interface DataContextType {
@@ -30,6 +23,7 @@ interface DataContextType {
   vehicles: Vehicle[];
   wanted: WantedEntry[];
   operations: Operation[];
+  internalMessages: InternalMessage[];
   getPerson: (id: string) => Person | undefined;
   getCase: (id: string) => CaseFile | undefined;
   getWeapon: (id: string) => Weapon | undefined;
@@ -51,22 +45,23 @@ const DataContext = createContext<DataContextType | null>(null);
 
 function generateCaseNumber(): string {
   const num = Math.floor(Math.random() * 900000) + 100000;
-  return `AZ-2026-${num}`;
+  return `AZ-${new Date().getFullYear()}-${num}`;
 }
 
 function generateOpCode(): string {
   const num = Math.floor(Math.random() * 9000) + 1000;
-  return `E-2026-${num}`;
+  return `E-${new Date().getFullYear()}-${num}`;
 }
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const { logAction } = useAudit();
-  const [persons, setPersons] = useState<Person[]>(PERSONS);
-  const [cases, setCases] = useState<CaseFile[]>(CASES);
-  const [weapons] = useState<Weapon[]>(WEAPONS);
-  const [vehicles] = useState<Vehicle[]>(VEHICLES);
-  const [wanted] = useState<WantedEntry[]>(WANTED);
-  const [operations, setOperations] = useState<Operation[]>(OPERATIONS);
+  const [persons, setPersons] = useState<Person[]>([]);
+  const [cases, setCases] = useState<CaseFile[]>([]);
+  const [weapons] = useState<Weapon[]>([]);
+  const [vehicles] = useState<Vehicle[]>([]);
+  const [wanted] = useState<WantedEntry[]>([]);
+  const [operations, setOperations] = useState<Operation[]>([]);
+  const [internalMessages] = useState<InternalMessage[]>([]);
 
   const getPerson = useCallback((id: string) => persons.find((p) => p.id === id), [persons]);
   const getCase = useCallback((id: string) => cases.find((c) => c.id === id), [cases]);
@@ -256,6 +251,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         vehicles,
         wanted,
         operations,
+        internalMessages,
         getPerson,
         getCase,
         getWeapon,

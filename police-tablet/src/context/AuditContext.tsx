@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { AuditEntry } from '../types';
-import { INITIAL_AUDIT } from '../data/mockData';
 import { useAuth } from './AuthContext';
 import { fetchNui } from '../utils/fivem';
 
@@ -12,7 +11,7 @@ interface AuditContextType {
 const AuditContext = createContext<AuditContextType | null>(null);
 
 export function AuditProvider({ children }: { children: ReactNode }) {
-  const [entries, setEntries] = useState<AuditEntry[]>(INITIAL_AUDIT);
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
   const { currentOfficer } = useAuth();
 
   const logAction = useCallback(

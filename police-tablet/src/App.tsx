@@ -59,11 +59,6 @@ function TabletShell() {
 
   return (
     <div className={isInGame ? 'fivem-tablet-shell' : 'dev-shell'}>
-      {isInGame && (
-        <div className="fivem-tablet-bezel">
-          <div className="fivem-tablet-camera" />
-        </div>
-      )}
       <div className={`fivem-tablet-screen ${isInGame ? 'in-game' : ''}`}>
         <AppProviders>
           <HashRouter>
@@ -71,7 +66,6 @@ function TabletShell() {
           </HashRouter>
         </AppProviders>
       </div>
-      {isInGame && <div className="fivem-tablet-home-bar" />}
     </div>
   );
 }
