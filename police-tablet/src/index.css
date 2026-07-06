@@ -286,19 +286,31 @@ textarea:invalid {
   pointer-events: auto;
 }
 
+/* ── Sidebar logout (avoid Tailwind hover:bg-danger/10 full-red bug in CEF) ── */
+.flux-sidebar-logout:hover {
+  background-color: rgba(248, 113, 113, 0.14);
+  color: var(--flux-danger);
+}
+
+:root[data-theme='light'] .flux-sidebar-logout:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--flux-danger);
+}
+
 /* ── Window Frame ── */
 .flux-window {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  background: var(--flux-surface);
+  background: var(--flux-surface-base);
   border: 1px solid var(--flux-border-strong);
   border-radius: 12px;
   box-shadow: var(--flux-shadow);
   width: min(92vw, 1280px);
   height: min(88vh, 860px);
   transition: width 0.25s ease, height 0.25s ease, border-radius 0.25s ease, box-shadow 0.25s ease;
+  isolation: isolate;
 }
 
 .flux-window-maximized {
@@ -311,6 +323,21 @@ textarea:invalid {
 .flux-window-in-game {
   width: min(90vw, 1240px);
   height: min(84vh, 820px);
+}
+
+html.fivem-nui .flux-window-in-game {
+  box-shadow: 0 0 0 1px var(--flux-border-strong);
+}
+
+html.fivem-nui .flux-titlebar {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--flux-surface-secondary);
+  border-radius: 11px 11px 0 0;
+}
+
+html.fivem-nui .flux-window-content {
+  border-radius: 0 0 11px 11px;
 }
 
 .flux-window-minimized {

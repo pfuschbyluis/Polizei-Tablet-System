@@ -7,6 +7,7 @@ export type IconName =
   | 'crosshair'
   | 'car'
   | 'search'
+  | 'wanted'
   | 'shield'
   | 'scroll'
   | 'user-cog'
@@ -85,7 +86,15 @@ const paths: Record<IconName, ReactNode> = {
   search: (
     <>
       <circle cx="11" cy="11" r="7" fill="none" />
-      <path d="M20 20l-3.5-3.5" />
+      <path d="M20 20l-3.5-3.5" fill="none" />
+    </>
+  ),
+  wanted: (
+    <>
+      <circle cx="10" cy="8" r="3.5" fill="none" />
+      <path d="M4 18c0-3 2.5-5 6-5" fill="none" />
+      <circle cx="17" cy="16" r="4" fill="none" />
+      <path d="M19.5 18.5L22 21" fill="none" />
     </>
   ),
   shield: (
@@ -111,7 +120,7 @@ const paths: Record<IconName, ReactNode> = {
   logout: (
     <>
       <path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" fill="none" />
-      <path d="M16 12H9M20 12l-3-3M20 12l-3 3" />
+      <path d="M16 12H9M20 12l-3-3M20 12l-3 3" fill="none" />
     </>
   ),
   'chevron-left': <path d="M15 6l-6 6 6 6" fill="none" />,

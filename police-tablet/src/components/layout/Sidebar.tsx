@@ -11,7 +11,7 @@ const navItems: { to: string; icon: IconName; label: string; perm: 'viewDashboar
   { to: '/akten', icon: 'folder', label: 'Akten', perm: 'viewCases' },
   { to: '/waffen', icon: 'crosshair', label: 'Waffen', perm: 'viewWeapons' },
   { to: '/fahrzeuge', icon: 'car', label: 'Fahrzeuge', perm: 'viewVehicles' },
-  { to: '/fahndung', icon: 'search', label: 'Fahndung', perm: 'viewWanted' },
+  { to: '/fahndung', icon: 'wanted', label: 'Fahndung', perm: 'viewWanted' },
   { to: '/mitarbeiter', icon: 'user-cog', label: 'Mitarbeiter', perm: 'viewEmployees' },
   { to: '/protokoll', icon: 'scroll', label: 'Protokoll', perm: 'viewAuditLog' },
 ];
@@ -57,7 +57,7 @@ export default function Sidebar() {
           type="button"
           onClick={logout}
           title="Abmelden"
-          className={`flex w-full items-center rounded-lg text-sm text-text-secondary hover:bg-danger/10 hover:text-danger transition-all ${
+          className={`flux-sidebar-logout flex w-full items-center rounded-lg text-sm text-text-secondary transition-all ${
             collapsed ? 'justify-center px-2 py-2' : 'gap-2.5 px-3 py-2'
           }`}
         >
