@@ -28,23 +28,27 @@ export default function AkteCreatePage() {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) return;
-    const id = createCase({
-      title: form.title.trim(),
-      offense: form.offense,
-      status: 'offen',
-      assignedOfficerId: currentOfficer.id,
-      assignedOfficerName: currentOfficer.name,
-      participants: [],
-      evidence: [],
-      witnesses: [],
-      internalNotes: [],
-      linkedVehicleIds: [],
-      description: form.description.trim() || 'Keine Beschreibung.',
-    });
-    navigate(`/akten/${id}`);
+    try {
+      const id = await createCase({
+        title: form.title.trim(),
+        offense: form.offense,
+        status: 'offen',
+        assignedOfficerId: currentOfficer.id,
+        assignedOfficerName: currentOfficer.name,
+        participants: [],
+        evidence: [],
+        witnesses: [],
+        internalNotes: [],
+        linkedVehicleIds: [],
+        description: form.description.trim() || 'Keine Beschreibung.',
+      });
+      navigate(`/akten/${id}`);
+    } catch {
+      /* Fehler wird serverseitig behandelt */
+    }
   };
 
   return (

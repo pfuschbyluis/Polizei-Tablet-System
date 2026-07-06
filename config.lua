@@ -28,7 +28,10 @@ Config.Units = {
     sasp = 'Highway Patrol',
 }
 
--- Standard-Mitarbeiter (Dienstnummer / Passwort)
+-- MySQL / Sessions
+Config.SessionDurationHours = 8
+
+-- Standard-Mitarbeiter beim ersten Start (Passwörter werden gehasht in der DB gespeichert)
 Config.DefaultEmployees = {
     {
         id = 'emp-admin',

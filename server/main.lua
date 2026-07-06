@@ -1,57 +1,28 @@
-local Employees = {}
-
 local function DebugPrint(msg)
     print(('[^3POLIS^7] %s'):format(msg))
 end
 
-local function CopyEmployeePublic(emp)
-    return {
-        id = emp.id,
-        badgeNumber = emp.badgeNumber,
-        name = emp.name,
-        rank = emp.rank,
-        unit = emp.unit,
-        active = emp.active,
-        createdAt = emp.createdAt,
-    }
+local function NuiError(src, reqId, message)
+    TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false, error = message })
 end
 
-local function GetEmployeesPublic()
-    local list = {}
-    for _, emp in pairs(Employees) do
-        list[#list + 1] = CopyEmployeePublic(emp)
+local function NuiOk(src, reqId, payload)
+    TriggerClientEvent('polis:client:nuiResult', src, reqId, payload)
+end
+
+local function ResolveSession(src, data)
+    local token = data and data.sessionToken or nil
+    return Repository.GetSession(token, src)
+end
+
+local function RequireSession(src, reqId, data)
+    local session = ResolveSession(src, data)
+    if not session then
+        NuiError(src, reqId, 'Sitzung abgelaufen. Bitte erneut anmelden.')
+        return nil
     end
-    return list
+    return session
 end
-
-local function FindByBadge(badgeNumber)
-    for _, emp in pairs(Employees) do
-        if emp.badgeNumber:lower() == badgeNumber:lower() then
-            return emp
-        end
-    end
-    return nil
-end
-
-local function FindById(id)
-    return Employees[id]
-end
-
-local function CanViewEmployees(rank)
-    return rank == 'admin' or rank == 'leitstelle'
-end
-
-local function CanManageEmployees(rank)
-    return rank == 'admin'
-end
-
--- Initialisierung
-CreateThread(function()
-    for _, emp in ipairs(Config.DefaultEmployees) do
-        Employees[emp.id] = emp
-    end
-    DebugPrint(('Mitarbeiter geladen: %s'):format(#Config.DefaultEmployees))
-end)
 
 -- Login
 RegisterNetEvent('polis:server:login', function(reqId, data)
@@ -59,26 +30,32 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
     local badgeNumber = data and data.badgeNumber or ''
     local password = data and data.password or ''
 
-    local emp = FindByBadge(badgeNumber)
-    if not emp or not emp.active or emp.password ~= password then
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, {
-            success = false,
-            error = 'Dienstnummer oder Passwort ungültig.',
-        })
+    Database.EnsureSchema()
+
+    local emp = Repository.FindEmployeeByBadge(badgeNumber)
+    if not emp or not emp.active or not Password.Verify(password, emp.passwordHash) then
+        NuiError(src, reqId, 'Dienstnummer oder Passwort ungültig.')
         return
     end
 
+    local sessionToken = Repository.CreateSession(emp.id, src)
     local officer = {
         id = emp.id,
         badgeNumber = emp.badgeNumber,
         name = emp.name,
         rank = emp.rank,
         unit = emp.unit,
+        sessionToken = sessionToken,
     }
 
-    local employees = CanViewEmployees(emp.rank) and GetEmployeesPublic() or {}
+    local employees = {}
+    if Repository.CanViewEmployees(emp.rank) then
+        for _, e in ipairs(Repository.GetAllEmployees()) do
+            employees[#employees + 1] = Repository.CopyEmployeePublic(e)
+        end
+    end
 
-    TriggerClientEvent('polis:client:nuiResult', src, reqId, {
+    NuiOk(src, reqId, {
         success = true,
         officer = officer,
         employees = employees,
@@ -87,93 +64,217 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
     DebugPrint(('Login: %s (%s)'):format(emp.name, emp.badgeNumber))
 end)
 
--- Mitarbeiter erstellen
-RegisterNetEvent('polis:server:createEmployee', function(reqId, data, actorRank)
+RegisterNetEvent('polis:server:logout', function(_, data)
     local src = source
-    if not CanManageEmployees(actorRank) then
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false, error = 'Keine Berechtigung.' })
+    Repository.DeleteSessionsForSource(src)
+end)
+
+-- Mitarbeiter
+RegisterNetEvent('polis:server:createEmployee', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageEmployees(session.employee.rank) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
         return
     end
 
-    if FindByBadge(data.badgeNumber or '') then
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false, error = 'Dienstnummer vergeben.' })
+    if Repository.FindEmployeeByBadge(data.badgeNumber or '') then
+        NuiError(src, reqId, 'Dienstnummer vergeben.')
         return
     end
 
-    local id = ('emp-%s'):format(os.time())
-    local emp = {
-        id = id,
-        badgeNumber = data.badgeNumber,
-        password = data.password,
-        name = data.name,
-        rank = data.rank or 'beamter',
-        unit = data.unit or 'Streifenwagen Alpha-1',
-        active = true,
-        createdAt = os.date('%Y-%m-%d'),
-    }
-    Employees[id] = emp
+    local emp, err = Repository.CreateEmployee(data)
+    if not emp then
+        NuiError(src, reqId, err or 'Erstellen fehlgeschlagen.')
+        return
+    end
 
-    TriggerClientEvent('polis:client:nuiResult', src, reqId, {
-        success = true,
-        employee = CopyEmployeePublic(emp),
-    })
+    NuiOk(src, reqId, { success = true, employee = Repository.CopyEmployeePublic(emp) })
     DebugPrint(('Mitarbeiter erstellt: %s'):format(emp.name))
 end)
 
--- Mitarbeiter aktualisieren
-RegisterNetEvent('polis:server:updateEmployee', function(reqId, data, actorRank)
+RegisterNetEvent('polis:server:updateEmployee', function(reqId, data)
     local src = source
-    if not CanManageEmployees(actorRank) then
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false })
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageEmployees(session.employee.rank) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
         return
     end
 
-    local emp = FindById(data.id)
+    local emp = Repository.UpdateEmployee(data.id, data)
     if not emp then
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false })
+        NuiError(src, reqId, 'Aktualisieren fehlgeschlagen.')
         return
     end
 
-    if data.name then emp.name = data.name end
-    if data.rank then emp.rank = data.rank end
-    if data.unit then emp.unit = data.unit end
-    if data.active ~= nil then emp.active = data.active end
-    if data.password and data.password ~= '' then emp.password = data.password end
-
-    TriggerClientEvent('polis:client:nuiResult', src, reqId, {
-        success = true,
-        employee = CopyEmployeePublic(emp),
-    })
+    NuiOk(src, reqId, { success = true, employee = Repository.CopyEmployeePublic(emp) })
 end)
 
--- Mitarbeiter löschen
-RegisterNetEvent('polis:server:deleteEmployee', function(reqId, data, actorRank, actorId)
+RegisterNetEvent('polis:server:deleteEmployee', function(reqId, data)
     local src = source
-    if not CanManageEmployees(actorRank) then
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false })
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageEmployees(session.employee.rank) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
         return
     end
 
-    if data.id == actorId then
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false, error = 'Eigener Account.' })
+    if data.id == session.employee.id then
+        NuiError(src, reqId, 'Eigener Account.')
         return
     end
 
-    if Employees[data.id] then
-        Employees[data.id] = nil
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = true })
-    else
-        TriggerClientEvent('polis:client:nuiResult', src, reqId, { success = false })
-    end
+    Repository.DeleteEmployee(data.id)
+    NuiOk(src, reqId, { success = true })
 end)
 
+-- Daten laden
+RegisterNetEvent('polis:server:getInitialData', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local payload = Repository.LoadAllData()
+    NuiOk(src, reqId, { success = true, data = payload })
+end)
+
+RegisterNetEvent('polis:server:getAuditLog', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if session.employee.rank ~= 'admin' then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, entries = Repository.GetAuditLog() })
+end)
+
+-- Personen
+RegisterNetEvent('polis:server:addPersonNote', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local ok, note = Repository.AddPersonNote(data.personId, data.note)
+    if not ok then
+        NuiError(src, reqId, 'Person nicht gefunden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, note = note })
+end)
+
+-- Akten
+RegisterNetEvent('polis:server:createCase', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local caseFile = Repository.CreateCase(data)
+    if not caseFile then
+        NuiError(src, reqId, 'Akte konnte nicht erstellt werden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, caseFile = caseFile })
+end)
+
+RegisterNetEvent('polis:server:updateCaseStatus', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local caseFile = Repository.UpdateCaseStatus(data.caseId, data.status)
+    if not caseFile then
+        NuiError(src, reqId, 'Akte nicht gefunden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, caseFile = caseFile })
+end)
+
+RegisterNetEvent('polis:server:addCaseEvidence', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local caseFile = Repository.AddCaseEvidence(data.caseId, data.evidence)
+    NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })
+end)
+
+RegisterNetEvent('polis:server:addCaseWitness', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local caseFile = Repository.AddCaseWitness(data.caseId, data.witness)
+    NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })
+end)
+
+RegisterNetEvent('polis:server:addCaseParticipant', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local caseFile = Repository.AddCaseParticipant(data.caseId, data.participant)
+    NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })
+end)
+
+RegisterNetEvent('polis:server:addCaseNote', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    local caseFile = Repository.AddCaseNote(data.caseId, data.note)
+    NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })
+end)
+
+-- Audit
 RegisterNetEvent('polis:logAction', function(data)
     local src = source
     if not data or type(data) ~= 'table' then return end
-    local playerName = GetPlayerName(src) or ('ID %s'):format(src)
-    DebugPrint(('Audit [%s] %s – %s: %s'):format(
-        playerName, data.module or '?', data.action or '?', data.details or ''
-    ))
+
+    Database.EnsureSchema()
+
+    local session = ResolveSession(src, data)
+    local officerId = data.officerId or (session and session.employee.id) or ('src-%s'):format(src)
+    local officerName = data.officerName or (session and session.employee.name) or (GetPlayerName(src) or 'Unbekannt')
+
+    Repository.LogAudit({
+        timestamp = os.date('%Y-%m-%d %H:%M:%S'),
+        officerId = officerId,
+        officerName = officerName,
+        action = data.action or '?',
+        module = data.module or '?',
+        details = data.details or '',
+    })
+
+    DebugPrint(('Audit [%s] %s – %s: %s'):format(officerName, data.module or '?', data.action or '?', data.details or ''))
 end)
 
-DebugPrint('Server gestartet')
+-- Export
+function GetPlayerRank(source)
+    Database.EnsureSchema()
+    local rows = MySQL.query.await('SELECT e.rank FROM polis_sessions s JOIN polis_employees e ON e.id = s.employee_id WHERE s.source = ? LIMIT 1', { source })
+    if rows and rows[1] then
+        return rows[1].rank
+    end
+    return nil
+end
+
+exports('GetPlayerRank', GetPlayerRank)
+
+CreateThread(function()
+    Wait(1000)
+    Database.EnsureSchema()
+    DebugPrint('Datenbankschema geprüft / initialisiert')
+end)
+
+DebugPrint('Server gestartet (MySQL)')

@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { AuditEntry } from '../types';
 import { useAuth } from './AuthContext';
+import { useFiveM } from './FiveMContext';
 import { fetchNui } from '../utils/fivem';
 
 interface AuditContextType {
@@ -12,7 +13,23 @@ const AuditContext = createContext<AuditContextType | null>(null);
 
 export function AuditProvider({ children }: { children: ReactNode }) {
   const [entries, setEntries] = useState<AuditEntry[]>([]);
-  const { currentOfficer } = useAuth();
+  const { currentOfficer, permissions, isAuthenticated } = useAuth();
+  const { isInGame } = useFiveM();
+
+  useEffect(() => {
+    if (!isAuthenticated || !isInGame || !permissions.viewAuditLog) {
+      if (!isAuthenticated) setEntries([]);
+      return;
+    }
+
+    fetchNui<{ success: boolean; entries?: AuditEntry[] }>('getAuditLog', {})
+      .then((result) => {
+        if (result.success && result.entries) {
+          setEntries(result.entries);
+        }
+      })
+      .catch(() => {});
+  }, [isAuthenticated, isInGame, permissions.viewAuditLog]);
 
   const logAction = useCallback(
     (action: string, module: string, details: string) => {

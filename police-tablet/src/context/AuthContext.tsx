@@ -91,7 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           result = devLogin(badgeNumber, password);
         }
         if (result.success && result.officer) {
-          setCurrentOfficer(result.officer);
+          const { sessionToken: _, ...officer } = result.officer as typeof result.officer & {
+            sessionToken?: string;
+          };
+          setCurrentOfficer(officer);
           setEmployees(result.employees ?? []);
           return true;
         }

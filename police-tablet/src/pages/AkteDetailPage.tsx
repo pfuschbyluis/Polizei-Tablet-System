@@ -92,7 +92,9 @@ export default function AkteDetailPage() {
           <Select
             label="Status ändern"
             value={caseFile.status}
-            onChange={(e) => updateCaseStatus(caseFile.id, e.target.value as typeof caseFile.status)}
+            onChange={async (e) => {
+              await updateCaseStatus(caseFile.id, e.target.value as typeof caseFile.status);
+            }}
             options={[
               { value: 'offen', label: 'Offen' },
               { value: 'in_bearbeitung', label: 'In Bearbeitung' },
@@ -261,9 +263,9 @@ export default function AkteDetailPage() {
           </div>
           <Button
             className="w-full"
-            onClick={() => {
+            onClick={async () => {
               if (!evidenceForm.name) return;
-              addCaseEvidence(caseFile.id, {
+              await addCaseEvidence(caseFile.id, {
                 ...evidenceForm,
                 uploadedBy: currentOfficer.name,
                 uploadedAt: new Date().toISOString().split('T')[0],
@@ -284,9 +286,9 @@ export default function AkteDetailPage() {
           <Input label="Aussage" value={witnessForm.statement} onChange={(e) => setWitnessForm({ ...witnessForm, statement: e.target.value })} />
           <Button
             className="w-full"
-            onClick={() => {
+            onClick={async () => {
               if (!witnessForm.name) return;
-              addCaseWitness(caseFile.id, witnessForm);
+              await addCaseWitness(caseFile.id, witnessForm);
               setWitnessForm({ name: '', phone: '', statement: '' });
               setShowWitnessModal(false);
             }}
@@ -323,9 +325,9 @@ export default function AkteDetailPage() {
           />
           <Button
             className="w-full"
-            onClick={() => {
+            onClick={async () => {
               if (!participantForm.personId) return;
-              addCaseParticipant(caseFile.id, participantForm);
+              await addCaseParticipant(caseFile.id, participantForm);
               setParticipantForm({ personId: '', role: 'verdächtig' });
               setShowParticipantModal(false);
             }}
@@ -340,9 +342,9 @@ export default function AkteDetailPage() {
           <Input label="Notiz" value={noteForm} onChange={(e) => setNoteForm(e.target.value)} />
           <Button
             className="w-full"
-            onClick={() => {
+            onClick={async () => {
               if (!noteForm.trim()) return;
-              addCaseNote(caseFile.id, {
+              await addCaseNote(caseFile.id, {
                 officerId: currentOfficer.id,
                 officerName: currentOfficer.name,
                 date: new Date().toISOString().split('T')[0],

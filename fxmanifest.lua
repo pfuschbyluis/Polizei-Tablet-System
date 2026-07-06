@@ -4,9 +4,11 @@ game 'gta5'
 name 'polis'
 author 'Viktorstadt PD'
 description 'POLIS – Polizei-Tablet-System (NUI) für FiveM Roleplay'
-version '1.0.0'
+version '1.1.0'
 
 lua54 'yes'
+
+dependency 'oxmysql'
 
 shared_scripts {
     'config.lua',
@@ -17,6 +19,11 @@ client_scripts {
 }
 
 server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/lib/sha256.lua',
+    'server/password.lua',
+    'server/database.lua',
+    'server/repository.lua',
     'server/main.lua',
 }
 
