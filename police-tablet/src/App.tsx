@@ -22,12 +22,14 @@ import MitarbeiterPage from './pages/MitarbeiterPage';
 
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <SessionReset />
-      <AuditProvider>
-        <DataProvider>{children}</DataProvider>
-      </AuditProvider>
-    </AuthProvider>
+    <div className="flex h-full min-h-0 flex-col bg-surface-base">
+      <AuthProvider>
+        <SessionReset />
+        <AuditProvider>
+          <DataProvider>{children}</DataProvider>
+        </AuditProvider>
+      </AuthProvider>
+    </div>
   );
 }
 
@@ -77,11 +79,11 @@ function TabletShell() {
   return (
     <div className={isInGame ? 'fivem-tablet-shell' : 'dev-shell'}>
       <WindowFrame>
-        <AppProviders>
-          <HashRouter>
+        <HashRouter>
+          <AppProviders>
             <AppRoutes />
-          </HashRouter>
-        </AppProviders>
+          </AppProviders>
+        </HashRouter>
       </WindowFrame>
     </div>
   );

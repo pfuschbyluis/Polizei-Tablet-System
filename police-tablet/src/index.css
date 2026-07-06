@@ -2,6 +2,32 @@
 
 /* ── Flux Design System – original palette, Win11-inspired layout only ── */
 
+/* Fallback / default (dark) – prevents flash before data-theme is set */
+:root {
+  --flux-surface-base: #16161a;
+  --flux-surface: #1e1e24;
+  --flux-surface-secondary: #26262e;
+  --flux-surface-tertiary: #2f2f38;
+  --flux-surface-card: #24242c;
+  --flux-surface-hover: #363640;
+  --flux-border: rgba(255, 255, 255, 0.07);
+  --flux-border-strong: rgba(255, 255, 255, 0.13);
+  --flux-accent: #4f7cff;
+  --flux-accent-hover: #3d6bef;
+  --flux-accent-light: #7ea4ff;
+  --flux-accent-subtle: rgba(79, 124, 255, 0.14);
+  --flux-text-primary: #f0f0f5;
+  --flux-text-secondary: #a8a8b8;
+  --flux-text-muted: #6b6b7a;
+  --flux-success: #4ade80;
+  --flux-warning: #fbbf24;
+  --flux-danger: #f87171;
+  --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --flux-titlebar-bg: rgba(30, 30, 36, 0.92);
+  --flux-backdrop: radial-gradient(ellipse at 20% 20%, #1a1a2e 0%, #0f0f14 50%, #121218 100%);
+  --flux-scrollbar: #454550;
+}
+
 :root[data-theme="dark"] {
   --flux-surface-base: #16161a;
   --flux-surface: #1e1e24;
@@ -109,13 +135,16 @@ body {
 }
 
 html.fivem-nui,
-html.fivem-nui body {
+html.fivem-nui body,
+html.fivem-nui #root,
+html.fivem-nui .fivem-tablet-shell {
   background: transparent !important;
 }
 
 #root {
   width: 100%;
   height: 100%;
+  min-height: 0;
 }
 
 /* ── Typography ── */
@@ -129,7 +158,7 @@ html.fivem-nui body {
 
 /* ── Login ── */
 .login-card {
-  @apply rounded-2xl border border-border bg-surface-secondary/95 p-8 shadow-xl backdrop-blur-xl;
+  @apply rounded-2xl border border-border bg-surface-secondary p-8 shadow-xl;
   animation: flux-fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -205,6 +234,7 @@ html.fivem-nui body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: var(--flux-surface-base);
 }
 
 /* ── Title Bar ── */

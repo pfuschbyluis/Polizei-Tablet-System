@@ -8,6 +8,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>POLIS – Polizei-Tablet</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('polis-theme');
+          document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+          if (window.invokeNative) {
+            document.documentElement.classList.add('fivem-nui');
+            document.body.classList.add('fivem-nui');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

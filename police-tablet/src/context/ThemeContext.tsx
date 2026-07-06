@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useLayoutEffect, useCallback, type ReactNode } from 'react';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -15,10 +15,13 @@ const STORAGE_KEY = 'polis-theme';
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem(STORAGE_KEY) as ThemeMode) || 'dark';
+    const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
+    const initial = stored === 'light' || stored === 'dark' ? stored : 'dark';
+    document.documentElement.setAttribute('data-theme', initial);
+    return initial;
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
