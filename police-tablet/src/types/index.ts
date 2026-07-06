@@ -1,7 +1,6 @@
 export type Rank = 'admin' | 'leitstelle' | 'ermittler' | 'beamter';
 
 export type CaseStatus = 'offen' | 'in_bearbeitung' | 'abgeschlossen';
-export type OperationStatus = 'geplant' | 'aktiv' | 'abgeschlossen' | 'abgebrochen';
 export type WantedPriority = 'niedrig' | 'mittel' | 'hoch' | 'kritisch';
 export type WantedType = 'person' | 'fahrzeug' | 'waffe';
 export type LicenseStatus = 'gültig' | 'abgelaufen' | 'entzogen' | 'gesucht';
@@ -72,7 +71,6 @@ export interface Person {
   notes: OfficerNote[];
   linkedVehicleIds: string[];
   linkedWeaponIds: string[];
-  operationHistoryIds: string[];
   photoUrl?: string;
 }
 
@@ -155,28 +153,6 @@ export interface WantedEntry {
   active: boolean;
 }
 
-export interface AssignedUnit {
-  unitId: string;
-  unitName: string;
-  officers: string[];
-}
-
-export interface Operation {
-  id: string;
-  code: string;
-  title: string;
-  location: string;
-  coordinates?: { lat: number; lng: number };
-  status: OperationStatus;
-  priority: WantedPriority;
-  assignedUnits: AssignedUnit[];
-  radioCode: string;
-  report: string;
-  createdAt: string;
-  updatedAt: string;
-  linkedCaseIds: string[];
-}
-
 export interface InternalMessage {
   id: string;
   title: string;
@@ -209,9 +185,6 @@ export interface Permission {
   editVehicles: boolean;
   viewWanted: boolean;
   editWanted: boolean;
-  viewOperations: boolean;
-  createOperations: boolean;
-  editOperations: boolean;
   viewAuditLog: boolean;
   adminFunctions: boolean;
   viewEmployees: boolean;
@@ -239,9 +212,6 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editVehicles: true,
     viewWanted: true,
     editWanted: true,
-    viewOperations: true,
-    createOperations: true,
-    editOperations: true,
     viewAuditLog: true,
     adminFunctions: true,
     viewEmployees: true,
@@ -260,9 +230,6 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editVehicles: false,
     viewWanted: true,
     editWanted: true,
-    viewOperations: true,
-    createOperations: true,
-    editOperations: true,
     viewAuditLog: false,
     adminFunctions: false,
     viewEmployees: true,
@@ -281,9 +248,6 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editVehicles: true,
     viewWanted: true,
     editWanted: true,
-    viewOperations: true,
-    createOperations: false,
-    editOperations: false,
     viewAuditLog: false,
     adminFunctions: false,
     viewEmployees: false,
@@ -302,9 +266,6 @@ export const PERMISSIONS: Record<Rank, Permission> = {
     editVehicles: false,
     viewWanted: true,
     editWanted: false,
-    viewOperations: true,
-    createOperations: false,
-    editOperations: false,
     viewAuditLog: false,
     adminFunctions: false,
     viewEmployees: false,
@@ -325,10 +286,6 @@ export const OFFENSES = [
   'Waffendelikt',
   'Hausfriedensbruch',
   'Beschädigung fremden Eigentums',
-];
-
-export const RADIO_CODES = [
-  '10-4', '10-6', '10-7', '10-8', '10-9', '10-13', '10-20', '10-33', '10-50', 'Code 1', 'Code 2', 'Code 3',
 ];
 
 export const UNITS = [

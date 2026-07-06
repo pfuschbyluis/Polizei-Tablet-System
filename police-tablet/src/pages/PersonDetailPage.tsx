@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   Car,
   Crosshair,
-  Radio,
   MessageSquare,
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
@@ -17,7 +16,7 @@ import { Card, Button, StatusBadge, Badge, Input, EmptyState } from '../componen
 
 export default function PersonDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { getPerson, getVehicle, getWeapon, operations, addPersonNote } = useData();
+  const { getPerson, getVehicle, getWeapon, addPersonNote } = useData();
   const { currentOfficer, permissions } = useAuth();
   const [newNote, setNewNote] = useState('');
 
@@ -37,7 +36,6 @@ export default function PersonDetailPage() {
 
   const linkedVehicles = person.linkedVehicleIds.map((vid) => getVehicle(vid)).filter(Boolean);
   const linkedWeapons = person.linkedWeaponIds.map((wid) => getWeapon(wid)).filter(Boolean);
-  const opHistory = operations.filter((o) => person.operationHistoryIds.includes(o.id));
 
   const handleAddNote = () => {
     if (!newNote.trim() || !permissions.editPersons) return;
@@ -188,26 +186,6 @@ export default function PersonDetailPage() {
                     </p>
                   </div>
                   <StatusBadge status={w!.licenseStatus} />
-                </Link>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        <Card title="Einsatzhistorie">
-          {opHistory.length === 0 ? (
-            <EmptyState icon={Radio} title="Keine Einsätze" />
-          ) : (
-            <div className="space-y-2">
-              {opHistory.map((op) => (
-                <Link
-                  key={op.id}
-                  to={`/einsaetze/${op.id}`}
-                  className="block rounded-lg bg-police-800/40 px-4 py-3 hover:bg-police-800/60"
-                >
-                  <span className="font-mono text-xs text-police-accent">{op.code}</span>
-                  <p className="text-sm text-police-100">{op.title}</p>
-                  <StatusBadge status={op.status} />
                 </Link>
               ))}
             </div>

@@ -6,7 +6,6 @@ import {
   Crosshair,
   Car,
   Search,
-  Radio,
   Shield,
   ScrollText,
   UserCog,
@@ -25,7 +24,6 @@ const navItems = [
   { to: '/waffen', icon: Crosshair, label: 'Waffen', perm: 'viewWeapons' as const },
   { to: '/fahrzeuge', icon: Car, label: 'Fahrzeuge', perm: 'viewVehicles' as const },
   { to: '/fahndung', icon: Search, label: 'Fahndung', perm: 'viewWanted' as const },
-  { to: '/einsaetze', icon: Radio, label: 'Einsätze', perm: 'viewOperations' as const },
   { to: '/mitarbeiter', icon: UserCog, label: 'Mitarbeiter', perm: 'viewEmployees' as const },
   { to: '/protokoll', icon: ScrollText, label: 'Protokoll', perm: 'viewAuditLog' as const },
 ];

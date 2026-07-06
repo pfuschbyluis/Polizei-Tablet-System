@@ -15,7 +15,6 @@ import AkteCreatePage from './pages/AkteCreatePage';
 import WaffenPage from './pages/WaffenPage';
 import FahrzeugePage from './pages/FahrzeugePage';
 import FahndungPage from './pages/FahndungPage';
-import EinsaetzePage from './pages/EinsaetzePage';
 import AuditLogPage from './pages/AuditLogPage';
 import MitarbeiterPage from './pages/MitarbeiterPage';
 
@@ -57,8 +56,6 @@ function AppRoutes() {
           <Route path="fahrzeuge" element={<FahrzeugePage />} />
           <Route path="fahrzeuge/:id" element={<FahrzeugePage />} />
           <Route path="fahndung" element={<FahndungPage />} />
-          <Route path="einsaetze" element={<EinsaetzePage />} />
-          <Route path="einsaetze/:id" element={<EinsaetzePage />} />
           <Route path="mitarbeiter" element={<MitarbeiterPage />} />
           <Route path="protokoll" element={<AuditLogPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
