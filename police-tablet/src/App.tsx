@@ -1,8 +1,10 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { FiveMProvider, useFiveM } from './context/FiveMContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuditProvider } from './context/AuditContext';
 import { DataProvider } from './context/DataContext';
+import ProtectedLayout from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import PersonenPage from './pages/PersonenPage';
@@ -15,10 +17,12 @@ import FahrzeugePage from './pages/FahrzeugePage';
 import FahndungPage from './pages/FahndungPage';
 import EinsaetzePage from './pages/EinsaetzePage';
 import AuditLogPage from './pages/AuditLogPage';
+import MitarbeiterPage from './pages/MitarbeiterPage';
 
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
+      <SessionReset />
       <AuditProvider>
         <DataProvider>{children}</DataProvider>
       </AuditProvider>
@@ -26,25 +30,39 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
+function SessionReset() {
+  const { visible, isInGame } = useFiveM();
+  const { logout, isAuthenticated } = useAuth();
+  useEffect(() => {
+    if (isInGame && !visible && isAuthenticated) {
+      logout();
+    }
+  }, [visible, isInGame, isAuthenticated, logout]);
+  return null;
+}
+
 function AppRoutes() {
   return (
     <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="personen" element={<PersonenPage />} />
-        <Route path="personen/:id" element={<PersonDetailPage />} />
-        <Route path="akten" element={<AktenPage />} />
-        <Route path="akten/neu" element={<AkteCreatePage />} />
-        <Route path="akten/:id" element={<AkteDetailPage />} />
-        <Route path="waffen" element={<WaffenPage />} />
-        <Route path="waffen/:id" element={<WaffenPage />} />
-        <Route path="fahrzeuge" element={<FahrzeugePage />} />
-        <Route path="fahrzeuge/:id" element={<FahrzeugePage />} />
-        <Route path="fahndung" element={<FahndungPage />} />
-        <Route path="einsaetze" element={<EinsaetzePage />} />
-        <Route path="einsaetze/:id" element={<EinsaetzePage />} />
-        <Route path="protokoll" element={<AuditLogPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+      <Route element={<ProtectedLayout />}>
+        <Route element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="personen" element={<PersonenPage />} />
+          <Route path="personen/:id" element={<PersonDetailPage />} />
+          <Route path="akten" element={<AktenPage />} />
+          <Route path="akten/neu" element={<AkteCreatePage />} />
+          <Route path="akten/:id" element={<AkteDetailPage />} />
+          <Route path="waffen" element={<WaffenPage />} />
+          <Route path="waffen/:id" element={<WaffenPage />} />
+          <Route path="fahrzeuge" element={<FahrzeugePage />} />
+          <Route path="fahrzeuge/:id" element={<FahrzeugePage />} />
+          <Route path="fahndung" element={<FahndungPage />} />
+          <Route path="einsaetze" element={<EinsaetzePage />} />
+          <Route path="einsaetze/:id" element={<EinsaetzePage />} />
+          <Route path="mitarbeiter" element={<MitarbeiterPage />} />
+          <Route path="protokoll" element={<AuditLogPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
       </Route>
     </Routes>
   );

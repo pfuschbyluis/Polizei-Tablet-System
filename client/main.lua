@@ -1,5 +1,7 @@
 local isOpen = false
 local tabletProp = nil
+local loggedInOfficer = nil
+local pendingCallbacks = {}
 
 local function DebugPrint(msg)
     print(('[^3POLIS^7] %s'):format(msg))
@@ -146,15 +148,11 @@ local function OpenTablet()
     end
 
     isOpen = true
+    loggedInOfficer = nil
     StartTabletAnimation()
     SetNuiFocus(true, true)
 
-    SendNUIMessage({
-        action = 'open',
-        data = {
-            officer = BuildOfficerData(),
-        },
-    })
+    SendNUIMessage({ action = 'open' })
 
     DebugPrint('Tablet geöffnet')
 end
@@ -163,6 +161,7 @@ local function CloseTablet()
     if not isOpen then return end
 
     isOpen = false
+    loggedInOfficer = nil
     SetNuiFocus(false, false)
     StopTabletAnimation()
 
@@ -202,6 +201,47 @@ end)
 RegisterNUICallback('logAction', function(data, cb)
     TriggerServerEvent('polis:logAction', data)
     cb({ ok = true })
+end)
+
+local function TriggerServerNui(event, data, cb)
+    local reqId = math.random(100000, 999999)
+    pendingCallbacks[reqId] = cb
+    TriggerServerEvent(event, reqId, data, loggedInOfficer and loggedInOfficer.rank or nil, loggedInOfficer and loggedInOfficer.id or nil)
+end
+
+RegisterNetEvent('polis:client:nuiResult', function(reqId, result)
+    if pendingCallbacks[reqId] then
+        pendingCallbacks[reqId](result)
+        pendingCallbacks[reqId] = nil
+    end
+end)
+
+RegisterNUICallback('login', function(data, cb)
+    local reqId = math.random(100000, 999999)
+    pendingCallbacks[reqId] = function(result)
+        if result.success and result.officer then
+            loggedInOfficer = result.officer
+        end
+        cb(result)
+    end
+    TriggerServerEvent('polis:server:login', reqId, data)
+end)
+
+RegisterNUICallback('logout', function(_, cb)
+    loggedInOfficer = nil
+    cb({ ok = true })
+end)
+
+RegisterNUICallback('createEmployee', function(data, cb)
+    TriggerServerNui('polis:server:createEmployee', data, cb)
+end)
+
+RegisterNUICallback('updateEmployee', function(data, cb)
+    TriggerServerNui('polis:server:updateEmployee', data, cb)
+end)
+
+RegisterNUICallback('deleteEmployee', function(data, cb)
+    TriggerServerNui('polis:server:deleteEmployee', data, cb)
 end)
 
 -- ESC fallback (zusätzlich zu NUI)

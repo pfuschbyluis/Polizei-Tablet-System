@@ -10,16 +10,16 @@ export default function Input({ label, error, className = '', id, ...props }: In
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={inputId} className="block text-xs font-medium text-police-300">
+        <label htmlFor={inputId} className="block text-xs font-medium text-text-secondary">
           {label}
         </label>
       )}
       <input
         id={inputId}
-        className={`w-full rounded-lg border border-police-600/50 bg-police-800/80 px-3 py-2 text-sm text-police-100 placeholder:text-police-500 focus:border-police-accent focus:outline-none focus:ring-1 focus:ring-police-accent/50 transition-colors ${className}`}
+        className={`w-full rounded-lg border border-border bg-surface-tertiary/80 px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 transition-all ${className}`}
         {...props}
       />
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

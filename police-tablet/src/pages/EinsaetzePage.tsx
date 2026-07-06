@@ -41,6 +41,8 @@ export default function EinsaetzePage() {
 
   const [reportEdit, setReportEdit] = useState('');
 
+  if (!currentOfficer) return null;
+
   if (id) {
     const op = operations.find((o) => o.id === id);
     if (!op) return <p className="text-police-400 py-20 text-center">Einsatz nicht gefunden</p>;

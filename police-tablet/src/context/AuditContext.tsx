@@ -16,6 +16,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
 
   const logAction = useCallback(
     (action: string, module: string, details: string) => {
+      if (!currentOfficer) return;
       const entry: AuditEntry = {
         id: `audit-${Date.now()}`,
         timestamp: new Date().toISOString(),

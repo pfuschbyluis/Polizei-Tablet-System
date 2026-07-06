@@ -17,6 +17,8 @@ export default function AkteCreatePage() {
     description: '',
   });
 
+  if (!currentOfficer) return null;
+
   if (!permissions.createCases) {
     return (
       <div className="text-center py-20">

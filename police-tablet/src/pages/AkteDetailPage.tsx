@@ -49,6 +49,8 @@ export default function AkteDetailPage() {
   const [participantForm, setParticipantForm] = useState({ personId: '', role: 'verdächtig' as const });
   const [noteForm, setNoteForm] = useState('');
 
+  if (!currentOfficer) return null;
+
   const caseFile = getCase(id!);
   if (!caseFile) {
     return (
