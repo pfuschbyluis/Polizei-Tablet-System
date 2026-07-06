@@ -28,9 +28,9 @@ export default function PersonDetailPage() {
   const linkedVehicles = person.linkedVehicleIds.map((vid) => getVehicle(vid)).filter(Boolean);
   const linkedWeapons = person.linkedWeaponIds.map((wid) => getWeapon(wid)).filter(Boolean);
 
-  const handleAddNote = () => {
+  const handleAddNote = async () => {
     if (!newNote.trim() || !permissions.editPersons) return;
-    addPersonNote(person.id, {
+    await addPersonNote(person.id, {
       officerId: currentOfficer.id,
       officerName: currentOfficer.name,
       date: new Date().toISOString().split('T')[0],

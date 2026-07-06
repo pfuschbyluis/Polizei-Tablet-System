@@ -1,6 +1,7 @@
 local isOpen = false
 local tabletProp = nil
 local loggedInOfficer = nil
+local sessionToken = nil
 local pendingCallbacks = {}
 
 local function DebugPrint(msg)
@@ -149,6 +150,7 @@ local function OpenTablet()
 
     isOpen = true
     loggedInOfficer = nil
+    sessionToken = nil
     StartTabletAnimation()
     SetNuiFocus(true, true)
 
@@ -162,6 +164,7 @@ local function CloseTablet()
 
     isOpen = false
     loggedInOfficer = nil
+    sessionToken = nil
     SetNuiFocus(false, false)
     StopTabletAnimation()
 
@@ -199,6 +202,9 @@ RegisterNUICallback('ready', function(_, cb)
 end)
 
 RegisterNUICallback('logAction', function(data, cb)
+    if sessionToken then
+        data.sessionToken = sessionToken
+    end
     TriggerServerEvent('polis:logAction', data)
     cb({ ok = true })
 end)
@@ -206,7 +212,11 @@ end)
 local function TriggerServerNui(event, data, cb)
     local reqId = math.random(100000, 999999)
     pendingCallbacks[reqId] = cb
-    TriggerServerEvent(event, reqId, data, loggedInOfficer and loggedInOfficer.rank or nil, loggedInOfficer and loggedInOfficer.id or nil)
+    local payload = data or {}
+    if sessionToken then
+        payload.sessionToken = sessionToken
+    end
+    TriggerServerEvent(event, reqId, payload)
 end
 
 RegisterNetEvent('polis:client:nuiResult', function(reqId, result)
@@ -221,6 +231,7 @@ RegisterNUICallback('login', function(data, cb)
     pendingCallbacks[reqId] = function(result)
         if result.success and result.officer then
             loggedInOfficer = result.officer
+            sessionToken = result.officer.sessionToken
         end
         cb(result)
     end
@@ -229,6 +240,8 @@ end)
 
 RegisterNUICallback('logout', function(_, cb)
     loggedInOfficer = nil
+    sessionToken = nil
+    TriggerServerEvent('polis:server:logout', 0, {})
     cb({ ok = true })
 end)
 
@@ -242,6 +255,42 @@ end)
 
 RegisterNUICallback('deleteEmployee', function(data, cb)
     TriggerServerNui('polis:server:deleteEmployee', data, cb)
+end)
+
+RegisterNUICallback('getInitialData', function(data, cb)
+    TriggerServerNui('polis:server:getInitialData', data, cb)
+end)
+
+RegisterNUICallback('getAuditLog', function(data, cb)
+    TriggerServerNui('polis:server:getAuditLog', data, cb)
+end)
+
+RegisterNUICallback('addPersonNote', function(data, cb)
+    TriggerServerNui('polis:server:addPersonNote', data, cb)
+end)
+
+RegisterNUICallback('createCase', function(data, cb)
+    TriggerServerNui('polis:server:createCase', data, cb)
+end)
+
+RegisterNUICallback('updateCaseStatus', function(data, cb)
+    TriggerServerNui('polis:server:updateCaseStatus', data, cb)
+end)
+
+RegisterNUICallback('addCaseEvidence', function(data, cb)
+    TriggerServerNui('polis:server:addCaseEvidence', data, cb)
+end)
+
+RegisterNUICallback('addCaseWitness', function(data, cb)
+    TriggerServerNui('polis:server:addCaseWitness', data, cb)
+end)
+
+RegisterNUICallback('addCaseParticipant', function(data, cb)
+    TriggerServerNui('polis:server:addCaseParticipant', data, cb)
+end)
+
+RegisterNUICallback('addCaseNote', function(data, cb)
+    TriggerServerNui('polis:server:addCaseNote', data, cb)
 end)
 
 -- ESC fallback (zusätzlich zu NUI)

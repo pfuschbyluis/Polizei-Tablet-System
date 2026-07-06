@@ -5,8 +5,9 @@ FiveM-NUI-Resource mit professionellem Polizei-Tablet für Roleplay-Server. Alle
 ## Installation
 
 1. Repository klonen oder herunterladen
-2. Ordner in `resources/[police]/polis` legen (Name frei wählbar)
-3. UI bauen (einmalig nach Updates):
+2. **[oxmysql](https://github.com/overextended/oxmysql)** installieren und MySQL-Verbindung in `server.cfg` konfigurieren
+3. Ordner in `resources/[police]/polis` legen (Name frei wählbar)
+4. UI bauen (einmalig nach Updates):
 
 ```bash
 cd police-tablet
@@ -14,11 +15,18 @@ npm install
 npm run build:fivem
 ```
 
-4. In `server.cfg` eintragen:
+5. In `server.cfg` eintragen (oxmysql vor polis starten):
 
 ```
+ensure oxmysql
 ensure polis
 ```
+
+### Datenbank
+
+Beim ersten Start werden **alle Tabellen automatisch erstellt** – es sind keine manuellen SQL-Importe nötig. Vor jeder Datenbankoperation prüft das Skript, ob die Tabellen existieren, und legt fehlende Strukturen an.
+
+Passwörter werden **niemals im Klartext** gespeichert, sondern mit PBKDF2-HMAC-SHA256 gehasht. Standard-Mitarbeiter aus `config.lua` werden beim ersten Start einmalig angelegt (nur wenn die Tabelle leer ist).
 
 ## Steuerung im Spiel
 
