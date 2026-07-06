@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Officer, Rank, Permission, Employee, EmployeeInput } from '../types';
 import { PERMISSIONS, RANK_LABELS } from '../types';
 import { DEV_EMPLOYEES, stripPassword } from '../data/defaults';
@@ -68,6 +69,7 @@ function devLogin(badgeNumber: string, password: string): LoginResult {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { isInGame } = useFiveM();
+  const navigate = useNavigate();
   const isDevMode = !isInGame;
   const [currentOfficer, setCurrentOfficer] = useState<Officer | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -114,8 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentOfficer(null);
     setEmployees([]);
     setLoginError(null);
+    navigate('/', { replace: true });
     if (isFiveM()) fetchNui('logout');
-  }, []);
+  }, [navigate]);
 
   const switchRank = useCallback((rank: Rank) => {
     if (isFiveM() || !currentOfficer) return;

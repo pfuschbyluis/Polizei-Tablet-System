@@ -52,18 +52,20 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-border p-2 space-y-0.5">
+      <div className="shrink-0 border-t border-border p-2 space-y-0.5">
         <button
+          type="button"
           onClick={logout}
           title="Abmelden"
           className={`flex w-full items-center rounded-lg text-sm text-text-secondary hover:bg-danger/10 hover:text-danger transition-all ${
             collapsed ? 'justify-center px-2 py-2' : 'gap-2.5 px-3 py-2'
           }`}
         >
-          <Icon name="logout" size={17} className="shrink-0" />
+          <Icon name="logout" size={17} className="shrink-0 pointer-events-none" />
           {!collapsed && <span>Abmelden</span>}
         </button>
         <button
+          type="button"
           onClick={() => setCollapsed(!collapsed)}
           className="flex w-full items-center justify-center rounded-lg py-2 text-text-muted hover:bg-surface-hover hover:text-text-secondary transition-colors"
         >
