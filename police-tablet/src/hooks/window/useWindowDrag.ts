@@ -8,6 +8,12 @@ interface DragState {
   origY: number;
 }
 
+function getTaskbarSize(): number {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--flux-taskbar-size');
+  const parsed = parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 52;
+}
+
 export function useWindowDrag(
   isMaximized: boolean,
   isMinimized: boolean,
@@ -16,7 +22,13 @@ export function useWindowDrag(
   setWindowFocused: (focused: boolean) => void
 ) {
   const dragRef = useRef<DragState | null>(null);
+  const boundsRef = useRef(windowBounds);
+  const snapZoneRef = useRef<string | null>(null);
   const [snapZone, setSnapZone] = useState<string | null>(null);
+
+  useEffect(() => {
+    boundsRef.current = windowBounds;
+  }, [windowBounds]);
 
   const onDragStart = useCallback(
     (clientX: number, clientY: number) => {
@@ -24,40 +36,67 @@ export function useWindowDrag(
       dragRef.current = {
         startX: clientX,
         startY: clientY,
-        origX: windowBounds.x,
-        origY: windowBounds.y,
+        origX: boundsRef.current.x,
+        origY: boundsRef.current.y,
       };
       setWindowFocused(true);
     },
-    [isMaximized, isMinimized, windowBounds, setWindowFocused]
+    [isMaximized, isMinimized, setWindowFocused]
   );
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!dragRef.current) return;
+      const taskbar = getTaskbarSize();
       const dx = e.clientX - dragRef.current.startX;
       const dy = e.clientY - dragRef.current.startY;
       const nx = dragRef.current.origX + dx;
       const ny = dragRef.current.origY + dy;
-      const w = window.innerWidth;
-      if (nx < 8) setSnapZone('left');
-      else if (nx > w - 120) setSnapZone('right');
-      else setSnapZone(null);
-      setWindowBounds({ ...windowBounds, x: nx, y: Math.max(0, ny) });
+      const viewportW = window.innerWidth;
+      const height = boundsRef.current.height;
+
+      if (nx < 8) {
+        snapZoneRef.current = 'left';
+        setSnapZone('left');
+      } else if (nx + boundsRef.current.width > viewportW - 8) {
+        snapZoneRef.current = 'right';
+        setSnapZone('right');
+      } else {
+        snapZoneRef.current = null;
+        setSnapZone(null);
+      }
+
+      const maxY = Math.max(0, window.innerHeight - taskbar - height);
+      const next = {
+        ...boundsRef.current,
+        x: nx,
+        y: Math.max(0, Math.min(ny, maxY)),
+      };
+      boundsRef.current = next;
+      setWindowBounds(next);
     };
 
     const onUp = () => {
-      if (snapZone === 'left') {
-        setWindowBounds({ x: 0, y: 0, width: window.innerWidth / 2, height: window.innerHeight - 56 });
-      } else if (snapZone === 'right') {
+      if (!dragRef.current) return;
+      const zone = snapZoneRef.current;
+      const taskbar = getTaskbarSize();
+      if (zone === 'left') {
+        setWindowBounds({
+          x: 0,
+          y: 0,
+          width: window.innerWidth / 2,
+          height: window.innerHeight - taskbar,
+        });
+      } else if (zone === 'right') {
         setWindowBounds({
           x: window.innerWidth / 2,
           y: 0,
           width: window.innerWidth / 2,
-          height: window.innerHeight - 56,
+          height: window.innerHeight - taskbar,
         });
       }
       dragRef.current = null;
+      snapZoneRef.current = null;
       setSnapZone(null);
     };
 
@@ -67,7 +106,7 @@ export function useWindowDrag(
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
-  }, [windowBounds, setWindowBounds, snapZone]);
+  }, [setWindowBounds]);
 
   return { onDragStart, snapZone };
 }

@@ -42,7 +42,8 @@ export default function SystemTray() {
         type="button"
         className={`flux-shell-icon-btn ${quickSettingsOpen ? 'flux-shell-icon-btn--active' : ''}`}
         title="Schnelleinstellungen"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           closeAllOverlays();
           setQuickSettingsOpen(!quickSettingsOpen);
         }}
@@ -54,7 +55,8 @@ export default function SystemTray() {
         type="button"
         className={`flux-shell-icon-btn flux-tray-bell ${notificationsOpen ? 'flux-shell-icon-btn--active' : ''}`}
         title="Benachrichtigungen"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           closeAllOverlays();
           setNotificationsOpen(!notificationsOpen);
         }}
@@ -66,7 +68,8 @@ export default function SystemTray() {
       <button
         type="button"
         className={`flux-tray-clock ${calendarOpen ? 'flux-tray-clock--active' : ''}`}
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           closeAllOverlays();
           setCalendarOpen(!calendarOpen);
         }}

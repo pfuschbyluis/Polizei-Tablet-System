@@ -13,12 +13,17 @@ export default function DesktopContextMenu() {
   const items = [
     {
       label: 'Aktualisieren',
-      action: () => window.location.reload(),
+      action: () => {
+        setContextMenu(null);
+        window.location.reload();
+      },
     },
     {
       label: 'Nächster Hintergrund',
-      action: () =>
-        updateSettings({ wallpaperIndex: (settings.wallpaperIndex + 1) % WALLPAPERS.length }),
+      action: () => {
+        setContextMenu(null);
+        updateSettings({ wallpaperIndex: (settings.wallpaperIndex + 1) % WALLPAPERS.length });
+      },
     },
     {
       label: 'Personalisierung',
@@ -29,7 +34,10 @@ export default function DesktopContextMenu() {
     },
     {
       label: `Desktop ${virtualDesktop} · Neuer Desktop`,
-      action: () => setVirtualDesktop(virtualDesktop + 1),
+      action: () => {
+        setContextMenu(null);
+        setVirtualDesktop(virtualDesktop + 1);
+      },
     },
   ];
 

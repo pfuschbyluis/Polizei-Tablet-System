@@ -16,7 +16,7 @@ export default function DesktopIcon({ shortcut }: DesktopIconProps) {
     <button
       type="button"
       className="flux-desktop-icon group"
-      onDoubleClick={() => {
+      onClick={() => {
         closeAllOverlays();
         navigate(shortcut.route);
       }}

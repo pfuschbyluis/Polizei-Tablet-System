@@ -28,14 +28,22 @@ export default function Taskbar() {
 
   const pinned = shortcuts.filter((s) => s.pinned);
 
-  const toggleStart = () => {
-    closeAllOverlays();
-    setStartOpen(!startOpen);
+  const toggleStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (startOpen) setStartOpen(false);
+    else {
+      closeAllOverlays();
+      setStartOpen(true);
+    }
   };
 
-  const toggleSearch = () => {
-    closeAllOverlays();
-    setSearchOpen(!searchOpen);
+  const toggleSearch = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (searchOpen) setSearchOpen(false);
+    else {
+      closeAllOverlays();
+      setSearchOpen(true);
+    }
   };
 
   const openApp = (route: string) => {
@@ -63,7 +71,10 @@ export default function Taskbar() {
 
   return (
     <>
-      <div className={`flux-taskbar flux-taskbar--${settings.taskbarPosition} flux-taskbar--align-${settings.taskbarAlign}`}>
+      <div
+        className={`flux-taskbar flux-taskbar--${settings.taskbarPosition} flux-taskbar--align-${settings.taskbarAlign}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flux-taskbar__cluster flux-taskbar__cluster--start">
           <button
             type="button"

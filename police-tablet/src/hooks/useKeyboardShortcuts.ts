@@ -12,13 +12,14 @@ export function useKeyboardShortcuts() {
     searchOpen,
     quickSettingsOpen,
     notificationsOpen,
+    calendarOpen,
   } = useShell();
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
       if (e.key === 'Escape') {
-        if (startOpen || searchOpen || quickSettingsOpen || notificationsOpen) {
+        if (startOpen || searchOpen || quickSettingsOpen || notificationsOpen || calendarOpen) {
           e.preventDefault();
           closeAllOverlays();
         }
@@ -58,5 +59,6 @@ export function useKeyboardShortcuts() {
     searchOpen,
     quickSettingsOpen,
     notificationsOpen,
+    calendarOpen,
   ]);
 }

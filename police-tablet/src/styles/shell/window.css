@@ -46,17 +46,39 @@ html.fivem-nui .flux-window-content {
   border-radius: 0 0 11px 11px;
 }
 
-.flux-window-minimized {
-  width: min(92vw, 360px);
-  height: auto;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.flux-window--minimized {
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden;
 }
 
-.flux-window-minimized:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--flux-shadow), 0 4px 12px rgba(79, 124, 255, 0.15);
+.flux-window--focused {
+  box-shadow: var(--flux-shadow), 0 0 0 1px color-mix(in srgb, var(--flux-accent) 35%, transparent);
+}
+
+.flux-window--unfocused {
+  opacity: 0.96;
+  filter: saturate(0.92);
+}
+
+.flux-window--unfocused .flux-titlebar {
+  opacity: 0.88;
+}
+
+.flux-shell-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.18);
+  animation: flux-fade-in 0.18s ease;
+}
+
+@keyframes flux-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .flux-window-content {

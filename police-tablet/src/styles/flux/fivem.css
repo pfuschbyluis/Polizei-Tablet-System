@@ -50,5 +50,12 @@ html.fivem-nui .flux-titlebar {
 html.fivem-nui .flux-window-content {
   border-radius: 0 0 11px 11px;
 }
-html.fivem-nui .flux-desktop-surface { background: transparent !important; }
-html.fivem-nui .flux-desktop-icons, html.fivem-nui .flux-desktop-widgets { display: none; }
+
+/* FiveM: Desktop mit Wallpaper sichtbar lassen, Widgets ausblenden */
+html.fivem-nui .flux-desktop-surface {
+  background-color: rgba(8, 10, 18, 0.35);
+}
+
+html.fivem-nui .flux-desktop-widgets {
+  display: none;
+}

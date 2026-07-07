@@ -7,7 +7,6 @@ import { useWindowInitialBounds } from '../../../hooks/window/useWindowInitialBo
 import { useWindowResize } from '../../../hooks/window/useWindowResize';
 import TitleBar from '../TitleBar';
 import SnapLayoutOverlay from '../SnapLayoutOverlay';
-import MinimizedWindowBar from './MinimizedWindowBar';
 
 interface WindowFrameProps {
   children: ReactNode;
@@ -26,6 +25,7 @@ export default function WindowFrame({
     setWindowState,
     windowBounds,
     setWindowBounds,
+    isWindowFocused,
     setWindowFocused,
   } = useShell();
 
@@ -49,12 +49,8 @@ export default function WindowFrame({
   );
   const { onResizeStart } = useWindowResize(isMaximized, windowBounds, setWindowBounds, frameRef);
 
-  if (isMinimized) {
-    return <MinimizedWindowBar title={title} onRestore={() => setWindowState('normal')} />;
-  }
-
   const style =
-    !isMaximized && windowBounds.width > 0
+    !isMaximized && !isMinimized && windowBounds.width > 0
       ? {
           position: 'absolute' as const,
           left: windowBounds.x,
@@ -66,14 +62,17 @@ export default function WindowFrame({
 
   return (
     <>
-      <SnapLayoutOverlay activeZone={snapZone} />
+      {!isMinimized && <SnapLayoutOverlay activeZone={snapZone} />}
       <div
         ref={frameRef}
         style={style}
-        className={`flux-window animate-flux-open ${isMaximized ? 'flux-window-maximized' : 'flux-window-floating'} ${
-          isInGame ? 'flux-window-in-game' : ''
+        className={`flux-window ${isMinimized ? 'flux-window--minimized' : 'animate-flux-open'} ${
+          isMaximized ? 'flux-window-maximized' : 'flux-window-floating'
+        } ${isInGame ? 'flux-window-in-game' : ''} ${
+          isWindowFocused ? 'flux-window--focused' : 'flux-window--unfocused'
         }`}
         onMouseDown={() => setWindowFocused(true)}
+        aria-hidden={isMinimized}
       >
         <div id="flux-notify-root" className="flux-notify-root" aria-live="polite" />
         <TitleBar
@@ -86,7 +85,7 @@ export default function WindowFrame({
           onDragStart={onDragStart}
         />
         <div className="flux-window-content">{children}</div>
-        {!isMaximized && (
+        {!isMaximized && !isMinimized && (
           <div
             className="flux-window-resize-handle"
             onMouseDown={(e) => {

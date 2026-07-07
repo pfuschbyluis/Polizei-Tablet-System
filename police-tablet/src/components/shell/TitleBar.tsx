@@ -1,4 +1,3 @@
-import Icon from '../icons/Icon';
 import PoliceIcon from '../icons/PoliceIcon';
 import WindowControls from './WindowControls';
 
@@ -40,9 +39,6 @@ export default function TitleBar({
       </div>
 
       <div className="flex items-center gap-1">
-        <button type="button" className="flux-icon-btn flux-titlebar-action" title="Andocken">
-          <Icon name="layout" size={15} />
-        </button>
         <WindowControls
           isMaximized={isMaximized}
           onMinimize={onMinimize}

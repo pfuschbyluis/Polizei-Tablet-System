@@ -17,6 +17,18 @@
 .flux-taskbar--left { left: 0; top: 0; bottom: 0; width: var(--flux-taskbar-size); flex-direction: column; }
 .flux-taskbar--right { right: 0; top: 0; bottom: 0; width: var(--flux-taskbar-size); flex-direction: column; }
 .flux-taskbar--align-center .flux-taskbar__cluster--apps { margin-inline: auto; }
+.flux-taskbar--align-start .flux-taskbar__cluster--apps { margin-inline: 0 auto; }
+
+html[data-taskbar-position='top'] .flux-start-menu,
+html[data-taskbar-position='top'] .flux-search-panel {
+  bottom: auto;
+  top: calc(var(--flux-taskbar-size, 52px) + 12px);
+}
+
+html[data-taskbar-position='top'] .flux-flyout {
+  bottom: auto;
+  top: calc(var(--flux-taskbar-size, 52px) + 12px);
+}
 
 .flux-taskbar__cluster { display: flex; align-items: center; gap: 0.25rem; }
 
