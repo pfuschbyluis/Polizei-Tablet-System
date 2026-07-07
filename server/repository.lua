@@ -561,3 +561,317 @@ end
 function Repository.CanManageRoles(emp)
     return Repository.EmployeeHasPermission(emp, 'manageRoles')
 end
+
+-- Persons
+function Repository.GetPersonById(id)
+    Database.EnsureSchema()
+    local row = MySQL.single.await('SELECT * FROM polis_persons WHERE id = ? LIMIT 1', { id })
+    return row and rowToPerson(row) or nil
+end
+
+function Repository.CreatePerson(data)
+    Database.EnsureSchema()
+    local id = Database.GenerateId('person')
+    MySQL.insert.await(
+        [[INSERT INTO polis_persons
+        (id, first_name, last_name, date_of_birth, address, city, phone, photo_url, prior_convictions, arrest_warrants, notes, linked_vehicle_ids, linked_weapon_ids)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]],
+        {
+            id,
+            data.firstName,
+            data.lastName,
+            data.dateOfBirth,
+            data.address,
+            data.city,
+            data.phone,
+            data.photoUrl,
+            Database.EncodeJson(data.priorConvictions or {}),
+            Database.EncodeJson(data.arrestWarrants or {}),
+            Database.EncodeJson(data.notes or {}),
+            Database.EncodeJson(data.linkedVehicleIds or {}),
+            Database.EncodeJson(data.linkedWeaponIds or {}),
+        }
+    )
+    return Repository.GetPersonById(id)
+end
+
+function Repository.UpdatePerson(id, data)
+    Database.EnsureSchema()
+    local person = Repository.GetPersonById(id)
+    if not person then return nil end
+
+    MySQL.update.await(
+        [[UPDATE polis_persons SET
+        first_name = ?, last_name = ?, date_of_birth = ?, address = ?, city = ?, phone = ?, photo_url = ?
+        WHERE id = ?]],
+        {
+            data.firstName or person.firstName,
+            data.lastName or person.lastName,
+            data.dateOfBirth or person.dateOfBirth,
+            data.address or person.address,
+            data.city or person.city,
+            data.phone ~= nil and data.phone or person.phone,
+            data.photoUrl ~= nil and data.photoUrl or person.photoUrl,
+            id,
+        }
+    )
+    return Repository.GetPersonById(id)
+end
+
+local function linkWeaponToPerson(personId, weaponId)
+    if not personId or not weaponId then return end
+    local person = Repository.GetPersonById(personId)
+    if not person then return end
+    local ids = person.linkedWeaponIds or {}
+    for _, wid in ipairs(ids) do
+        if wid == weaponId then return end
+    end
+    ids[#ids + 1] = weaponId
+    MySQL.update.await('UPDATE polis_persons SET linked_weapon_ids = ? WHERE id = ?', { Database.EncodeJson(ids), personId })
+end
+
+local function linkVehicleToPerson(personId, vehicleId)
+    if not personId or not vehicleId then return end
+    local person = Repository.GetPersonById(personId)
+    if not person then return end
+    local ids = person.linkedVehicleIds or {}
+    for _, vid in ipairs(ids) do
+        if vid == vehicleId then return end
+    end
+    ids[#ids + 1] = vehicleId
+    MySQL.update.await('UPDATE polis_persons SET linked_vehicle_ids = ? WHERE id = ?', { Database.EncodeJson(ids), personId })
+end
+
+-- Weapons
+function Repository.GetWeaponById(id)
+    Database.EnsureSchema()
+    local row = MySQL.single.await('SELECT * FROM polis_weapons WHERE id = ? LIMIT 1', { id })
+    return row and rowToWeapon(row) or nil
+end
+
+function Repository.FindWeaponBySerial(serialNumber)
+    Database.EnsureSchema()
+    local row = MySQL.single.await(
+        'SELECT * FROM polis_weapons WHERE LOWER(serial_number) = LOWER(?) LIMIT 1',
+        { serialNumber }
+    )
+    return row and rowToWeapon(row) or nil
+end
+
+function Repository.CreateWeapon(data)
+    Database.EnsureSchema()
+    if Repository.FindWeaponBySerial(data.serialNumber or '') then
+        return nil, 'Seriennummer bereits registriert.'
+    end
+
+    local id = Database.GenerateId('wpn')
+    local now = os.date('%Y-%m-%d')
+    MySQL.insert.await(
+        [[INSERT INTO polis_weapons
+        (id, serial_number, type, caliber, owner_id, license_status, license_expiry, registered_at, notes, is_wanted)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]],
+        {
+            id,
+            data.serialNumber,
+            data.type,
+            data.caliber,
+            data.ownerId,
+            data.licenseStatus or 'gültig',
+            data.licenseExpiry,
+            now,
+            data.notes or '',
+            data.isWanted and 1 or 0,
+        }
+    )
+
+    if data.ownerId then
+        linkWeaponToPerson(data.ownerId, id)
+    end
+
+    return Repository.GetWeaponById(id)
+end
+
+function Repository.UpdateWeapon(id, data)
+    Database.EnsureSchema()
+    local weapon = Repository.GetWeaponById(id)
+    if not weapon then return nil end
+
+    local ownerId = data.ownerId ~= nil and data.ownerId or weapon.ownerId
+    MySQL.update.await(
+        [[UPDATE polis_weapons SET
+        serial_number = ?, type = ?, caliber = ?, owner_id = ?, license_status = ?, license_expiry = ?, notes = ?, is_wanted = ?
+        WHERE id = ?]],
+        {
+            data.serialNumber or weapon.serialNumber,
+            data.type or weapon.type,
+            data.caliber or weapon.caliber,
+            ownerId,
+            data.licenseStatus or weapon.licenseStatus,
+            data.licenseExpiry ~= nil and data.licenseExpiry or weapon.licenseExpiry,
+            data.notes ~= nil and data.notes or weapon.notes,
+            (data.isWanted ~= nil and data.isWanted or weapon.isWanted) and 1 or 0,
+            id,
+        }
+    )
+
+    if ownerId then
+        linkWeaponToPerson(ownerId, id)
+    end
+
+    return Repository.GetWeaponById(id)
+end
+
+-- Vehicles
+function Repository.GetVehicleById(id)
+    Database.EnsureSchema()
+    local row = MySQL.single.await('SELECT * FROM polis_vehicles WHERE id = ? LIMIT 1', { id })
+    return row and rowToVehicle(row) or nil
+end
+
+function Repository.FindVehicleByPlate(plate)
+    Database.EnsureSchema()
+    local row = MySQL.single.await(
+        'SELECT * FROM polis_vehicles WHERE LOWER(plate) = LOWER(?) LIMIT 1',
+        { plate }
+    )
+    return row and rowToVehicle(row) or nil
+end
+
+function Repository.CreateVehicle(data)
+    Database.EnsureSchema()
+    if Repository.FindVehicleByPlate(data.plate or '') then
+        return nil, 'Kennzeichen bereits registriert.'
+    end
+
+    local id = Database.GenerateId('veh')
+    local now = os.date('%Y-%m-%d')
+    MySQL.insert.await(
+        [[INSERT INTO polis_vehicles
+        (id, plate, owner_id, model, brand, color, insurance_status, registration_status, is_wanted, linked_case_ids, registered_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]],
+        {
+            id,
+            data.plate,
+            data.ownerId,
+            data.model,
+            data.brand,
+            data.color,
+            data.insuranceStatus or 'gültig',
+            data.registrationStatus or 'zugelassen',
+            data.isWanted and 1 or 0,
+            Database.EncodeJson(data.linkedCaseIds or {}),
+            now,
+        }
+    )
+
+    if data.ownerId then
+        linkVehicleToPerson(data.ownerId, id)
+    end
+
+    return Repository.GetVehicleById(id)
+end
+
+function Repository.UpdateVehicle(id, data)
+    Database.EnsureSchema()
+    local vehicle = Repository.GetVehicleById(id)
+    if not vehicle then return nil end
+
+    local ownerId = data.ownerId or vehicle.ownerId
+    MySQL.update.await(
+        [[UPDATE polis_vehicles SET
+        plate = ?, owner_id = ?, model = ?, brand = ?, color = ?, insurance_status = ?, registration_status = ?, is_wanted = ?
+        WHERE id = ?]],
+        {
+            data.plate or vehicle.plate,
+            ownerId,
+            data.model or vehicle.model,
+            data.brand or vehicle.brand,
+            data.color or vehicle.color,
+            data.insuranceStatus or vehicle.insuranceStatus,
+            data.registrationStatus or vehicle.registrationStatus,
+            (data.isWanted ~= nil and data.isWanted or vehicle.isWanted) and 1 or 0,
+            id,
+        }
+    )
+
+    if ownerId then
+        linkVehicleToPerson(ownerId, id)
+    end
+
+    return Repository.GetVehicleById(id)
+end
+
+-- Wanted
+function Repository.GetWantedById(id)
+    Database.EnsureSchema()
+    local row = MySQL.single.await('SELECT * FROM polis_wanted WHERE id = ? LIMIT 1', { id })
+    return row and rowToWanted(row) or nil
+end
+
+local function syncTargetWantedFlag(wantedType, targetId)
+    if wantedType == 'waffe' then
+        local count = MySQL.scalar.await(
+            'SELECT COUNT(*) FROM polis_wanted WHERE type = ? AND target_id = ? AND active = 1',
+            { 'waffe', targetId }
+        )
+        MySQL.update.await('UPDATE polis_weapons SET is_wanted = ? WHERE id = ?', { (count and count > 0) and 1 or 0, targetId })
+    elseif wantedType == 'fahrzeug' then
+        local count = MySQL.scalar.await(
+            'SELECT COUNT(*) FROM polis_wanted WHERE type = ? AND target_id = ? AND active = 1',
+            { 'fahrzeug', targetId }
+        )
+        MySQL.update.await('UPDATE polis_vehicles SET is_wanted = ? WHERE id = ?', { (count and count > 0) and 1 or 0, targetId })
+    end
+end
+
+function Repository.CreateWanted(data)
+    Database.EnsureSchema()
+    local id = Database.GenerateId('want')
+    local now = os.date('%Y-%m-%d')
+    MySQL.insert.await(
+        [[INSERT INTO polis_wanted
+        (id, type, target_id, target_name, priority, description, last_known_location, responsible_unit, issued_at, active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)]],
+        {
+            id,
+            data.type,
+            data.targetId,
+            data.targetName,
+            data.priority or 'mittel',
+            data.description or '',
+            data.lastKnownLocation or 'Unbekannt',
+            data.responsibleUnit or 'Leitstelle Zentral',
+            now,
+        }
+    )
+
+    if data.type == 'waffe' or data.type == 'fahrzeug' then
+        syncTargetWantedFlag(data.type, data.targetId)
+    end
+
+    return Repository.GetWantedById(id)
+end
+
+function Repository.UpdateWanted(id, data)
+    Database.EnsureSchema()
+    local entry = Repository.GetWantedById(id)
+    if not entry then return nil end
+
+    local active = data.active ~= nil and data.active or entry.active
+    MySQL.update.await(
+        [[UPDATE polis_wanted SET
+        priority = ?, description = ?, last_known_location = ?, responsible_unit = ?, active = ?
+        WHERE id = ?]],
+        {
+            data.priority or entry.priority,
+            data.description ~= nil and data.description or entry.description,
+            data.lastKnownLocation or entry.lastKnownLocation,
+            data.responsibleUnit or entry.responsibleUnit,
+            active and 1 or 0,
+            id,
+        }
+    )
+
+    syncTargetWantedFlag(entry.type, entry.targetId)
+    return Repository.GetWantedById(id)
+end

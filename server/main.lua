@@ -251,6 +251,11 @@ RegisterNetEvent('polis:server:addPersonNote', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
+    if not Repository.EmployeeHasPermission(session.employee, 'editPersons') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
     local ok, note = Repository.AddPersonNote(data.personId, data.note)
     if not ok then
         NuiError(src, reqId, 'Person nicht gefunden.')
@@ -260,11 +265,191 @@ RegisterNetEvent('polis:server:addPersonNote', function(reqId, data)
     NuiOk(src, reqId, { success = true, note = note })
 end)
 
+RegisterNetEvent('polis:server:createPerson', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editPersons') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    if not data.firstName or not data.lastName or not data.dateOfBirth then
+        NuiError(src, reqId, 'Pflichtfelder fehlen.')
+        return
+    end
+
+    local person = Repository.CreatePerson(data)
+    if not person then
+        NuiError(src, reqId, 'Person konnte nicht erstellt werden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, person = person })
+end)
+
+RegisterNetEvent('polis:server:updatePerson', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editPersons') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local person = Repository.UpdatePerson(data.id, data)
+    if not person then
+        NuiError(src, reqId, 'Person nicht gefunden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, person = person })
+end)
+
+-- Waffen
+RegisterNetEvent('polis:server:createWeapon', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editWeapons') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    if not data.serialNumber or not data.type or not data.caliber then
+        NuiError(src, reqId, 'Pflichtfelder fehlen.')
+        return
+    end
+
+    local weapon, err = Repository.CreateWeapon(data)
+    if not weapon then
+        NuiError(src, reqId, err or 'Waffe konnte nicht registriert werden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, weapon = weapon })
+end)
+
+RegisterNetEvent('polis:server:updateWeapon', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editWeapons') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local weapon = Repository.UpdateWeapon(data.id, data)
+    if not weapon then
+        NuiError(src, reqId, 'Waffe nicht gefunden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, weapon = weapon })
+end)
+
+-- Fahrzeuge
+RegisterNetEvent('polis:server:createVehicle', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editVehicles') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    if not data.plate or not data.ownerId or not data.brand or not data.model then
+        NuiError(src, reqId, 'Pflichtfelder fehlen.')
+        return
+    end
+
+    local vehicle, err = Repository.CreateVehicle(data)
+    if not vehicle then
+        NuiError(src, reqId, err or 'Fahrzeug konnte nicht registriert werden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, vehicle = vehicle })
+end)
+
+RegisterNetEvent('polis:server:updateVehicle', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editVehicles') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local vehicle = Repository.UpdateVehicle(data.id, data)
+    if not vehicle then
+        NuiError(src, reqId, 'Fahrzeug nicht gefunden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, vehicle = vehicle })
+end)
+
+-- Fahndung
+RegisterNetEvent('polis:server:createWanted', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editWanted') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    if not data.type or not data.targetId or not data.targetName then
+        NuiError(src, reqId, 'Pflichtfelder fehlen.')
+        return
+    end
+
+    local entry = Repository.CreateWanted(data)
+    if not entry then
+        NuiError(src, reqId, 'Fahndung konnte nicht erstellt werden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, wanted = entry })
+end)
+
+RegisterNetEvent('polis:server:updateWanted', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editWanted') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local entry = Repository.UpdateWanted(data.id, data)
+    if not entry then
+        NuiError(src, reqId, 'Fahndung nicht gefunden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, wanted = entry })
+end)
+
 -- Akten
 RegisterNetEvent('polis:server:createCase', function(reqId, data)
     local src = source
     local session = RequireSession(src, reqId, data)
     if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'createCases') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
 
     local caseFile = Repository.CreateCase(data)
     if not caseFile then
@@ -280,6 +465,11 @@ RegisterNetEvent('polis:server:updateCaseStatus', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
+    if not Repository.EmployeeHasPermission(session.employee, 'editCases') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
     local caseFile = Repository.UpdateCaseStatus(data.caseId, data.status)
     if not caseFile then
         NuiError(src, reqId, 'Akte nicht gefunden.')
@@ -294,6 +484,11 @@ RegisterNetEvent('polis:server:addCaseEvidence', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
+    if not Repository.EmployeeHasPermission(session.employee, 'editCases') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
     local caseFile = Repository.AddCaseEvidence(data.caseId, data.evidence)
     NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })
 end)
@@ -302,6 +497,11 @@ RegisterNetEvent('polis:server:addCaseWitness', function(reqId, data)
     local src = source
     local session = RequireSession(src, reqId, data)
     if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editCases') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
 
     local caseFile = Repository.AddCaseWitness(data.caseId, data.witness)
     NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })
@@ -312,6 +512,11 @@ RegisterNetEvent('polis:server:addCaseParticipant', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
+    if not Repository.EmployeeHasPermission(session.employee, 'editCases') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
     local caseFile = Repository.AddCaseParticipant(data.caseId, data.participant)
     NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })
 end)
@@ -320,6 +525,11 @@ RegisterNetEvent('polis:server:addCaseNote', function(reqId, data)
     local src = source
     local session = RequireSession(src, reqId, data)
     if not session then return end
+
+    if not Repository.EmployeeHasPermission(session.employee, 'editCases') then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
 
     local caseFile = Repository.AddCaseNote(data.caseId, data.note)
     NuiOk(src, reqId, { success = caseFile ~= nil, caseFile = caseFile })

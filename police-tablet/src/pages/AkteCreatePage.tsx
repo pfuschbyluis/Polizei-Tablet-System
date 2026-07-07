@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
+import { useNotify } from '../context/NotifyContext';
 import { OFFENSES } from '../types';
 import { Card, Button, Input, Select } from '../components/ui';
 
@@ -10,6 +11,7 @@ export default function AkteCreatePage() {
   const navigate = useNavigate();
   const { createCase } = useData();
   const { currentOfficer, permissions } = useAuth();
+  const { notify } = useNotify();
 
   const [form, setForm] = useState({
     title: '',
@@ -46,8 +48,8 @@ export default function AkteCreatePage() {
         description: form.description.trim() || 'Keine Beschreibung.',
       });
       navigate(`/akten/${id}`);
-    } catch {
-      /* Fehler wird serverseitig behandelt */
+    } catch (err) {
+      notify(err instanceof Error ? err.message : 'Akte konnte nicht erstellt werden.', 'error');
     }
   };
 

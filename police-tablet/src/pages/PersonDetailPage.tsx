@@ -3,13 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { Card, Button, StatusBadge, Badge, Input, EmptyState } from '../components/ui';
+import { useNotify } from '../context/NotifyContext';
+import { Card, Button, StatusBadge, Badge, Input, EmptyState, Modal } from '../components/ui';
 
 export default function PersonDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { getPerson, getVehicle, getWeapon, addPersonNote } = useData();
+  const { getPerson, getVehicle, getWeapon, addPersonNote, updatePerson } = useData();
   const { currentOfficer, permissions } = useAuth();
+  const { notify } = useNotify();
   const [newNote, setNewNote] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({ firstName: '', lastName: '', dateOfBirth: '', address: '', city: '', phone: '' });
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!currentOfficer) return null;
 
@@ -30,13 +35,51 @@ export default function PersonDetailPage() {
 
   const handleAddNote = async () => {
     if (!newNote.trim() || !permissions.editPersons) return;
-    await addPersonNote(person.id, {
-      officerId: currentOfficer.id,
-      officerName: currentOfficer.name,
-      date: new Date().toISOString().split('T')[0],
-      content: newNote.trim(),
+    try {
+      await addPersonNote(person.id, {
+        officerId: currentOfficer.id,
+        officerName: currentOfficer.name,
+        date: new Date().toISOString().split('T')[0],
+        content: newNote.trim(),
+      });
+      setNewNote('');
+      notify('Notiz gespeichert.', 'success');
+    } catch (err) {
+      notify(err instanceof Error ? err.message : 'Notiz konnte nicht gespeichert werden.', 'error');
+    }
+  };
+
+  const openEdit = () => {
+    setEditForm({
+      firstName: person.firstName,
+      lastName: person.lastName,
+      dateOfBirth: person.dateOfBirth,
+      address: person.address,
+      city: person.city,
+      phone: person.phone ?? '',
     });
-    setNewNote('');
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await updatePerson(person.id, {
+        firstName: editForm.firstName.trim(),
+        lastName: editForm.lastName.trim(),
+        dateOfBirth: editForm.dateOfBirth,
+        address: editForm.address.trim(),
+        city: editForm.city.trim(),
+        phone: editForm.phone.trim() || undefined,
+      });
+      setShowEditModal(false);
+      notify('Person aktualisiert.', 'success');
+    } catch (err) {
+      notify(err instanceof Error ? err.message : 'Speichern fehlgeschlagen.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -49,7 +92,7 @@ export default function PersonDetailPage() {
         <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-surface-tertiary border border-border">
           <Icon name="user" size={40} className="text-text-muted" />
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="page-title">
             {person.firstName} {person.lastName}
           </h1>
@@ -61,6 +104,11 @@ export default function PersonDetailPage() {
             </div>
           )}
         </div>
+        {permissions.editPersons && (
+          <Button variant="secondary" size="sm" onClick={openEdit}>
+            Bearbeiten
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -212,6 +260,23 @@ export default function PersonDetailPage() {
           )}
         </div>
       </Card>
+
+      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Person bearbeiten" size="md">
+        <form onSubmit={handleEditSubmit} className="space-y-4" noValidate>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input label="Vorname" value={editForm.firstName} onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })} />
+            <Input label="Nachname" value={editForm.lastName} onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })} />
+          </div>
+          <Input label="Geburtsdatum" type="date" value={editForm.dateOfBirth} onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })} />
+          <Input label="Adresse" value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} />
+          <Input label="Stadt" value={editForm.city} onChange={(e) => setEditForm({ ...editForm, city: e.target.value })} />
+          <Input label="Telefon" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+          <div className="flex gap-3 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setShowEditModal(false)} className="flex-1">Abbrechen</Button>
+            <Button type="submit" className="flex-1" disabled={isSaving}>{isSaving ? 'Speichern…' : 'Speichern'}</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

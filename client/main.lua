@@ -299,6 +299,38 @@ RegisterNUICallback('addPersonNote', function(data, cb)
     TriggerServerNui('polis:server:addPersonNote', data, cb)
 end)
 
+RegisterNUICallback('createPerson', function(data, cb)
+    TriggerServerNui('polis:server:createPerson', data, cb)
+end)
+
+RegisterNUICallback('updatePerson', function(data, cb)
+    TriggerServerNui('polis:server:updatePerson', data, cb)
+end)
+
+RegisterNUICallback('createWeapon', function(data, cb)
+    TriggerServerNui('polis:server:createWeapon', data, cb)
+end)
+
+RegisterNUICallback('updateWeapon', function(data, cb)
+    TriggerServerNui('polis:server:updateWeapon', data, cb)
+end)
+
+RegisterNUICallback('createVehicle', function(data, cb)
+    TriggerServerNui('polis:server:createVehicle', data, cb)
+end)
+
+RegisterNUICallback('updateVehicle', function(data, cb)
+    TriggerServerNui('polis:server:updateVehicle', data, cb)
+end)
+
+RegisterNUICallback('createWanted', function(data, cb)
+    TriggerServerNui('polis:server:createWanted', data, cb)
+end)
+
+RegisterNUICallback('updateWanted', function(data, cb)
+    TriggerServerNui('polis:server:updateWanted', data, cb)
+end)
+
 RegisterNUICallback('createCase', function(data, cb)
     TriggerServerNui('polis:server:createCase', data, cb)
 end)
