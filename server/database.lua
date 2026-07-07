@@ -140,10 +140,6 @@ local SCHEMA = {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
 }
 
-local function DebugPrint(msg)
-    print(('[^3POLIS^7] %s'):format(msg))
-end
-
 function Database.EnsureSchema()
     if schemaReady then
         return
@@ -219,7 +215,7 @@ function Database.SeedDefaultRoleTemplates()
         )
     end
 
-    DebugPrint('Standard-Rollenvorlagen geseedet')
+    PolisDebug('Standard-Rollenvorlagen geseedet')
 end
 
 function Database.UpgradeDefaultEmployeePasswords()
@@ -245,7 +241,7 @@ function Database.UpgradeDefaultEmployeePasswords()
         end
     end
 
-    DebugPrint('Standard-Passwörter auf schnelles Format aktualisiert')
+    PolisDebug('Standard-Passwörter auf schnelles Format aktualisiert')
 end
 
 function Database.SeedDefaultEmployees()
@@ -255,7 +251,7 @@ function Database.SeedDefaultEmployees()
     end
 
     if not Config.DefaultEmployees or #Config.DefaultEmployees == 0 then
-        DebugPrint('Keine Standard-Mitarbeiter zum Seed konfiguriert.')
+        PolisDebug('Keine Standard-Mitarbeiter zum Seed konfiguriert.')
         return
     end
 
@@ -288,7 +284,7 @@ function Database.SeedDefaultEmployees()
         end
     end
 
-    DebugPrint(('Standard-Mitarbeiter geseedet: %s'):format(#Config.DefaultEmployees))
+    PolisDebug(('Standard-Mitarbeiter geseedet: %s'):format(#Config.DefaultEmployees))
 end
 
 function Database.DecodeJson(value, fallback)
@@ -323,4 +319,4 @@ function Database.GenerateToken()
     return table.concat(token)
 end
 
-DebugPrint('Datenbank-Modul geladen')
+PolisDebug('Datenbank-Modul geladen')
