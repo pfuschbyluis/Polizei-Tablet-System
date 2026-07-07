@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
 import PersonSelect from '../components/cases/PersonSelect';
+import EvidenceForm from '../components/cases/EvidenceForm';
+import EvidenceItem from '../components/cases/EvidenceItem';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotifyAction } from '../hooks/useNotifyAction';
@@ -40,7 +42,6 @@ export default function AkteDetailPage() {
   const [showParticipantModal, setShowParticipantModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
 
-  const [evidenceForm, setEvidenceForm] = useState({ name: '', type: 'Dokument', description: '' });
   const [witnessForm, setWitnessForm] = useState({ name: '', phone: '', statement: '' });
   const [participantForm, setParticipantForm] = useState({ personId: '', role: 'verdächtig' as const });
   const [noteForm, setNoteForm] = useState('');
@@ -131,26 +132,17 @@ export default function AkteDetailPage() {
           action={
             permissions.editCases && (
               <Button size="sm" onClick={() => setShowEvidenceModal(true)}>
-                <Icon name="upload" size={14} /> Hochladen
+                <Icon name="upload" size={14} /> Beweis hinzufügen
               </Button>
             )
           }
         >
           {caseFile.evidence.length === 0 ? (
-            <EmptyState icon="file" title="Keine Beweise" description="Laden Sie Beweismittel hoch." />
+            <EmptyState icon="file" title="Keine Beweise" description="Link oder Datei als Beweismittel hinterlegen." />
           ) : (
             <div className="space-y-3">
               {caseFile.evidence.map((ev) => (
-                <div key={ev.id} className="flex items-start gap-4 rounded-lg bg-surface-tertiary/40 p-4">
-                  <Icon name="file" size={20} className="text-accent-light shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-text-primary">{ev.name}</p>
-                    <p className="text-xs text-text-secondary">{ev.description}</p>
-                    <p className="mt-1 text-[10px] text-text-muted">
-                      {ev.type} · {ev.uploadedBy} · {ev.uploadedAt}
-                    </p>
-                  </div>
-                </div>
+                <EvidenceItem key={ev.id} evidence={ev} />
               ))}
             </div>
           )}
@@ -242,49 +234,26 @@ export default function AkteDetailPage() {
         </Card>
       )}
 
-      <Modal isOpen={showEvidenceModal} onClose={() => setShowEvidenceModal(false)} title="Beweis hochladen">
-        <div className="space-y-4">
-          <Input label="Dateiname" value={evidenceForm.name} onChange={(e) => setEvidenceForm({ ...evidenceForm, name: e.target.value })} />
-          <Select
-            label="Typ"
-            value={evidenceForm.type}
-            onChange={(e) => setEvidenceForm({ ...evidenceForm, type: e.target.value })}
-            options={[
-              { value: 'Dokument', label: 'Dokument' },
-              { value: 'Video', label: 'Video' },
-              { value: 'Foto', label: 'Foto' },
-              { value: 'Forensik', label: 'Forensik' },
-            ]}
+      <Modal isOpen={showEvidenceModal} onClose={() => setShowEvidenceModal(false)} title="Beweis hinzufügen">
+        {showEvidenceModal && (
+          <EvidenceForm
+            onCancel={() => setShowEvidenceModal(false)}
+            onSubmit={async (values) => {
+            const result = await run(
+              () =>
+                addCaseEvidence(caseFile.id, {
+                  ...values,
+                  uploadedBy: currentOfficer.name,
+                  uploadedAt: new Date().toISOString().split('T')[0],
+                }),
+              { success: 'Beweis gespeichert.' }
+            );
+            if (result.ok) {
+              setShowEvidenceModal(false);
+            }
+          }}
           />
-          <Input label="Beschreibung" value={evidenceForm.description} onChange={(e) => setEvidenceForm({ ...evidenceForm, description: e.target.value })} />
-          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-text-muted">
-            Datei-Upload simuliert · Nur fiktive Daten
-          </div>
-          <Button
-            className="w-full"
-            onClick={async () => {
-              if (!evidenceForm.name.trim()) {
-                warn('Bitte einen Dateinamen angeben.');
-                return;
-              }
-              const result = await run(
-                () =>
-                  addCaseEvidence(caseFile.id, {
-                    ...evidenceForm,
-                    uploadedBy: currentOfficer.name,
-                    uploadedAt: new Date().toISOString().split('T')[0],
-                  }),
-                { success: 'Beweis gespeichert.' }
-              );
-              if (result.ok) {
-                setEvidenceForm({ name: '', type: 'Dokument', description: '' });
-                setShowEvidenceModal(false);
-              }
-            }}
-          >
-            Speichern
-          </Button>
-        </div>
+        )}
       </Modal>
 
       <Modal isOpen={showWitnessModal} onClose={() => setShowWitnessModal(false)} title="Zeuge eintragen">

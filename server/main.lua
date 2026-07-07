@@ -512,6 +512,30 @@ RegisterNetEvent('polis:server:updateCaseStatus', function(reqId, data)
     NuiOk(src, reqId, { success = true, caseFile = caseFile })
 end)
 
+local function ValidateEvidencePayload(evidence)
+    if not evidence or not evidence.name or evidence.name:match('^%s*$') then
+        return false, 'Dateiname erforderlich.'
+    end
+
+    local url = evidence.fileUrl or ''
+    if url == '' then
+        return false, 'Link oder Datei erforderlich.'
+    end
+
+    if url:match('^data:') then
+        if #url > 3145728 then
+            return false, 'Datei zu groß.'
+        end
+        return true
+    end
+
+    if #url > 512 or not url:match('^https?://') then
+        return false, 'Ungültige Bild-URL.'
+    end
+
+    return true
+end
+
 RegisterNetEvent('polis:server:addCaseEvidence', function(reqId, data)
     local src = source
     local session = RequireSession(src, reqId, data)
@@ -519,6 +543,12 @@ RegisterNetEvent('polis:server:addCaseEvidence', function(reqId, data)
 
     if not Repository.EmployeeHasPermission(session.employee, 'editCases') then
         NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local ok, err = ValidateEvidencePayload(data.evidence)
+    if not ok then
+        NuiError(src, reqId, err)
         return
     end
 

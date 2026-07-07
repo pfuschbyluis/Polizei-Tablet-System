@@ -106,7 +106,16 @@ export interface Evidence {
   uploadedBy: string;
   uploadedAt: string;
   description: string;
+  fileUrl?: string;
+  source?: 'link' | 'upload';
 }
+
+export const EVIDENCE_TYPE_OPTIONS = [
+  { value: 'Dokument', label: 'Dokument' },
+  { value: 'Video', label: 'Video' },
+  { value: 'Foto', label: 'Foto' },
+  { value: 'Forensik', label: 'Forensik' },
+] as const;
 
 export interface Witness {
   id: string;
