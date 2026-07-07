@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { FiveMProvider, useFiveM } from './context/FiveMContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -8,8 +8,8 @@ import { AuditProvider } from './context/AuditContext';
 import { DataProvider } from './context/DataContext';
 import { NotifyProvider } from './context/NotifyContext';
 import ProtectedLayout from './components/ProtectedRoute';
-import WindowFrame from './components/shell/WindowFrame';
 import Layout from './components/layout/Layout';
+import { TabletShell, AppRouter } from './components/shell/TabletShell';
 import Dashboard from './pages/Dashboard';
 import PersonenPage from './pages/PersonenPage';
 import PersonDetailPage from './pages/PersonDetailPage';
@@ -75,23 +75,13 @@ function AppRoutes() {
   );
 }
 
-function TabletShell() {
-  const { visible, isInGame } = useFiveM();
-
-  if (isInGame && !visible) {
-    return null;
-  }
-
+function TabletShellRoutes() {
   return (
-    <div className={isInGame ? 'fivem-tablet-shell' : 'dev-shell'}>
-      <WindowFrame>
-        <HashRouter>
-          <AppProviders>
-            <AppRoutes />
-          </AppProviders>
-        </HashRouter>
-      </WindowFrame>
-    </div>
+    <AppRouter>
+      <AppProviders>
+        <AppRoutes />
+      </AppProviders>
+    </AppRouter>
   );
 }
 
@@ -100,7 +90,9 @@ export default function App() {
     <FiveMProvider>
       <ThemeProvider>
         <BrandingProvider>
-          <TabletShell />
+          <TabletShell>
+            <TabletShellRoutes />
+          </TabletShell>
         </BrandingProvider>
       </ThemeProvider>
     </FiveMProvider>

@@ -1,6 +1,5 @@
 import Icon from '../icons/Icon';
 import PoliceIcon from '../icons/PoliceIcon';
-import { useTheme } from '../../context/ThemeContext';
 import WindowControls from './WindowControls';
 
 interface TitleBarProps {
@@ -10,6 +9,7 @@ interface TitleBarProps {
   onMinimize: () => void;
   onMaximize: () => void;
   onClose: () => void;
+  onDragStart: (clientX: number, clientY: number) => void;
 }
 
 export default function TitleBar({
@@ -19,32 +19,29 @@ export default function TitleBar({
   onMinimize,
   onMaximize,
   onClose,
+  onDragStart,
 }: TitleBarProps) {
-  const { theme, toggleTheme } = useTheme();
-
   return (
-    <div className="flux-titlebar">
+    <div
+      className="flux-titlebar flux-titlebar--draggable"
+      onMouseDown={(e) => {
+        if ((e.target as HTMLElement).closest('button')) return;
+        onDragStart(e.clientX, e.clientY);
+      }}
+    >
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="flux-app-icon">
-          <PoliceIcon size={18} />
+        <div className="flux-app-icon flux-app-icon--lg">
+          <PoliceIcon size={22} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-text-primary">{title}</p>
-          {subtitle && (
-            <p className="truncate text-[11px] text-text-muted">{subtitle}</p>
-          )}
+          <p className="truncate text-sm font-semibold text-text-primary">{title}</p>
+          {subtitle && <p className="truncate text-[11px] text-text-muted">{subtitle}</p>}
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="flux-icon-btn"
-          title={theme === 'dark' ? 'Helles Design' : 'Dunkles Design'}
-          aria-label="Design wechseln"
-        >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
+      <div className="flex items-center gap-1">
+        <button type="button" className="flux-icon-btn flux-titlebar-action" title="Andocken">
+          <Icon name="layout" size={15} />
         </button>
         <WindowControls
           isMaximized={isMaximized}

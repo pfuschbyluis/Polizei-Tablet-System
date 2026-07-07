@@ -54,7 +54,7 @@ export default function Sidebar() {
               }`
             }
           >
-            <Icon name={item.icon} size={17} className="shrink-0" />
+            <Icon name={item.icon} size={20} className="shrink-0" />
             {!collapsed && <span className="truncate">{item.label}</span>}
           </NavLink>
         ))}

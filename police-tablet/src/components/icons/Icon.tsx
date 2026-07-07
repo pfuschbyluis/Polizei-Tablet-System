@@ -42,7 +42,14 @@ export type IconName =
   | 'bell'
   | 'user-plus'
   | 'check'
-  | 'settings';
+  | 'settings'
+  | 'grid'
+  | 'wifi'
+  | 'volume'
+  | 'battery'
+  | 'bluetooth'
+  | 'pin'
+  | 'layout';
 
 interface IconProps extends SVGProps<SVGSVGElement> {
   name: IconName;
@@ -264,6 +271,50 @@ const paths: Record<IconName, ReactNode> = {
     <>
       <circle cx="12" cy="12" r="3" fill="none" />
       <path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M19.8 19.8l-1.4-1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M19.8 4.2l-1.4 1.4" fill="none" />
+    </>
+  ),
+  grid: (
+    <>
+      <rect x="4" y="4" width="6" height="6" rx="1.5" fill="none" />
+      <rect x="14" y="4" width="6" height="6" rx="1.5" fill="none" />
+      <rect x="4" y="14" width="6" height="6" rx="1.5" fill="none" />
+      <rect x="14" y="14" width="6" height="6" rx="1.5" fill="none" />
+    </>
+  ),
+  wifi: (
+    <>
+      <path d="M5 9.5a11 11 0 0 1 14 0" fill="none" />
+      <path d="M8.5 13a6.5 6.5 0 0 1 7 0" fill="none" />
+      <path d="M12 17h.01" strokeWidth="2.5" />
+    </>
+  ),
+  volume: (
+    <>
+      <path d="M6 10v4h3l4 3V7L9 10H6z" fill="none" />
+      <path d="M16 9a4 4 0 0 1 0 6" fill="none" />
+    </>
+  ),
+  battery: (
+    <>
+      <rect x="4" y="8" width="14" height="8" rx="2" fill="none" />
+      <path d="M20 11v2" fill="none" />
+      <rect x="7" y="11" width="7" height="2" rx="0.5" fill="currentColor" stroke="none" />
+    </>
+  ),
+  bluetooth: (
+    <path d="M7 7l10 10-5 3V4l5 3L7 17" fill="none" />
+  ),
+  pin: (
+    <>
+      <path d="M12 17v4" fill="none" />
+      <path d="M8 3h8l-1 7h-6L8 3z" fill="none" />
+      <path d="M9 10h6v3a3 3 0 0 1-6 0v-3z" fill="none" />
+    </>
+  ),
+  layout: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" fill="none" />
+      <path d="M3 9h18M9 9v12" fill="none" />
     </>
   ),
 };

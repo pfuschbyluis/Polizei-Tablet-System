@@ -4,7 +4,9 @@ import Icon from '../components/icons/Icon';
 import { useAuth } from '../context/AuthContext';
 import { useBranding } from '../context/BrandingContext';
 import { useNotify } from '../context/NotifyContext';
-import { Card, Button, Input } from '../components/ui';
+import { useShell } from '../context/ShellContext';
+import { WALLPAPERS, type AccentPreset, type FontScale, type TaskbarAlign, type TaskbarPosition } from '../types/shell';
+import { Card, Button, Input, Select } from '../components/ui';
 
 function isValidIconUrl(url: string): boolean {
   return url === '' || /^https?:\/\/.+/i.test(url);
@@ -19,6 +21,7 @@ export default function EinstellungenPage() {
   const [previewError, setPreviewError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const { settings, updateSettings } = useShell();
   const canEdit = permissions.adminFunctions;
   const activePreviewUrl = previewUrl ?? (urlInput.trim() || customIconUrl);
   const showingCustom = Boolean(activePreviewUrl) && !previewError;
@@ -204,6 +207,88 @@ export default function EinstellungenPage() {
             </div>
           </div>
         </div>
+      </Card>
+
+      <Card title="Personalisierung">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Select
+            label="Taskleiste Position"
+            value={settings.taskbarPosition}
+            onChange={(e) => updateSettings({ taskbarPosition: e.target.value as TaskbarPosition })}
+            options={[
+              { value: 'bottom', label: 'Unten' },
+              { value: 'top', label: 'Oben' },
+              { value: 'left', label: 'Links' },
+              { value: 'right', label: 'Rechts' },
+            ]}
+          />
+          <Select
+            label="Taskleiste Ausrichtung"
+            value={settings.taskbarAlign}
+            onChange={(e) => updateSettings({ taskbarAlign: e.target.value as TaskbarAlign })}
+            options={[
+              { value: 'center', label: 'Zentriert' },
+              { value: 'start', label: 'Links' },
+            ]}
+          />
+          <Select
+            label="Schriftgröße"
+            value={settings.fontScale}
+            onChange={(e) => updateSettings({ fontScale: e.target.value as FontScale })}
+            options={[
+              { value: 'sm', label: 'Klein' },
+              { value: 'md', label: 'Normal' },
+              { value: 'lg', label: 'Groß' },
+            ]}
+          />
+          <Select
+            label="Hintergrund"
+            value={String(settings.wallpaperIndex)}
+            onChange={(e) => updateSettings({ wallpaperIndex: Number(e.target.value) })}
+            options={WALLPAPERS.map((w, i) => ({ value: String(i), label: w.label }))}
+          />
+        </div>
+        <label className="mt-4 flex flex-col gap-2 text-sm text-text-secondary">
+          Transparenz ({settings.transparency}%)
+          <input
+            type="range"
+            min={40}
+            max={100}
+            value={settings.transparency}
+            onChange={(e) => updateSettings({ transparency: Number(e.target.value) })}
+          />
+        </label>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {(['blue', 'purple', 'teal', 'amber', 'rose'] as AccentPreset[]).map((accent) => (
+            <button
+              key={accent}
+              type="button"
+              className={`flux-accent-swatch ${settings.accent === accent ? 'flux-accent-swatch--active' : ''}`}
+              style={{
+                background:
+                  accent === 'blue'
+                    ? '#4f7cff'
+                    : accent === 'purple'
+                      ? '#8b5cf6'
+                      : accent === 'teal'
+                        ? '#14b8a6'
+                        : accent === 'amber'
+                          ? '#f59e0b'
+                          : '#f43f5e',
+              }}
+              onClick={() => updateSettings({ accent })}
+              title={accent}
+            />
+          ))}
+        </div>
+        <label className="mt-4 flex items-center gap-2 text-sm text-text-secondary">
+          <input
+            type="checkbox"
+            checked={settings.autoWallpaper}
+            onChange={(e) => updateSettings({ autoWallpaper: e.target.checked })}
+          />
+          Hintergrund automatisch wechseln
+        </label>
       </Card>
     </div>
   );

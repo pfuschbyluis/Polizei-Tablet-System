@@ -10,6 +10,7 @@ import {
 import { createPortal } from 'react-dom';
 import Icon from '../components/icons/Icon';
 import PoliceIcon from '../components/icons/PoliceIcon';
+import { useShell } from './ShellContext';
 
 export type NotifyType = 'error' | 'success' | 'info' | 'warning';
 
@@ -91,16 +92,23 @@ function NotifyContainer({ items, onDismiss }: { items: NotifyItem[]; onDismiss:
 
 export function NotifyProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<NotifyItem[]>([]);
+  const { pushNotification, settings } = useShell();
 
   const dismiss = useCallback((id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
-  const notify = useCallback((message: string, type: NotifyType = 'info') => {
-    const id = `notify-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    setItems((prev) => [...prev.slice(-3), { id, message, type }]);
-    window.setTimeout(() => dismiss(id), 5000);
-  }, [dismiss]);
+  const notify = useCallback(
+    (message: string, type: NotifyType = 'info') => {
+      pushNotification({ message, type });
+      if (settings.doNotDisturb) return;
+
+      const id = `notify-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      setItems((prev) => [...prev.slice(-3), { id, message, type }]);
+      window.setTimeout(() => dismiss(id), 5000);
+    },
+    [dismiss, pushNotification, settings.doNotDisturb]
+  );
 
   const value = useMemo(() => ({ notify }), [notify]);
 
