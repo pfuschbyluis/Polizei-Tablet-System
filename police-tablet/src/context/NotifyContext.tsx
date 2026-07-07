@@ -25,10 +25,10 @@ interface NotifyContextType {
 const NotifyContext = createContext<NotifyContextType | null>(null);
 
 const typeClass: Record<NotifyType, string> = {
-  error: 'flux-notify--error',
-  success: 'flux-notify--success',
-  warning: 'flux-notify--warning',
-  info: 'flux-notify--info',
+  error: 'flux-os-toast--error',
+  success: 'flux-os-toast--success',
+  warning: 'flux-os-toast--warning',
+  info: 'flux-os-toast--info',
 };
 
 const typeIcons: Record<NotifyType, 'alert' | 'check' | 'bell'> = {
@@ -36,6 +36,13 @@ const typeIcons: Record<NotifyType, 'alert' | 'check' | 'bell'> = {
   success: 'check',
   warning: 'alert',
   info: 'bell',
+};
+
+const typeTitles: Record<NotifyType, string> = {
+  error: 'Fehler',
+  warning: 'Warnung',
+  success: 'Erfolgreich',
+  info: 'POLIS System',
 };
 
 function NotifyContainer({ items, onDismiss }: { items: NotifyItem[]; onDismiss: (id: string) => void }) {
@@ -48,22 +55,31 @@ function NotifyContainer({ items, onDismiss }: { items: NotifyItem[]; onDismiss:
   if (!root || items.length === 0) return null;
 
   return createPortal(
-    <div className="flux-notify-stack">
+    <div className="flux-os-toast-stack">
       {items.map((item) => (
         <div
           key={item.id}
-          className={`flux-notify ${typeClass[item.type]}`}
+          className={`flux-os-toast ${typeClass[item.type]}`}
           role="alert"
         >
-          <Icon name={typeIcons[item.type]} size={18} className="flux-notify-icon shrink-0" />
-          <p className="flux-notify-text flex-1">{item.message}</p>
+          <div className="flux-os-toast-accent" aria-hidden />
+          <div className="flux-os-toast-app-icon">
+            <Icon name="shield" size={15} className="text-accent" />
+          </div>
+          <div className="flux-os-toast-body">
+            <p className="flux-os-toast-title">{typeTitles[item.type]}</p>
+            <p className="flux-os-toast-message">{item.message}</p>
+          </div>
+          <div className="flux-os-toast-type-icon" aria-hidden>
+            <Icon name={typeIcons[item.type]} size={16} />
+          </div>
           <button
             type="button"
             onClick={() => onDismiss(item.id)}
-            className="flux-notify-close"
+            className="flux-os-toast-close"
             aria-label="Schließen"
           >
-            <Icon name="close" size={14} />
+            <Icon name="close" size={12} />
           </button>
         </div>
       ))}
@@ -81,7 +97,7 @@ export function NotifyProvider({ children }: { children: ReactNode }) {
 
   const notify = useCallback((message: string, type: NotifyType = 'info') => {
     const id = `notify-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    setItems((prev) => [...prev.slice(-4), { id, message, type }]);
+    setItems((prev) => [...prev.slice(-3), { id, message, type }]);
     window.setTimeout(() => dismiss(id), 5000);
   }, [dismiss]);
 

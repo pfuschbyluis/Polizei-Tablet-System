@@ -4,12 +4,12 @@
 
 /* Fallback / default (dark) – prevents flash before data-theme is set */
 :root {
-  --flux-surface-base: #16161a;
-  --flux-surface: #1e1e24;
-  --flux-surface-secondary: #26262e;
-  --flux-surface-tertiary: #2f2f38;
-  --flux-surface-card: #24242c;
-  --flux-surface-hover: #363640;
+  --flux-surface-base: #1f2028;
+  --flux-surface: #282932;
+  --flux-surface-secondary: #32333e;
+  --flux-surface-tertiary: #3a3b48;
+  --flux-surface-card: #2a2b35;
+  --flux-surface-hover: #40414f;
   --flux-border: rgba(255, 255, 255, 0.07);
   --flux-border-strong: rgba(255, 255, 255, 0.13);
   --flux-accent: #4f7cff;
@@ -23,18 +23,18 @@
   --flux-warning: #fbbf24;
   --flux-danger: #f87171;
   --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --flux-titlebar-bg: rgba(30, 30, 36, 0.92);
+  --flux-titlebar-bg: #28282e;
   --flux-backdrop: radial-gradient(ellipse at 20% 20%, #1a1a2e 0%, #0f0f14 50%, #121218 100%);
   --flux-scrollbar: #454550;
 }
 
 :root[data-theme="dark"] {
-  --flux-surface-base: #16161a;
-  --flux-surface: #1e1e24;
-  --flux-surface-secondary: #26262e;
-  --flux-surface-tertiary: #2f2f38;
-  --flux-surface-card: #24242c;
-  --flux-surface-hover: #363640;
+  --flux-surface-base: #1f2028;
+  --flux-surface: #282932;
+  --flux-surface-secondary: #32333e;
+  --flux-surface-tertiary: #3a3b48;
+  --flux-surface-card: #2a2b35;
+  --flux-surface-hover: #40414f;
   --flux-border: rgba(255, 255, 255, 0.07);
   --flux-border-strong: rgba(255, 255, 255, 0.13);
   --flux-accent: #4f7cff;
@@ -48,7 +48,7 @@
   --flux-warning: #fbbf24;
   --flux-danger: #f87171;
   --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --flux-titlebar-bg: rgba(30, 30, 36, 0.92);
+  --flux-titlebar-bg: #28282e;
   --flux-backdrop: radial-gradient(ellipse at 20% 20%, #1a1a2e 0%, #0f0f14 50%, #121218 100%);
   --flux-scrollbar: #454550;
 }
@@ -73,7 +73,7 @@
   --flux-warning: #d97706;
   --flux-danger: #ef4444;
   --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
-  --flux-titlebar-bg: rgba(248, 249, 252, 0.95);
+  --flux-titlebar-bg: #f3f4f8;
   --flux-backdrop: radial-gradient(ellipse at 30% 20%, #dce4f5 0%, #c8d4ea 40%, #b8c8e0 100%);
   --flux-scrollbar: #c4c8d4;
 }
@@ -141,6 +141,38 @@ html.fivem-nui .fivem-tablet-shell {
   background: transparent !important;
 }
 
+/* FiveM: undurchsichtige Flächen – kein Schwarz durch Transparenz */
+html.fivem-nui {
+  --flux-surface-base: #1f2028;
+  --flux-surface: #282932;
+  --flux-surface-secondary: #32333e;
+  --flux-surface-tertiary: #3a3b48;
+  --flux-surface-card: #2a2b35;
+  --flux-surface-hover: #40414f;
+  --flux-titlebar-bg: #282932;
+  --flux-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--flux-border-strong);
+}
+
+html.fivem-nui .flux-window,
+html.fivem-nui .flux-window-content,
+html.fivem-nui .flux-titlebar {
+  background-color: var(--flux-surface-base);
+}
+
+html.fivem-nui .flux-titlebar {
+  background-color: var(--flux-surface-secondary);
+}
+
+html.fivem-nui[data-theme='light'] {
+  --flux-surface-base: #eef0f6;
+  --flux-surface: #ffffff;
+  --flux-surface-secondary: #f3f4f8;
+  --flux-surface-tertiary: #e8ebf2;
+  --flux-surface-card: #ffffff;
+  --flux-surface-hover: #e4e8f0;
+  --flux-titlebar-bg: #f3f4f8;
+}
+
 #root {
   width: 100%;
   height: 100%;
@@ -180,83 +212,162 @@ textarea:invalid {
   overflow: visible;
 }
 
-.flux-notify-stack {
+/* ── OS-style toast notifications (Win11-inspired) ── */
+.flux-os-toast-stack {
   position: absolute;
-  top: 52px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(92%, 380px);
+  bottom: 16px;
+  right: 16px;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: min(360px, calc(100% - 32px));
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
   pointer-events: none;
   z-index: 9999;
 }
 
-.flux-notify {
+.flux-os-toast {
   pointer-events: auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-rows: auto;
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.875rem 0.875rem 0.875rem 1rem;
+  border-radius: 8px;
+  background: var(--flux-surface-secondary);
+  border: 1px solid var(--flux-border-strong);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  animation: flux-toast-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  min-height: 64px;
+}
+
+:root[data-theme='light'] .flux-os-toast {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.flux-os-toast-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.flux-os-toast--error .flux-os-toast-accent {
+  background: var(--flux-danger);
+}
+
+.flux-os-toast--warning .flux-os-toast-accent {
+  background: var(--flux-warning);
+}
+
+.flux-os-toast--success .flux-os-toast-accent {
+  background: var(--flux-success);
+}
+
+.flux-os-toast--info .flux-os-toast-accent {
+  background: var(--flux-accent);
+}
+
+.flux-os-toast-app-icon {
   display: flex;
-  align-items: flex-start;
-  gap: 0.625rem;
-  padding: 0.875rem 1rem;
-  border-radius: 12px;
-  border: 1px solid;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  font-weight: 500;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  animation: flux-fade-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.flux-notify--error {
-  background: #3b1214;
-  border-color: #f87171;
-  color: #fecaca;
-}
-
-.flux-notify--warning {
-  background: #3b2a0a;
-  border-color: #fbbf24;
-  color: #fde68a;
-}
-
-.flux-notify--success {
-  background: #0f2e1a;
-  border-color: #4ade80;
-  color: #bbf7d0;
-}
-
-.flux-notify--info {
-  background: #152040;
-  border-color: #7ea4ff;
-  color: #dbeafe;
-}
-
-.flux-notify-icon {
-  margin-top: 1px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--flux-accent-subtle);
   flex-shrink: 0;
+  margin-left: 4px;
 }
 
-.flux-notify-text {
+.flux-os-toast-body {
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.flux-os-toast-title {
   margin: 0;
-  flex: 1;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--flux-text-primary);
+  line-height: 1.3;
 }
 
-.flux-notify-close {
+.flux-os-toast-message {
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--flux-text-secondary);
+  line-height: 1.4;
+}
+
+.flux-os-toast-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  border: none;
-  background: transparent;
-  color: inherit;
-  opacity: 0.75;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 6px;
-  line-height: 0;
+  opacity: 0.85;
 }
 
-.flux-notify-close:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.08);
+.flux-os-toast--error .flux-os-toast-type-icon {
+  color: var(--flux-danger);
+}
+
+.flux-os-toast--warning .flux-os-toast-type-icon {
+  color: var(--flux-warning);
+}
+
+.flux-os-toast--success .flux-os-toast-type-icon {
+  color: var(--flux-success);
+}
+
+.flux-os-toast--info .flux-os-toast-type-icon {
+  color: var(--flux-accent-light);
+}
+
+.flux-os-toast-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--flux-text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.flux-os-toast-close:hover {
+  background: var(--flux-surface-hover);
+  color: var(--flux-text-primary);
+}
+
+@keyframes flux-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* ── Shell ── */
@@ -371,7 +482,6 @@ html.fivem-nui .flux-window-content {
   padding: 0.5rem 0.75rem 0.5rem 1rem;
   background: var(--flux-titlebar-bg);
   border-bottom: 1px solid var(--flux-border);
-  backdrop-filter: blur(12px);
   user-select: none;
   flex-shrink: 0;
 }
