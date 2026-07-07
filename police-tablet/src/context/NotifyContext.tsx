@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from '../components/icons/Icon';
+import PoliceIcon from '../components/icons/PoliceIcon';
 
 export type NotifyType = 'error' | 'success' | 'info' | 'warning';
 
@@ -64,7 +65,7 @@ function NotifyContainer({ items, onDismiss }: { items: NotifyItem[]; onDismiss:
         >
           <div className="flux-os-toast-accent" aria-hidden />
           <div className="flux-os-toast-app-icon">
-            <Icon name="shield" size={15} className="text-accent" />
+            <PoliceIcon size={16} />
           </div>
           <div className="flux-os-toast-body">
             <p className="flux-os-toast-title">{typeTitles[item.type]}</p>

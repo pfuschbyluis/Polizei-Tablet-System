@@ -1,4 +1,5 @@
 import Icon from '../icons/Icon';
+import PoliceIcon from '../icons/PoliceIcon';
 import { useTheme } from '../../context/ThemeContext';
 import WindowControls from './WindowControls';
 
@@ -25,7 +26,7 @@ export default function TitleBar({
     <div className="flux-titlebar">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <div className="flux-app-icon">
-          <Icon name="shield" size={16} className="text-accent" />
+          <PoliceIcon size={18} />
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-text-primary">{title}</p>

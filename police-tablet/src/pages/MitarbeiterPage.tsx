@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import Icon from '../components/icons/Icon';
+import PoliceIcon from '../components/icons/PoliceIcon';
 import PermissionEditor from '../components/employees/PermissionEditor';
 import { useAuth } from '../context/AuthContext';
 import { useNotify } from '../context/NotifyContext';
@@ -77,7 +78,7 @@ export default function MitarbeiterPage() {
   if (!permissions.viewEmployees) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Icon name="shield" size={40} className="text-text-muted" />
+        <PoliceIcon size={48} prominent />
         <p className="mt-4 text-text-secondary">Kein Zugriff auf Mitarbeiterverwaltung</p>
       </div>
     );

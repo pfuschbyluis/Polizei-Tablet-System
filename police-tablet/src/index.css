@@ -503,6 +503,70 @@ html.fivem-nui .flux-window-content {
   border-radius: 6px;
 }
 
+.police-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.police-icon--prominent {
+  filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.35));
+}
+
+.police-icon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.police-icon-default {
+  display: block;
+}
+
+.police-icon-default--prominent {
+  transform: scale(1.05);
+}
+
+.settings-icon-preview {
+  min-width: 220px;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--flux-border);
+  background: var(--flux-surface-tertiary);
+}
+
+.settings-icon-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.settings-icon-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-icon-preview-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--flux-accent-subtle);
+  border: 2px solid rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.15);
+}
+
+.settings-icon-preview-toast {
+  position: static;
+}
+
 .flux-icon-btn {
   display: flex;
   align-items: center;

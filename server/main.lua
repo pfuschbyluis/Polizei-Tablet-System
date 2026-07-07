@@ -221,6 +221,40 @@ RegisterNetEvent('polis:server:deleteRoleTemplate', function(reqId, data)
     NuiOk(src, reqId, { success = true })
 end)
 
+-- Branding / Einstellungen
+RegisterNetEvent('polis:server:getBranding', function(reqId, _)
+    local src = source
+    NuiOk(src, reqId, { success = true, branding = Repository.GetBranding() })
+end)
+
+RegisterNetEvent('polis:server:updateBranding', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageSettings(session.employee) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local branding, err = Repository.UpdateBranding(data)
+    if not branding then
+        NuiError(src, reqId, err or 'Einstellungen konnten nicht gespeichert werden.')
+        return
+    end
+
+    Repository.LogAudit({
+        officerId = session.employee.id,
+        officerName = session.employee.name,
+        action = 'Polizei-Icon aktualisiert',
+        module = 'Einstellungen',
+        details = branding.customIconUrl ~= '' and branding.customIconUrl or 'Standard-Icon wiederhergestellt',
+    })
+
+    TriggerClientEvent('polis:client:brandingUpdated', -1, branding)
+    NuiOk(src, reqId, { success = true, branding = branding })
+end)
+
 -- Daten laden
 RegisterNetEvent('polis:server:getInitialData', function(reqId, data)
     local src = source

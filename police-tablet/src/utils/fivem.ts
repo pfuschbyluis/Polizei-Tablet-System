@@ -54,7 +54,8 @@ export interface NuiOpenPayload {
 export type NuiMessage =
   | { action: 'open'; data?: NuiOpenPayload }
   | { action: 'close' }
-  | { action: 'setOfficer'; data: NuiOpenPayload['officer'] };
+  | { action: 'setOfficer'; data: NuiOpenPayload['officer'] }
+  | { action: 'brandingUpdated'; data: { customIconUrl: string } };
 
 declare global {
   interface Window {

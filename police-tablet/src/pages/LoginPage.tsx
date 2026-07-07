@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Icon, { IconSpinner } from '../components/icons/Icon';
+import PoliceIcon from '../components/icons/PoliceIcon';
 import { useAuth } from '../context/AuthContext';
 import { useNotify } from '../context/NotifyContext';
 import { Input, Button } from '../components/ui';
@@ -31,8 +32,8 @@ export default function LoginPage() {
     <div className="flex h-full min-h-0 items-center justify-center p-6">
       <div className="login-card w-full max-w-[400px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15 ring-1 ring-accent/25">
-            <Icon name="shield" size={28} className="text-accent-light" />
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/15 ring-2 ring-accent/30 shadow-lg shadow-accent/10">
+            <PoliceIcon size={40} prominent />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-text-primary">POLIS</h1>
           <p className="mt-1 text-sm text-text-secondary">Polizei Information System</p>

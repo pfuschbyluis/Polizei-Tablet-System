@@ -133,6 +133,11 @@ local SCHEMA = {
         INDEX idx_timestamp (timestamp),
         INDEX idx_officer (officer_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
+
+    [[CREATE TABLE IF NOT EXISTS polis_settings (
+        setting_key VARCHAR(64) NOT NULL PRIMARY KEY,
+        setting_value TEXT NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
 }
 
 local function DebugPrint(msg)

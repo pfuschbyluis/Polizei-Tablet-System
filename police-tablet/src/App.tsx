@@ -2,6 +2,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { FiveMProvider, useFiveM } from './context/FiveMContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { BrandingProvider } from './context/BrandingContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuditProvider } from './context/AuditContext';
 import { DataProvider } from './context/DataContext';
@@ -20,6 +21,7 @@ import FahrzeugePage from './pages/FahrzeugePage';
 import FahndungPage from './pages/FahndungPage';
 import AuditLogPage from './pages/AuditLogPage';
 import MitarbeiterPage from './pages/MitarbeiterPage';
+import EinstellungenPage from './pages/EinstellungenPage';
 
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -64,6 +66,7 @@ function AppRoutes() {
           <Route path="fahrzeuge/:id" element={<FahrzeugePage />} />
           <Route path="fahndung" element={<FahndungPage />} />
           <Route path="mitarbeiter" element={<MitarbeiterPage />} />
+          <Route path="einstellungen" element={<EinstellungenPage />} />
           <Route path="protokoll" element={<AuditLogPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
@@ -96,7 +99,9 @@ export default function App() {
   return (
     <FiveMProvider>
       <ThemeProvider>
-        <TabletShell />
+        <BrandingProvider>
+          <TabletShell />
+        </BrandingProvider>
       </ThemeProvider>
     </FiveMProvider>
   );

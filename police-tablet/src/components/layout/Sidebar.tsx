@@ -6,7 +6,7 @@ import { useFiveM } from '../../context/FiveMContext';
 import { useNotify } from '../../context/NotifyContext';
 import { useState } from 'react';
 
-const navItems: { to: string; icon: IconName; label: string; perm: 'viewDashboard' | 'viewPersons' | 'viewCases' | 'viewWeapons' | 'viewVehicles' | 'viewWanted' | 'viewEmployees' | 'viewAuditLog' }[] = [
+const navItems: { to: string; icon: IconName; label: string; perm: 'viewDashboard' | 'viewPersons' | 'viewCases' | 'viewWeapons' | 'viewVehicles' | 'viewWanted' | 'viewEmployees' | 'viewAuditLog' | 'viewSettings' }[] = [
   { to: '/', icon: 'dashboard', label: 'Dashboard', perm: 'viewDashboard' },
   { to: '/personen', icon: 'users', label: 'Personen', perm: 'viewPersons' },
   { to: '/akten', icon: 'folder', label: 'Akten', perm: 'viewCases' },
@@ -14,6 +14,7 @@ const navItems: { to: string; icon: IconName; label: string; perm: 'viewDashboar
   { to: '/fahrzeuge', icon: 'car', label: 'Fahrzeuge', perm: 'viewVehicles' },
   { to: '/fahndung', icon: 'wanted', label: 'Fahndung', perm: 'viewWanted' },
   { to: '/mitarbeiter', icon: 'user-cog', label: 'Mitarbeiter', perm: 'viewEmployees' },
+  { to: '/einstellungen', icon: 'settings', label: 'Einstellungen', perm: 'viewSettings' },
   { to: '/protokoll', icon: 'scroll', label: 'Protokoll', perm: 'viewAuditLog' },
 ];
 

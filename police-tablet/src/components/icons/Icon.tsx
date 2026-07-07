@@ -41,7 +41,8 @@ export type IconName =
   | 'phone'
   | 'bell'
   | 'user-plus'
-  | 'check';
+  | 'check'
+  | 'settings';
 
 interface IconProps extends SVGProps<SVGSVGElement> {
   name: IconName;
@@ -257,6 +258,12 @@ const paths: Record<IconName, ReactNode> = {
     <>
       <circle cx="12" cy="12" r="9" fill="none" />
       <path d="M8 12.5l2.5 2.5L16 9" fill="none" />
+    </>
+  ),
+  settings: (
+    <>
+      <circle cx="12" cy="12" r="3" fill="none" />
+      <path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M19.8 19.8l-1.4-1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M19.8 4.2l-1.4 1.4" fill="none" />
     </>
   ),
 };

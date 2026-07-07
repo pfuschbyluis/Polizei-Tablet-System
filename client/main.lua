@@ -226,8 +226,20 @@ RegisterNUICallback('getRoleTemplates', function(data, cb)
     TriggerServerNui('polis:server:getRoleTemplates', data, cb)
 end)
 
+RegisterNUICallback('getBranding', function(data, cb)
+    TriggerServerNui('polis:server:getBranding', data, cb)
+end)
+
+RegisterNUICallback('updateBranding', function(data, cb)
+    TriggerServerNui('polis:server:updateBranding', data, cb)
+end)
+
 RegisterNUICallback('getInitialData', function(data, cb)
     TriggerServerNui('polis:server:getInitialData', data, cb)
+end)
+
+RegisterNetEvent('polis:client:brandingUpdated', function(branding)
+    SendNUIMessage({ action = 'brandingUpdated', data = branding })
 end)
 
 RegisterNUICallback('getAuditLog', function(data, cb)

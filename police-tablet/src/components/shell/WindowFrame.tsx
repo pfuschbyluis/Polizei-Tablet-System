@@ -1,7 +1,7 @@
 import { useState, useCallback, type ReactNode } from 'react';
 import { useFiveM } from '../../context/FiveMContext';
 import TitleBar from './TitleBar';
-import Icon from '../icons/Icon';
+import PoliceIcon from '../icons/PoliceIcon';
 
 type WindowState = 'normal' | 'maximized' | 'minimized';
 
@@ -47,7 +47,7 @@ export default function WindowFrame({
           onClick={() => setWindowState('normal')}
         >
           <div className="flux-app-icon flux-app-icon-sm">
-            <Icon name="shield" size={14} className="text-accent" />
+            <PoliceIcon size={16} />
           </div>
           <span className="text-sm font-medium text-text-primary">{title}</span>
           <span className="ml-auto text-xs text-text-muted">Klicken zum Öffnen</span>
