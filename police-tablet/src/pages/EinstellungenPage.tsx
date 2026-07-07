@@ -21,6 +21,7 @@ export default function EinstellungenPage() {
 
   const canEdit = permissions.adminFunctions;
   const activePreviewUrl = previewUrl ?? (urlInput.trim() || customIconUrl);
+  const showingCustom = Boolean(activePreviewUrl) && !previewError;
 
   useEffect(() => {
     setUrlInput(customIconUrl);
@@ -133,7 +134,7 @@ export default function EinstellungenPage() {
               <p className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">Vorschau</p>
 
               {activePreviewUrl && !previewError ? (
-                <div className="settings-icon-preview-hero">
+                <div className="settings-icon-preview-hero settings-icon-preview-slot--custom">
                   <img
                     key={activePreviewUrl}
                     src={activePreviewUrl}
@@ -155,7 +156,7 @@ export default function EinstellungenPage() {
 
               <div className="settings-icon-preview-grid mt-4">
                 <div className="settings-icon-preview-item">
-                  <div className="settings-icon-preview-login">
+                  <div className={`settings-icon-preview-login ${showingCustom ? 'settings-icon-preview-slot--custom' : ''}`}>
                     {activePreviewUrl && !previewError ? (
                       <img
                         src={activePreviewUrl}
@@ -170,7 +171,7 @@ export default function EinstellungenPage() {
                   <span className="text-[11px] text-text-muted">Login</span>
                 </div>
                 <div className="settings-icon-preview-item">
-                  <div className="settings-icon-preview-titlebar">
+                  <div className={`settings-icon-preview-titlebar ${showingCustom ? 'settings-icon-preview-slot--custom' : ''}`}>
                     {activePreviewUrl && !previewError ? (
                       <img
                         src={activePreviewUrl}
@@ -185,7 +186,7 @@ export default function EinstellungenPage() {
                   <span className="text-[11px] text-text-muted">Titelleiste</span>
                 </div>
                 <div className="settings-icon-preview-item">
-                  <div className="settings-icon-preview-toast">
+                  <div className={`settings-icon-preview-toast ${showingCustom ? 'settings-icon-preview-slot--custom' : ''}`}>
                     {activePreviewUrl && !previewError ? (
                       <img
                         src={activePreviewUrl}

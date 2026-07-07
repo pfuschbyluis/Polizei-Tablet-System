@@ -77,7 +77,7 @@ export default function PoliceIcon({
 
   return (
     <span
-      className={`police-icon ${prominent ? 'police-icon--prominent' : ''} ${className}`.trim()}
+      className={`police-icon ${showCustom ? 'police-icon--custom' : ''} ${prominent ? 'police-icon--prominent' : ''} ${className}`.trim()}
       style={{ width: size, height: size, ...style }}
       {...props}
     >
