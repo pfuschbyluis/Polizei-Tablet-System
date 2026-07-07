@@ -22,6 +22,7 @@ import {
   SearchBar,
   ConfirmDialog,
   Tabs,
+  ActiveStatusPill,
 } from '../components/ui';
 
 type FormTab = 'stammdaten' | 'berechtigungen';
@@ -344,7 +345,7 @@ export default function MitarbeiterPage() {
                             <span className="text-sm text-text-secondary">{permCount} aktiv</span>
                           </td>
                           <td>
-                            <Badge variant={emp.active ? 'green' : 'red'}>{emp.active ? 'Aktiv' : 'Inaktiv'}</Badge>
+                            <ActiveStatusPill active={emp.active} />
                           </td>
                           {permissions.manageEmployees && (
                             <td>
@@ -358,8 +359,10 @@ export default function MitarbeiterPage() {
                                   className="flux-action-btn flux-action-btn--delete"
                                   onClick={() => openDeleteConfirm(emp.id)}
                                   disabled={emp.id === currentOfficer?.id}
+                                  title={emp.id === currentOfficer?.id ? 'Eigener Account' : 'Mitarbeiter löschen'}
                                 >
                                   <Icon name="trash" size={14} />
+                                  <span>Löschen</span>
                                 </button>
                               </div>
                             </td>
@@ -396,6 +399,7 @@ export default function MitarbeiterPage() {
                   {!tpl.isSystem && (
                     <button type="button" className="flux-action-btn flux-action-btn--delete" onClick={() => handleDeleteRole(tpl)}>
                       <Icon name="trash" size={14} />
+                      <span>Löschen</span>
                     </button>
                   )}
                 </div>
