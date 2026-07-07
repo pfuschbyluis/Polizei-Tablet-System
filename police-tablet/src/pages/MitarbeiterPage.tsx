@@ -47,6 +47,7 @@ export default function MitarbeiterPage() {
     updateEmployee,
     deleteEmployee,
     createRoleTemplate,
+    updateRoleTemplate,
     deleteRoleTemplate,
   } = useAuth();
   const { notify } = useNotify();
@@ -63,7 +64,9 @@ export default function MitarbeiterPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
   const [roleForm, setRoleForm] = useState({ name: '', description: '', permissions: emptyPermissions() });
+  const [isSavingRole, setIsSavingRole] = useState(false);
 
   const selectedTemplate = useMemo(
     () => getTemplateById(roleTemplates, form.roleTemplateId),
@@ -197,18 +200,56 @@ export default function MitarbeiterPage() {
     }
   };
 
-  const handleCreateRole = async () => {
+  const openCreateRole = () => {
+    setEditingRoleId(null);
+    setRoleForm({ name: '', description: '', permissions: emptyPermissions() });
+    setShowRoleModal(true);
+  };
+
+  const openEditRole = (tpl: RoleTemplate) => {
+    setEditingRoleId(tpl.id);
+    setRoleForm({
+      name: tpl.name,
+      description: tpl.description,
+      permissions: { ...tpl.permissions },
+    });
+    setShowRoleModal(true);
+  };
+
+  const closeRoleModal = () => {
+    if (isSavingRole) return;
+    setShowRoleModal(false);
+    setEditingRoleId(null);
+  };
+
+  const handleSaveRole = async () => {
     if (!roleForm.name.trim()) {
       notify('Rollenname erforderlich', 'warning');
       return;
     }
-    const result = await createRoleTemplate(roleForm);
-    if (result.success) {
-      notify('Rollenvorlage erstellt', 'success');
-      setShowRoleModal(false);
-      setRoleForm({ name: '', description: '', permissions: emptyPermissions() });
-    } else {
-      notify(result.error ?? 'Erstellen fehlgeschlagen', 'error');
+
+    setIsSavingRole(true);
+    try {
+      const payload = {
+        name: roleForm.name.trim(),
+        description: roleForm.description.trim(),
+        permissions: roleForm.permissions,
+      };
+
+      const result = editingRoleId
+        ? await updateRoleTemplate(editingRoleId, payload)
+        : await createRoleTemplate(payload);
+
+      if (result.success) {
+        notify(editingRoleId ? 'Rollenvorlage gespeichert' : 'Rollenvorlage erstellt', 'success');
+        setShowRoleModal(false);
+        setEditingRoleId(null);
+        setRoleForm({ name: '', description: '', permissions: emptyPermissions() });
+      } else {
+        notify(result.error ?? 'Speichern fehlgeschlagen', 'error');
+      }
+    } finally {
+      setIsSavingRole(false);
     }
   };
 
@@ -240,7 +281,7 @@ export default function MitarbeiterPage() {
           </Button>
         )}
         {permissions.manageRoles && pageTab === 'rollen' && (
-          <Button onClick={() => setShowRoleModal(true)} size="sm" className="flux-btn-primary">
+          <Button onClick={openCreateRole} size="sm" className="flux-btn-primary">
             <Icon name="plus" size={16} /> Neue Vorlage
           </Button>
         )}
@@ -347,11 +388,17 @@ export default function MitarbeiterPage() {
                   <p className="mt-1 text-sm text-text-secondary">{tpl.description}</p>
                   <p className="mt-2 text-xs text-text-muted">{countActivePermissions(tpl.permissions)} Berechtigungen</p>
                 </div>
-                {!tpl.isSystem && (
-                  <button type="button" className="flux-action-btn flux-action-btn--delete" onClick={() => handleDeleteRole(tpl)}>
-                    <Icon name="trash" size={14} />
+                <div className="flex shrink-0 gap-2">
+                  <button type="button" className="flux-action-btn flux-action-btn--edit" onClick={() => openEditRole(tpl)}>
+                    <Icon name="pencil" size={14} />
+                    <span>Bearbeiten</span>
                   </button>
-                )}
+                  {!tpl.isSystem && (
+                    <button type="button" className="flux-action-btn flux-action-btn--delete" onClick={() => handleDeleteRole(tpl)}>
+                      <Icon name="trash" size={14} />
+                    </button>
+                  )}
+                </div>
               </div>
             </Card>
           ))}
@@ -436,14 +483,29 @@ export default function MitarbeiterPage() {
         </div>
       </Modal>
 
-      <Modal isOpen={showRoleModal} onClose={() => setShowRoleModal(false)} title="Neue Rollenvorlage" size="lg">
+      <Modal
+        isOpen={showRoleModal}
+        onClose={closeRoleModal}
+        title={editingRoleId ? 'Rollenvorlage bearbeiten' : 'Neue Rollenvorlage'}
+        size="lg"
+      >
         <div className="space-y-4">
+          {editingRoleId && getTemplateById(roleTemplates, editingRoleId)?.isSystem && (
+            <p className="rounded-lg border border-border bg-surface-tertiary/40 px-3 py-2 text-xs text-text-secondary">
+              Systemvorlage — Berechtigungen können angepasst werden. Löschen ist nicht möglich.
+            </p>
+          )}
           <Input label="Name" value={roleForm.name} onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })} placeholder="z.B. Einsatzleitung" />
           <Input label="Beschreibung" value={roleForm.description} onChange={(e) => setRoleForm({ ...roleForm, description: e.target.value })} placeholder="Kurzbeschreibung der Rolle" />
           <PermissionEditor permissions={roleForm.permissions} onChange={(permissions) => setRoleForm({ ...roleForm, permissions })} />
-          <Button className="w-full flux-btn-primary" onClick={handleCreateRole}>
-            Vorlage erstellen
-          </Button>
+          <div className="flex gap-2 pt-2">
+            <Button variant="secondary" className="flex-1" onClick={closeRoleModal} disabled={isSavingRole}>
+              Abbrechen
+            </Button>
+            <Button className="flex-1 flux-btn-primary" onClick={handleSaveRole} disabled={isSavingRole}>
+              {isSavingRole ? 'Speichern…' : editingRoleId ? 'Speichern' : 'Erstellen'}
+            </Button>
+          </div>
         </div>
       </Modal>
 
