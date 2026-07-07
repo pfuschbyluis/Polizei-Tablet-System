@@ -11,9 +11,9 @@ interface StatCardProps {
 
 const iconColors = {
   blue: 'text-accent-light bg-accent-subtle',
-  green: 'text-success bg-success/15',
-  yellow: 'text-warning bg-warning/15',
-  red: 'text-danger bg-danger/15',
+  green: 'text-emerald-400 bg-success/15',
+  yellow: 'text-amber-300 bg-amber-500/15 ring-1 ring-amber-500/20',
+  red: 'text-red-400 bg-danger/15',
   purple: 'text-purple-400 bg-purple-500/15',
 };
 

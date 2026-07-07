@@ -92,10 +92,10 @@ const paths: Record<IconName, ReactNode> = {
   ),
   wanted: (
     <>
-      <circle cx="10" cy="8" r="3.5" fill="none" />
-      <path d="M4 18c0-3 2.5-5 6-5" fill="none" />
-      <circle cx="17" cy="16" r="4" fill="none" />
-      <path d="M19.5 18.5L22 21" fill="none" />
+      <circle cx="9" cy="8" r="3.5" fill="none" strokeWidth="2" />
+      <path d="M3.5 18.5c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" fill="none" strokeWidth="2" />
+      <circle cx="16.5" cy="16.5" r="3.5" fill="none" strokeWidth="2" />
+      <path d="M19 19l2.5 2.5" fill="none" strokeWidth="2" />
     </>
   ),
   shield: (
