@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
+import PersonSelect from '../components/cases/PersonSelect';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotifyAction } from '../hooks/useNotifyAction';
@@ -15,6 +16,7 @@ import {
   Tabs,
   EmptyState,
 } from '../components/ui';
+import { PARTICIPANT_ROLE_OPTIONS } from '../types';
 
 export default function AkteDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -314,28 +316,18 @@ export default function AkteDetailPage() {
 
       <Modal isOpen={showParticipantModal} onClose={() => setShowParticipantModal(false)} title="Beteiligte Person">
         <div className="space-y-4">
-          <Select
-            label="Person"
+          <PersonSelect
+            label="Person aus dem System"
+            persons={persons}
             value={participantForm.personId}
-            onChange={(e) => setParticipantForm({ ...participantForm, personId: e.target.value })}
-            options={[
-              { value: '', label: 'Auswählen...' },
-              ...persons.map((p) => ({
-                value: p.id,
-                label: `${p.firstName} ${p.lastName}`,
-              })),
-            ]}
+            onChange={(personId) => setParticipantForm({ ...participantForm, personId })}
+            excludeIds={caseFile.participants.map((p) => p.personId)}
           />
           <Select
             label="Rolle"
             value={participantForm.role}
             onChange={(e) => setParticipantForm({ ...participantForm, role: e.target.value as typeof participantForm.role })}
-            options={[
-              { value: 'verdächtig', label: 'Verdächtig' },
-              { value: 'opfer', label: 'Opfer' },
-              { value: 'zeuge', label: 'Zeuge' },
-              { value: 'beteiligt', label: 'Beteiligt' },
-            ]}
+            options={PARTICIPANT_ROLE_OPTIONS}
           />
           <Button
             className="w-full"

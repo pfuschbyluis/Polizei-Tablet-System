@@ -120,6 +120,13 @@ export interface CaseParticipant {
   role: 'verdächtig' | 'opfer' | 'zeuge' | 'beteiligt';
 }
 
+export const PARTICIPANT_ROLE_OPTIONS: { value: CaseParticipant['role']; label: string }[] = [
+  { value: 'verdächtig', label: 'Verdächtig' },
+  { value: 'opfer', label: 'Opfer' },
+  { value: 'zeuge', label: 'Zeuge' },
+  { value: 'beteiligt', label: 'Beteiligt' },
+];
+
 export interface CaseFile {
   id: string;
   caseNumber: string;

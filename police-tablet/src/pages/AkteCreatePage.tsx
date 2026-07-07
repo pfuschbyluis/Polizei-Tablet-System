@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
+import CaseParticipantPicker from '../components/cases/CaseParticipantPicker';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotifyAction } from '../hooks/useNotifyAction';
+import type { CaseParticipant } from '../types';
 import { OFFENSES } from '../types';
 import { Card, Button, Input, Select } from '../components/ui';
 
 export default function AkteCreatePage() {
   const navigate = useNavigate();
-  const { createCase } = useData();
+  const { createCase, persons } = useData();
   const { currentOfficer, permissions } = useAuth();
   const { run, warn } = useNotifyAction();
 
@@ -18,6 +20,7 @@ export default function AkteCreatePage() {
     offense: OFFENSES[0],
     description: '',
   });
+  const [participants, setParticipants] = useState<CaseParticipant[]>([]);
 
   if (!currentOfficer) return null;
 
@@ -44,7 +47,7 @@ export default function AkteCreatePage() {
           status: 'offen',
           assignedOfficerId: currentOfficer.id,
           assignedOfficerName: currentOfficer.name,
-          participants: [],
+          participants,
           evidence: [],
           witnesses: [],
           internalNotes: [],
@@ -103,6 +106,17 @@ export default function AkteCreatePage() {
             Akte anlegen
           </Button>
         </form>
+      </Card>
+
+      <Card title="Beteiligte Personen">
+        <p className="mb-4 text-sm text-text-secondary">
+          Wählen Sie Personen aus, die bereits im System hinterlegt sind.
+        </p>
+        <CaseParticipantPicker
+          persons={persons}
+          participants={participants}
+          onChange={setParticipants}
+        />
       </Card>
     </div>
   );
