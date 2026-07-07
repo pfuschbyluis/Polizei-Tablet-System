@@ -237,22 +237,25 @@ RegisterNetEvent('polis:server:updateBranding', function(reqId, data)
         return
     end
 
-    local branding, err = Repository.UpdateBranding(data)
+    local iconUrl = data and data.customIconUrl or ''
+    local branding, err = Repository.UpdateBranding(iconUrl)
     if not branding then
         NuiError(src, reqId, err or 'Einstellungen konnten nicht gespeichert werden.')
         return
     end
 
-    Repository.LogAudit({
-        officerId = session.employee.id,
-        officerName = session.employee.name,
-        action = 'Polizei-Icon aktualisiert',
-        module = 'Einstellungen',
-        details = branding.customIconUrl ~= '' and branding.customIconUrl or 'Standard-Icon wiederhergestellt',
-    })
-
-    TriggerClientEvent('polis:client:brandingUpdated', -1, branding)
     NuiOk(src, reqId, { success = true, branding = branding })
+
+    CreateThread(function()
+        Repository.LogAudit({
+            officerId = session.employee.id,
+            officerName = session.employee.name,
+            action = 'Polizei-Icon aktualisiert',
+            module = 'Einstellungen',
+            details = branding.customIconUrl ~= '' and branding.customIconUrl or 'Standard-Icon wiederhergestellt',
+        })
+        TriggerClientEvent('polis:client:brandingUpdated', -1, branding)
+    end)
 end)
 
 -- Daten laden

@@ -85,7 +85,8 @@ export default function PoliceIcon({
         <img
           src={activeUrl}
           alt=""
-          className="police-icon-image"
+          className={`police-icon-image ${prominent ? 'police-icon-image--cover' : ''}`.trim()}
+          referrerPolicy="no-referrer"
           onError={() => setImageFailed(true)}
         />
       ) : (

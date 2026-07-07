@@ -10,11 +10,39 @@ export function getResourceName(): string {
 }
 
 const NUI_TIMEOUT_MS = 15000;
+const SESSION_KEY = 'polis-session-token';
+
+export function getSessionToken(): string | null {
+  try {
+    return sessionStorage.getItem(SESSION_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setSessionToken(token: string | null) {
+  try {
+    if (token) {
+      sessionStorage.setItem(SESSION_KEY, token);
+    } else {
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
+}
 
 export async function fetchNui<T = unknown>(event: string, data?: unknown): Promise<T> {
   if (!isFiveM()) {
     return {} as T;
   }
+
+  const sessionToken = getSessionToken();
+  const base =
+    data && typeof data === 'object' && !Array.isArray(data)
+      ? (data as Record<string, unknown>)
+      : {};
+  const payload = sessionToken ? { ...base, sessionToken } : base;
 
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), NUI_TIMEOUT_MS);
@@ -23,7 +51,7 @@ export async function fetchNui<T = unknown>(event: string, data?: unknown): Prom
     const response = await fetch(`https://${getResourceName()}/${event}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data ?? {}),
+      body: JSON.stringify(payload ?? {}),
       signal: controller.signal,
     });
 

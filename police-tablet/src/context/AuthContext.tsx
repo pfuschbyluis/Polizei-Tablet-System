@@ -19,7 +19,7 @@ import {
 } from '../types';
 import { DEV_EMPLOYEES } from '../data/defaults';
 import { useFiveM } from './FiveMContext';
-import { fetchNui, isFiveM } from '../utils/fivem';
+import { fetchNui, isFiveM, setSessionToken } from '../utils/fivem';
 
 interface LoginResult {
   success: boolean;
@@ -118,7 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         result = devLogin(badgeNumber, password);
       }
       if (result.success && result.officer) {
-        const { sessionToken: _, ...officer } = result.officer;
+        const { sessionToken, ...officer } = result.officer;
+        if (sessionToken) setSessionToken(sessionToken);
         setCurrentOfficer(officer);
         setEmployees(result.employees ?? []);
         setRoleTemplates(result.roleTemplates ?? DEFAULT_ROLE_TEMPLATES);
@@ -139,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentOfficer(null);
     setEmployees([]);
     setRoleTemplates(DEFAULT_ROLE_TEMPLATES);
+    setSessionToken(null);
     navigate('/', { replace: true });
     if (isFiveM()) fetchNui('logout');
   }, [navigate]);

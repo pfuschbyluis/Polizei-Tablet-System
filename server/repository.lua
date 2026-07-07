@@ -569,7 +569,7 @@ local function normalizeIconUrl(url)
     if url == '' then
         return ''
     end
-    if #url > 512 then
+    if #url > 2048 then
         return nil
     end
     if not url:match('^https?://') then
@@ -603,9 +603,9 @@ function Repository.GetBranding()
     }
 end
 
-function Repository.UpdateBranding(data)
+function Repository.UpdateBranding(customIconUrl)
     Database.EnsureSchema()
-    local url = normalizeIconUrl(data and data.customIconUrl or '')
+    local url = normalizeIconUrl(customIconUrl or '')
     if url == nil then
         return nil, 'Ungültige Bild-URL. Bitte eine http(s)-Adresse eingeben.'
     end

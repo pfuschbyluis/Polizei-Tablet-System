@@ -154,7 +154,9 @@ local function TriggerServerNui(event, data, cb)
     local reqId = math.random(100000, 999999)
     pendingCallbacks[reqId] = cb
     local payload = data or {}
-    if sessionToken then
+    if payload.sessionToken then
+        sessionToken = payload.sessionToken
+    elseif sessionToken then
         payload.sessionToken = sessionToken
     end
     TriggerServerEvent(event, reqId, payload)

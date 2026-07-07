@@ -86,8 +86,12 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
         'updateBranding',
         { customIconUrl: trimmed }
       );
-      if (result.success && result.branding) {
-        applyBranding(result.branding);
+      if (result.success) {
+        if (result.branding) {
+          applyBranding(result.branding);
+        } else {
+          await refreshBranding();
+        }
         return { success: true };
       }
       return { success: false, error: result.error ?? 'Speichern fehlgeschlagen.' };
