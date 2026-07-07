@@ -10,6 +10,18 @@ local function rowToEmployee(row)
         active = row.active == 1 or row.active == true,
         createdAt = row.created_at,
         passwordHash = row.password_hash,
+        roleTemplateId = row.role_template_id,
+        permissions = Permissions.FromTable(Database.DecodeJson(row.permissions, {})),
+    }
+end
+
+local function rowToRoleTemplate(row)
+    return {
+        id = row.id,
+        name = row.name,
+        description = row.description,
+        isSystem = row.is_system == 1 or row.is_system == true,
+        permissions = Permissions.FromTable(Database.DecodeJson(row.permissions, {})),
     }
 end
 
@@ -129,7 +141,26 @@ function Repository.CopyEmployeePublic(emp)
         unit = emp.unit,
         active = emp.active,
         createdAt = emp.createdAt,
+        roleTemplateId = emp.roleTemplateId,
+        permissions = emp.permissions,
     }
+end
+
+function Repository.GetTemplatesMap()
+    local map = {}
+    for _, template in ipairs(Repository.GetAllRoleTemplates()) do
+        map[template.id] = template
+    end
+    return map
+end
+
+function Repository.ResolveEmployeePermissions(emp)
+    return Permissions.FromTable(emp.permissions or Permissions.Empty())
+end
+
+function Repository.EmployeeHasPermission(emp, key)
+    local perms = Repository.ResolveEmployeePermissions(emp)
+    return Permissions.Has(perms, key)
 end
 
 -- Employees
@@ -164,8 +195,19 @@ function Repository.CreateEmployee(data)
     local hash = Password.Hash(data.password)
     if not hash then return nil, 'Passwort ungültig.' end
 
+    local tplId = data.roleTemplateId or Permissions.TemplateForRank(data.rank or 'beamter')
+    local perms = Permissions.FromTable(data.permissions or Permissions.Empty())
+    if not data.permissions or not next(data.permissions) then
+        for _, template in ipairs(Repository.GetAllRoleTemplates()) do
+            if template.id == tplId then
+                perms = template.permissions
+                break
+            end
+        end
+    end
+
     MySQL.insert.await(
-        'INSERT INTO polis_employees (id, badge_number, password_hash, name, rank, unit, active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO polis_employees (id, badge_number, password_hash, name, rank, unit, active, created_at, role_template_id, permissions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         {
             id,
             data.badgeNumber,
@@ -175,6 +217,8 @@ function Repository.CreateEmployee(data)
             data.unit or 'Streifenwagen Alpha-1',
             1,
             os.date('%Y-%m-%d'),
+            tplId,
+            Database.EncodeJson(perms),
         }
     )
 
@@ -190,17 +234,19 @@ function Repository.UpdateEmployee(id, data)
     local rank = data.rank or emp.rank
     local unit = data.unit or emp.unit
     local active = data.active ~= nil and data.active or emp.active
+    local tplId = data.roleTemplateId ~= nil and data.roleTemplateId or emp.roleTemplateId
+    local perms = data.permissions and Permissions.FromTable(data.permissions) or emp.permissions
 
     if data.password and data.password ~= '' then
         local hash = Password.Hash(data.password)
         MySQL.update.await(
-            'UPDATE polis_employees SET name = ?, rank = ?, unit = ?, active = ?, password_hash = ? WHERE id = ?',
-            { name, rank, unit, active and 1 or 0, hash, id }
+            'UPDATE polis_employees SET name = ?, rank = ?, unit = ?, active = ?, password_hash = ?, role_template_id = ?, permissions = ? WHERE id = ?',
+            { name, rank, unit, active and 1 or 0, hash, tplId, Database.EncodeJson(perms), id }
         )
     else
         MySQL.update.await(
-            'UPDATE polis_employees SET name = ?, rank = ?, unit = ?, active = ? WHERE id = ?',
-            { name, rank, unit, active and 1 or 0, id }
+            'UPDATE polis_employees SET name = ?, rank = ?, unit = ?, active = ?, role_template_id = ?, permissions = ? WHERE id = ?',
+            { name, rank, unit, active and 1 or 0, tplId, Database.EncodeJson(perms), id }
         )
     end
 
@@ -210,6 +256,69 @@ end
 function Repository.DeleteEmployee(id)
     Database.EnsureSchema()
     return MySQL.update.await('DELETE FROM polis_employees WHERE id = ?', { id })
+end
+
+-- Role templates
+function Repository.GetAllRoleTemplates()
+    Database.EnsureSchema()
+    local rows = MySQL.query.await('SELECT * FROM polis_role_templates ORDER BY name ASC') or {}
+    local list = {}
+    for _, row in ipairs(rows) do
+        list[#list + 1] = rowToRoleTemplate(row)
+    end
+    return list
+end
+
+function Repository.FindRoleTemplateById(id)
+    Database.EnsureSchema()
+    local row = MySQL.single.await('SELECT * FROM polis_role_templates WHERE id = ? LIMIT 1', { id })
+    return row and rowToRoleTemplate(row) or nil
+end
+
+function Repository.CreateRoleTemplate(data)
+    Database.EnsureSchema()
+    local id = Database.GenerateId('tpl')
+    MySQL.insert.await(
+        'INSERT INTO polis_role_templates (id, name, description, is_system, permissions) VALUES (?, ?, ?, 0, ?)',
+        { id, data.name, data.description or '', Database.EncodeJson(Permissions.FromTable(data.permissions or {})) }
+    )
+    return Repository.FindRoleTemplateById(id)
+end
+
+function Repository.UpdateRoleTemplate(id, data)
+    Database.EnsureSchema()
+    local tpl = Repository.FindRoleTemplateById(id)
+    if not tpl then return nil end
+
+    local name = data.name or tpl.name
+    local description = data.description or tpl.description
+    local perms = data.permissions and Permissions.FromTable(data.permissions) or tpl.permissions
+
+    MySQL.update.await(
+        'UPDATE polis_role_templates SET name = ?, description = ?, permissions = ? WHERE id = ?',
+        { name, description, Database.EncodeJson(perms), id }
+    )
+    return Repository.FindRoleTemplateById(id)
+end
+
+function Repository.DeleteRoleTemplate(id)
+    Database.EnsureSchema()
+    local tpl = Repository.FindRoleTemplateById(id)
+    if not tpl or tpl.isSystem then
+        return false
+    end
+    MySQL.update.await('DELETE FROM polis_role_templates WHERE id = ?', { id })
+    return true
+end
+
+function Repository.CopyRoleTemplatePublic(tpl)
+    return {
+        id = tpl.id,
+        name = tpl.name,
+        description = tpl.description,
+        isSystem = tpl.isSystem,
+        permissions = tpl.permissions,
+    }
 end
 
 -- Sessions
@@ -234,7 +343,7 @@ function Repository.GetSession(token, source)
     Database.EnsureSchema()
     if not token or token == '' then return nil end
     local row = MySQL.single.await(
-        'SELECT s.*, e.id AS emp_id, e.badge_number, e.name, e.rank, e.unit, e.active FROM polis_sessions s JOIN polis_employees e ON e.id = s.employee_id WHERE s.token = ? AND s.source = ? LIMIT 1',
+        'SELECT s.*, e.id AS emp_id, e.badge_number, e.name, e.rank, e.unit, e.active, e.role_template_id, e.permissions FROM polis_sessions s JOIN polis_employees e ON e.id = s.employee_id WHERE s.token = ? AND s.source = ? LIMIT 1',
         { token, source }
     )
     if not row then return nil end
@@ -243,15 +352,21 @@ function Repository.GetSession(token, source)
         return nil
     end
     if row.active ~= 1 and row.active ~= true then return nil end
+
+    local emp = {
+        id = row.emp_id,
+        badgeNumber = row.badge_number,
+        name = row.name,
+        rank = row.rank,
+        unit = row.unit,
+        active = true,
+        roleTemplateId = row.role_template_id,
+        permissions = Permissions.FromTable(Database.DecodeJson(row.permissions, {})),
+    }
+
     return {
         token = token,
-        employee = {
-            id = row.emp_id,
-            badgeNumber = row.badge_number,
-            name = row.name,
-            rank = row.rank,
-            unit = row.unit,
-        },
+        employee = emp,
     }
 end
 
@@ -435,10 +550,14 @@ function Repository.AddCaseNote(caseId, note)
     end)
 end
 
-function Repository.CanViewEmployees(rank)
-    return rank == 'admin' or rank == 'leitstelle'
+function Repository.CanViewEmployees(emp)
+    return Repository.EmployeeHasPermission(emp, 'viewEmployees')
 end
 
-function Repository.CanManageEmployees(rank)
-    return rank == 'admin'
+function Repository.CanManageEmployees(emp)
+    return Repository.EmployeeHasPermission(emp, 'manageEmployees')
+end
+
+function Repository.CanManageRoles(emp)
+    return Repository.EmployeeHasPermission(emp, 'manageRoles')
 end

@@ -1,3 +1,19 @@
+import type { Permission } from './permissions';
+
+export type { Permission, RoleTemplate } from './permissions';
+export {
+  PERMISSION_LABELS,
+  PERMISSION_GROUPS,
+  DEFAULT_ROLE_TEMPLATES,
+  emptyPermissions,
+  fullPermissions,
+  toEffectivePermissions,
+  countActivePermissions,
+  templateForLegacyRank,
+  getTemplateById,
+} from '../utils/permissions';
+export type { EffectivePermission } from '../utils/permissions';
+
 export type Rank = 'admin' | 'leitstelle' | 'ermittler' | 'beamter';
 
 export type CaseStatus = 'offen' | 'in_bearbeitung' | 'abgeschlossen';
@@ -14,6 +30,8 @@ export interface Officer {
   rank: Rank;
   unit: string;
   avatar?: string;
+  roleTemplateId?: string | null;
+  permissions?: Permission;
 }
 
 export interface Employee {
@@ -24,6 +42,8 @@ export interface Employee {
   unit: string;
   active: boolean;
   createdAt: string;
+  roleTemplateId: string | null;
+  permissions: Permission;
 }
 
 export interface EmployeeInput {
@@ -33,6 +53,14 @@ export interface EmployeeInput {
   rank: Rank;
   unit: string;
   active?: boolean;
+  roleTemplateId?: string | null;
+  permissions?: Permission;
+}
+
+export interface RoleTemplateInput {
+  name: string;
+  description: string;
+  permissions: Permission;
 }
 
 export interface PriorConviction {
@@ -172,105 +200,11 @@ export interface AuditEntry {
   details: string;
 }
 
-export interface Permission {
-  viewDashboard: boolean;
-  viewPersons: boolean;
-  editPersons: boolean;
-  viewCases: boolean;
-  createCases: boolean;
-  editCases: boolean;
-  viewWeapons: boolean;
-  editWeapons: boolean;
-  viewVehicles: boolean;
-  editVehicles: boolean;
-  viewWanted: boolean;
-  editWanted: boolean;
-  viewAuditLog: boolean;
-  adminFunctions: boolean;
-  viewEmployees: boolean;
-  manageEmployees: boolean;
-}
-
 export const RANK_LABELS: Record<Rank, string> = {
   admin: 'Administrator',
   leitstelle: 'Leitstelle',
   ermittler: 'Ermittler',
   beamter: 'Beamter',
-};
-
-export const PERMISSIONS: Record<Rank, Permission> = {
-  admin: {
-    viewDashboard: true,
-    viewPersons: true,
-    editPersons: true,
-    viewCases: true,
-    createCases: true,
-    editCases: true,
-    viewWeapons: true,
-    editWeapons: true,
-    viewVehicles: true,
-    editVehicles: true,
-    viewWanted: true,
-    editWanted: true,
-    viewAuditLog: true,
-    adminFunctions: true,
-    viewEmployees: true,
-    manageEmployees: true,
-  },
-  leitstelle: {
-    viewDashboard: true,
-    viewPersons: true,
-    editPersons: false,
-    viewCases: true,
-    createCases: false,
-    editCases: false,
-    viewWeapons: true,
-    editWeapons: false,
-    viewVehicles: true,
-    editVehicles: false,
-    viewWanted: true,
-    editWanted: true,
-    viewAuditLog: false,
-    adminFunctions: false,
-    viewEmployees: true,
-    manageEmployees: false,
-  },
-  ermittler: {
-    viewDashboard: true,
-    viewPersons: true,
-    editPersons: true,
-    viewCases: true,
-    createCases: true,
-    editCases: true,
-    viewWeapons: true,
-    editWeapons: true,
-    viewVehicles: true,
-    editVehicles: true,
-    viewWanted: true,
-    editWanted: true,
-    viewAuditLog: false,
-    adminFunctions: false,
-    viewEmployees: false,
-    manageEmployees: false,
-  },
-  beamter: {
-    viewDashboard: true,
-    viewPersons: true,
-    editPersons: false,
-    viewCases: true,
-    createCases: false,
-    editCases: false,
-    viewWeapons: true,
-    editWeapons: false,
-    viewVehicles: true,
-    editVehicles: false,
-    viewWanted: true,
-    editWanted: false,
-    viewAuditLog: false,
-    adminFunctions: false,
-    viewEmployees: false,
-    manageEmployees: false,
-  },
 };
 
 export const OFFENSES = [

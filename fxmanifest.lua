@@ -22,6 +22,7 @@ server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/lib/sha256.lua',
     'server/password.lua',
+    'server/permissions.lua',
     'server/database.lua',
     'server/repository.lua',
     'server/main.lua',

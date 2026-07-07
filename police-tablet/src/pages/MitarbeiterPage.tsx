@@ -1,8 +1,17 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Icon from '../components/icons/Icon';
+import PermissionEditor from '../components/employees/PermissionEditor';
 import { useAuth } from '../context/AuthContext';
 import { useNotify } from '../context/NotifyContext';
-import { RANK_LABELS, UNITS, type Rank, type EmployeeInput } from '../types';
+import {
+  UNITS,
+  type Permission,
+  type RoleTemplate,
+  type EmployeeInput,
+  emptyPermissions,
+  countActivePermissions,
+  getTemplateById,
+} from '../types';
 import {
   Card,
   Button,
@@ -13,30 +22,56 @@ import {
   EmptyState,
   SearchBar,
   ConfirmDialog,
+  Tabs,
 } from '../components/ui';
 
-const emptyForm: EmployeeInput = {
+type FormTab = 'stammdaten' | 'berechtigungen';
+type PageTab = 'mitarbeiter' | 'rollen';
+
+const emptyForm = (): EmployeeInput & { permissions: Permission } => ({
   badgeNumber: '',
   password: '',
   name: '',
   rank: 'beamter',
   unit: UNITS[0],
   active: true,
-};
+  roleTemplateId: 'tpl-praktikant',
+  permissions: emptyPermissions(),
+});
 
 export default function MitarbeiterPage() {
-  const { employees, permissions, currentOfficer, createEmployee, updateEmployee, deleteEmployee } =
-    useAuth();
+  const {
+    employees,
+    roleTemplates,
+    permissions,
+    currentOfficer,
+    createEmployee,
+    updateEmployee,
+    deleteEmployee,
+    createRoleTemplate,
+    deleteRoleTemplate,
+  } = useAuth();
   const { notify } = useNotify();
+
+  const [pageTab, setPageTab] = useState<PageTab>('mitarbeiter');
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<EmployeeInput>(emptyForm);
+  const [formTab, setFormTab] = useState<FormTab>('stammdaten');
+  const [form, setForm] = useState(emptyForm());
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [roleForm, setRoleForm] = useState({ name: '', description: '', permissions: emptyPermissions() });
+
+  const selectedTemplate = useMemo(
+    () => getTemplateById(roleTemplates, form.roleTemplateId),
+    [roleTemplates, form.roleTemplateId]
+  );
 
   if (!permissions.viewEmployees) {
     return (
@@ -49,22 +84,38 @@ export default function MitarbeiterPage() {
 
   const filtered = employees.filter((e) => {
     const q = search.toLowerCase();
+    const tpl = getTemplateById(roleTemplates, e.roleTemplateId);
     return (
       e.name.toLowerCase().includes(q) ||
       e.badgeNumber.toLowerCase().includes(q) ||
-      e.unit.toLowerCase().includes(q)
+      e.unit.toLowerCase().includes(q) ||
+      (tpl?.name.toLowerCase().includes(q) ?? false)
     );
   });
 
+  const applyTemplate = (templateId: string | null) => {
+    const tpl = getTemplateById(roleTemplates, templateId);
+    setForm((prev) => ({
+      ...prev,
+      roleTemplateId: templateId,
+      permissions: tpl ? { ...tpl.permissions } : emptyPermissions(),
+    }));
+  };
+
   const openCreate = () => {
     setEditingId(null);
-    setForm(emptyForm);
+    setFormTab('stammdaten');
+    const initial = emptyForm();
+    const tpl = getTemplateById(roleTemplates, initial.roleTemplateId);
+    if (tpl) initial.permissions = { ...tpl.permissions };
+    setForm(initial);
     setError('');
     setShowModal(true);
   };
 
-  const openEdit = (emp: typeof employees[0]) => {
+  const openEdit = (emp: (typeof employees)[0]) => {
     setEditingId(emp.id);
+    setFormTab('stammdaten');
     setForm({
       badgeNumber: emp.badgeNumber,
       password: '',
@@ -72,6 +123,8 @@ export default function MitarbeiterPage() {
       rank: emp.rank,
       unit: emp.unit,
       active: emp.active,
+      roleTemplateId: emp.roleTemplateId,
+      permissions: { ...emp.permissions },
     });
     setError('');
     setShowModal(true);
@@ -101,21 +154,31 @@ export default function MitarbeiterPage() {
     setError('');
 
     try {
-      let result: { success: boolean; error?: string };
-      if (editingId) {
-        const payload: Partial<EmployeeInput> = { ...form };
-        if (!payload.password) delete payload.password;
-        result = await updateEmployee(editingId, payload);
-      } else {
-        result = await createEmployee(form);
-      }
+      const payload: EmployeeInput = {
+        badgeNumber: form.badgeNumber,
+        password: form.password,
+        name: form.name,
+        rank: form.rank,
+        unit: form.unit,
+        active: form.active,
+        roleTemplateId: form.roleTemplateId,
+        permissions: form.permissions,
+      };
+
+      const result = editingId
+        ? await updateEmployee(editingId, (() => {
+            const p: Partial<EmployeeInput> = { ...payload };
+            if (!p.password) delete p.password;
+            return p;
+          })())
+        : await createEmployee(payload);
 
       if (result.success) {
         notify(editingId ? 'Mitarbeiter gespeichert' : 'Mitarbeiter angelegt', 'success');
         setShowModal(false);
-        setForm(emptyForm);
+        setForm(emptyForm());
       } else {
-        const message = result.error ?? (editingId ? 'Speichern fehlgeschlagen.' : 'Dienstnummer bereits vergeben.');
+        const message = result.error ?? 'Speichern fehlgeschlagen.';
         setError(message);
         notify(message, 'error');
       }
@@ -135,7 +198,6 @@ export default function MitarbeiterPage() {
 
   const handleDelete = async () => {
     if (!deleteTargetId) return;
-
     setIsDeleting(true);
     try {
       const result = await deleteEmployee(deleteTargetId);
@@ -151,69 +213,164 @@ export default function MitarbeiterPage() {
     }
   };
 
+  const handleCreateRole = async () => {
+    if (!roleForm.name.trim()) {
+      notify('Rollenname erforderlich', 'warning');
+      return;
+    }
+    const result = await createRoleTemplate(roleForm);
+    if (result.success) {
+      notify('Rollenvorlage erstellt', 'success');
+      setShowRoleModal(false);
+      setRoleForm({ name: '', description: '', permissions: emptyPermissions() });
+    } else {
+      notify(result.error ?? 'Erstellen fehlgeschlagen', 'error');
+    }
+  };
+
+  const handleDeleteRole = async (tpl: RoleTemplate) => {
+    if (tpl.isSystem) {
+      notify('Systemvorlagen können nicht gelöscht werden', 'warning');
+      return;
+    }
+    const result = await deleteRoleTemplate(tpl.id);
+    if (result.success) notify('Vorlage gelöscht', 'success');
+    else notify(result.error ?? 'Löschen fehlgeschlagen', 'error');
+  };
+
+  const pageTabs = [
+    { id: 'mitarbeiter', label: `Mitarbeiter (${employees.length})` },
+    ...(permissions.manageRoles ? [{ id: 'rollen', label: `Rollenvorlagen (${roleTemplates.length})` }] : []),
+  ];
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="page-title">Mitarbeiter</h1>
-          <p className="page-subtitle">{employees.length} registrierte Beamte</p>
+          <h1 className="page-title">Mitarbeiterverwaltung</h1>
+          <p className="page-subtitle">Benutzer, Rollen und Berechtigungen zentral verwalten</p>
         </div>
-        {permissions.manageEmployees && (
-          <Button onClick={openCreate} size="sm">
+        {permissions.manageEmployees && pageTab === 'mitarbeiter' && (
+          <Button onClick={openCreate} size="sm" className="flux-btn-primary">
             <Icon name="user-plus" size={16} /> Neuer Mitarbeiter
+          </Button>
+        )}
+        {permissions.manageRoles && pageTab === 'rollen' && (
+          <Button onClick={() => setShowRoleModal(true)} size="sm" className="flux-btn-primary">
+            <Icon name="plus" size={16} /> Neue Vorlage
           </Button>
         )}
       </div>
 
-      <SearchBar value={search} onChange={setSearch} placeholder="Name, Dienstnummer oder Einheit..." />
+      {permissions.manageRoles && (
+        <Tabs tabs={pageTabs} activeTab={pageTab} onChange={(id) => setPageTab(id as PageTab)} />
+      )}
 
-      {employees.length === 0 ? (
-        <Card>
-          <EmptyState
-            icon="user-cog"
-            title="Keine Mitarbeiter"
-            description="Lege den ersten Mitarbeiter an, um Zugänge zu verwalten."
-          />
-        </Card>
-      ) : filtered.length === 0 ? (
-        <Card>
-          <EmptyState icon="user-cog" title="Keine Treffer" description="Passen Sie die Suche an." />
-        </Card>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {filtered.map((emp) => (
-            <Card key={emp.id} padding className="!p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent-light">
-                    <Icon name="user-cog" size={20} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-text-primary">{emp.name}</p>
-                    <p className="font-mono text-xs text-accent-light">{emp.badgeNumber}</p>
-                    <p className="truncate text-xs text-text-secondary">{emp.unit}</p>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <Badge variant="blue">{RANK_LABELS[emp.rank]}</Badge>
-                  {!emp.active && <Badge variant="red">Inaktiv</Badge>}
-                </div>
+      {pageTab === 'mitarbeiter' && (
+        <>
+          <SearchBar value={search} onChange={setSearch} placeholder="Name, Dienstnummer, Rolle oder Einheit..." />
+
+          {employees.length === 0 ? (
+            <Card>
+              <EmptyState
+                icon="user-cog"
+                title="Keine Mitarbeiter"
+                description="Lege den ersten Mitarbeiter an, um Zugänge zu verwalten."
+              />
+            </Card>
+          ) : filtered.length === 0 ? (
+            <Card>
+              <EmptyState icon="user-cog" title="Keine Treffer" description="Passen Sie die Suche an." />
+            </Card>
+          ) : (
+            <Card padding={false} className="overflow-hidden !p-0">
+              <div className="overflow-x-auto">
+                <table className="flux-employee-table w-full min-w-[720px]">
+                  <thead>
+                    <tr>
+                      <th>Mitarbeiter</th>
+                      <th>Rolle / Vorlage</th>
+                      <th>Einheit</th>
+                      <th>Rechte</th>
+                      <th>Status</th>
+                      {permissions.manageEmployees && <th className="text-right">Aktionen</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((emp) => {
+                      const tpl = getTemplateById(roleTemplates, emp.roleTemplateId);
+                      const permCount = countActivePermissions(emp.permissions);
+                      return (
+                        <tr key={emp.id}>
+                          <td>
+                            <div className="flex items-center gap-3">
+                              <div className="flux-employee-avatar">
+                                <Icon name="user" size={18} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="truncate font-medium text-text-primary">{emp.name}</p>
+                                <p className="font-mono text-xs text-accent-light">{emp.badgeNumber}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <Badge variant="blue">{tpl?.name ?? 'Individuell'}</Badge>
+                          </td>
+                          <td className="text-sm text-text-secondary">{emp.unit}</td>
+                          <td>
+                            <span className="text-sm text-text-secondary">{permCount} aktiv</span>
+                          </td>
+                          <td>
+                            <Badge variant={emp.active ? 'green' : 'red'}>{emp.active ? 'Aktiv' : 'Inaktiv'}</Badge>
+                          </td>
+                          {permissions.manageEmployees && (
+                            <td>
+                              <div className="flex justify-end gap-2">
+                                <button type="button" className="flux-action-btn flux-action-btn--edit" onClick={() => openEdit(emp)}>
+                                  <Icon name="pencil" size={14} />
+                                  <span>Bearbeiten</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="flux-action-btn flux-action-btn--delete"
+                                  onClick={() => openDeleteConfirm(emp.id)}
+                                  disabled={emp.id === currentOfficer?.id}
+                                >
+                                  <Icon name="trash" size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-              {permissions.manageEmployees && (
-                <div className="mt-4 flex gap-2 border-t border-border pt-3">
-                  <Button variant="secondary" size="sm" className="flex-1" onClick={() => openEdit(emp)}>
-                    <Icon name="pencil" size={14} /> Bearbeiten
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => openDeleteConfirm(emp.id)}
-                    disabled={emp.id === currentOfficer?.id}
-                  >
-                    <Icon name="trash" size={14} />
-                  </Button>
+            </Card>
+          )}
+        </>
+      )}
+
+      {pageTab === 'rollen' && permissions.manageRoles && (
+        <div className="grid gap-3 md:grid-cols-2">
+          {roleTemplates.map((tpl) => (
+            <Card key={tpl.id} padding className="!p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-text-primary">{tpl.name}</h3>
+                    {tpl.isSystem && <Badge variant="gray">System</Badge>}
+                  </div>
+                  <p className="mt-1 text-sm text-text-secondary">{tpl.description}</p>
+                  <p className="mt-2 text-xs text-text-muted">{countActivePermissions(tpl.permissions)} Berechtigungen</p>
                 </div>
-              )}
+                {!tpl.isSystem && (
+                  <button type="button" className="flux-action-btn flux-action-btn--delete" onClick={() => handleDeleteRole(tpl)}>
+                    <Icon name="trash" size={14} />
+                  </button>
+                )}
+              </div>
             </Card>
           ))}
         </div>
@@ -223,54 +380,89 @@ export default function MitarbeiterPage() {
         isOpen={showModal}
         onClose={closeModal}
         title={editingId ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter'}
+        size="lg"
       >
-        <div className="space-y-4">
-          <Input
-            label="Vollständiger Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Max Mustermann"
-          />
-          <Input
-            label="Dienstnummer"
-            value={form.badgeNumber}
-            onChange={(e) => setForm({ ...form, badgeNumber: e.target.value })}
-            placeholder="PD-0000"
-            disabled={!!editingId}
-          />
-          <Input
-            label={editingId ? 'Neues Passwort (leer = unverändert)' : 'Passwort'}
-            type="password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            placeholder="••••••••"
-          />
-          <Select
-            label="Rang"
-            value={form.rank}
-            onChange={(e) => setForm({ ...form, rank: e.target.value as Rank })}
-            options={Object.entries(RANK_LABELS).map(([value, label]) => ({ value, label }))}
-          />
-          <Select
-            label="Einheit"
-            value={form.unit}
-            onChange={(e) => setForm({ ...form, unit: e.target.value })}
-            options={UNITS.map((u) => ({ value: u, label: u }))}
-          />
-          {editingId && (
-            <Select
-              label="Status"
-              value={form.active ? 'active' : 'inactive'}
-              onChange={(e) => setForm({ ...form, active: e.target.value === 'active' })}
-              options={[
-                { value: 'active', label: 'Aktiv' },
-                { value: 'inactive', label: 'Inaktiv' },
-              ]}
-            />
+        <Tabs
+          tabs={[
+            { id: 'stammdaten', label: 'Stammdaten' },
+            { id: 'berechtigungen', label: 'Berechtigungen' },
+          ]}
+          activeTab={formTab}
+          onChange={(id) => setFormTab(id as FormTab)}
+        />
+
+        <div className="mt-4 space-y-4">
+          {formTab === 'stammdaten' && (
+            <>
+              <Input label="Vollständiger Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Max Mustermann" />
+              <Input label="Dienstnummer" value={form.badgeNumber} onChange={(e) => setForm({ ...form, badgeNumber: e.target.value })} placeholder="PD-0000" disabled={!!editingId} />
+              <Input
+                label={editingId ? 'Neues Passwort (leer = unverändert)' : 'Passwort'}
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="••••••••"
+              />
+              <Select label="Einheit" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} options={UNITS.map((u) => ({ value: u, label: u }))} />
+              <Select
+                label="Rollenvorlage"
+                value={form.roleTemplateId ?? ''}
+                onChange={(e) => applyTemplate(e.target.value || null)}
+                options={roleTemplates.map((t) => ({ value: t.id, label: t.name }))}
+              />
+              {selectedTemplate && (
+                <p className="rounded-lg border border-border bg-surface-tertiary/40 px-3 py-2 text-xs text-text-secondary">
+                  {selectedTemplate.description} — Vorlage übernehmen und bei Bedarf unter „Berechtigungen“ anpassen.
+                </p>
+              )}
+              {editingId && (
+                <Select
+                  label="Status"
+                  value={form.active ? 'active' : 'inactive'}
+                  onChange={(e) => setForm({ ...form, active: e.target.value === 'active' })}
+                  options={[
+                    { value: 'active', label: 'Aktiv' },
+                    { value: 'inactive', label: 'Inaktiv' },
+                  ]}
+                />
+              )}
+            </>
           )}
+
+          {formTab === 'berechtigungen' && (
+            <>
+              <p className="text-sm text-text-secondary">
+                Individuelle Rechte für diesen Mitarbeiter. Änderungen betreffen nur diesen Account, nicht die Vorlage „{selectedTemplate?.name ?? '—'}“.
+              </p>
+              <PermissionEditor
+                permissions={form.permissions}
+                onChange={(permissions) => setForm({ ...form, permissions })}
+              />
+              <Button variant="secondary" size="sm" onClick={() => applyTemplate(form.roleTemplateId ?? null)}>
+                Vorlage erneut anwenden
+              </Button>
+            </>
+          )}
+
           {error && <p className="text-sm text-danger">{error}</p>}
-          <Button className="w-full" onClick={handleSubmit} disabled={isSaving}>
-            {isSaving ? 'Speichern...' : editingId ? 'Speichern' : 'Mitarbeiter anlegen'}
+          <div className="flex gap-2 pt-2">
+            <Button variant="secondary" className="flex-1" onClick={closeModal} disabled={isSaving}>
+              Abbrechen
+            </Button>
+            <Button className="flex-1 flux-btn-primary" onClick={handleSubmit} disabled={isSaving}>
+              {isSaving ? 'Speichern...' : editingId ? 'Speichern' : 'Anlegen'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={showRoleModal} onClose={() => setShowRoleModal(false)} title="Neue Rollenvorlage" size="lg">
+        <div className="space-y-4">
+          <Input label="Name" value={roleForm.name} onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })} placeholder="z.B. Einsatzleitung" />
+          <Input label="Beschreibung" value={roleForm.description} onChange={(e) => setRoleForm({ ...roleForm, description: e.target.value })} placeholder="Kurzbeschreibung der Rolle" />
+          <PermissionEditor permissions={roleForm.permissions} onChange={(permissions) => setRoleForm({ ...roleForm, permissions })} />
+          <Button className="w-full flux-btn-primary" onClick={handleCreateRole}>
+            Vorlage erstellen
           </Button>
         </div>
       </Modal>

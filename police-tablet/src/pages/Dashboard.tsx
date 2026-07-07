@@ -16,7 +16,7 @@ export default function Dashboard() {
   const quickLinks = [
     { to: '/personen', icon: 'users' as const, label: 'Personensuche', show: permissions.viewPersons },
     { to: '/akten/neu', icon: 'folder' as const, label: 'Neue Akte', show: permissions.createCases },
-    { to: '/fahndung', icon: 'search' as const, label: 'Fahndung', show: permissions.viewWanted },
+    { to: '/fahndung', icon: 'wanted' as const, label: 'Fahndung', show: permissions.viewWanted },
     { to: '/waffen', icon: 'crosshair' as const, label: 'Waffenregister', show: permissions.viewWeapons },
     { to: '/fahrzeuge', icon: 'car' as const, label: 'Fahrzeugregister', show: permissions.viewVehicles },
   ].filter((l) => l.show);
@@ -36,7 +36,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:gap-4">
         <StatCard title="Offene Akten" value={openCases.length} icon="folder" color="blue" />
-        <StatCard title="Fahndungen" value={activeWanted.length} icon="search" color="yellow" />
+        <StatCard title="Fahndungen" value={activeWanted.length} icon="wanted" color="yellow" />
         <StatCard title="Fahrzeugmeldungen" value={wantedVehicles.length} icon="car" color="purple" />
       </div>
 

@@ -16,6 +16,14 @@ local SCHEMA = {
         INDEX idx_badge (badge_number)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
 
+    [[CREATE TABLE IF NOT EXISTS polis_role_templates (
+        id VARCHAR(64) NOT NULL PRIMARY KEY,
+        name VARCHAR(128) NOT NULL,
+        description VARCHAR(255) NOT NULL,
+        is_system TINYINT(1) NOT NULL DEFAULT 0,
+        permissions JSON NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
+
     [[CREATE TABLE IF NOT EXISTS polis_sessions (
         token VARCHAR(64) NOT NULL PRIMARY KEY,
         employee_id VARCHAR(64) NOT NULL,
@@ -140,13 +148,73 @@ function Database.EnsureSchema()
         MySQL.query.await(query)
     end
 
+    Database.MigratePermissionsV2()
+
     if not seeded then
+        Database.SeedDefaultRoleTemplates()
         Database.SeedDefaultEmployees()
         Database.UpgradeDefaultEmployeePasswords()
         seeded = true
     end
 
     schemaReady = true
+end
+
+function Database.MigratePermissionsV2()
+    local cols = MySQL.query.await("SHOW COLUMNS FROM polis_employees LIKE 'permissions'")
+    if not cols or #cols == 0 then
+        MySQL.query.await('ALTER TABLE polis_employees ADD COLUMN role_template_id VARCHAR(64) NULL')
+        MySQL.query.await("ALTER TABLE polis_employees ADD COLUMN permissions JSON NOT NULL")
+    end
+
+    local employees = MySQL.query.await('SELECT id, rank, role_template_id, permissions FROM polis_employees') or {}
+    for _, row in ipairs(employees) do
+        local perms = Database.DecodeJson(row.permissions, {})
+        local hasPerms = false
+        for _, key in ipairs({ 'viewDashboard', 'viewAllCases', 'manageEmployees' }) do
+            if perms[key] then
+                hasPerms = true
+                break
+            end
+        end
+
+        if not row.role_template_id or not hasPerms then
+            local tplId = Permissions.TemplateForRank(row.rank)
+            local tplPerms = Permissions.Empty()
+            for _, template in ipairs(Permissions.DefaultTemplates()) do
+                if template.id == tplId then
+                    tplPerms = template.permissions
+                    break
+                end
+            end
+            MySQL.update.await(
+                'UPDATE polis_employees SET role_template_id = ?, permissions = ? WHERE id = ?',
+                { tplId, Database.EncodeJson(tplPerms), row.id }
+            )
+        end
+    end
+end
+
+function Database.SeedDefaultRoleTemplates()
+    local count = MySQL.scalar.await('SELECT COUNT(*) FROM polis_role_templates')
+    if count and count > 0 then
+        return
+    end
+
+    for _, template in ipairs(Permissions.DefaultTemplates()) do
+        MySQL.insert.await(
+            'INSERT INTO polis_role_templates (id, name, description, is_system, permissions) VALUES (?, ?, ?, ?, ?)',
+            {
+                template.id,
+                template.name,
+                template.description,
+                template.isSystem and 1 or 0,
+                Database.EncodeJson(template.permissions),
+            }
+        )
+    end
+
+    DebugPrint('Standard-Rollenvorlagen geseedet')
 end
 
 function Database.UpgradeDefaultEmployeePasswords()
@@ -188,9 +256,17 @@ function Database.SeedDefaultEmployees()
 
     for _, emp in ipairs(Config.DefaultEmployees) do
         local hash = Password.Hash(emp.password)
+        local tplId = Permissions.TemplateForRank(emp.rank)
+        local tplPerms = Permissions.Empty()
+        for _, template in ipairs(Permissions.DefaultTemplates()) do
+            if template.id == tplId then
+                tplPerms = template.permissions
+                break
+            end
+        end
         if hash then
             MySQL.insert.await(
-                'INSERT INTO polis_employees (id, badge_number, password_hash, name, rank, unit, active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                'INSERT INTO polis_employees (id, badge_number, password_hash, name, rank, unit, active, created_at, role_template_id, permissions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 {
                     emp.id,
                     emp.badgeNumber,
@@ -200,6 +276,8 @@ function Database.SeedDefaultEmployees()
                     emp.unit,
                     emp.active and 1 or 0,
                     emp.createdAt or os.date('%Y-%m-%d'),
+                    tplId,
+                    Database.EncodeJson(tplPerms),
                 }
             )
         end

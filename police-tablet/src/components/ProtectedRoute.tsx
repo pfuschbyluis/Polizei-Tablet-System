@@ -16,7 +16,7 @@ export function RequirePermission({
   perm,
   children,
 }: {
-  perm: keyof import('../types').Permission;
+  perm: keyof import('../types').EffectivePermission;
   children: React.ReactNode;
 }) {
   const { permissions } = useAuth();

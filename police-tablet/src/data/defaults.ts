@@ -1,4 +1,11 @@
 import type { Employee } from '../types';
+import {
+  DEFAULT_ROLE_TEMPLATES,
+  emptyPermissions,
+  fullPermissions,
+  getTemplateById,
+  templateForLegacyRank,
+} from '../types';
 
 /** Nur für Browser-Entwicklung – FiveM nutzt Server-Authentifizierung */
 export const DEV_EMPLOYEES: (Employee & { password: string })[] = [
@@ -11,6 +18,8 @@ export const DEV_EMPLOYEES: (Employee & { password: string })[] = [
     unit: 'Leitung',
     active: true,
     createdAt: '2026-01-01',
+    roleTemplateId: 'tpl-administrator',
+    permissions: fullPermissions(),
   },
   {
     id: 'emp-beamter',
@@ -21,6 +30,8 @@ export const DEV_EMPLOYEES: (Employee & { password: string })[] = [
     unit: 'Streifenwagen Alpha-1',
     active: true,
     createdAt: '2026-01-01',
+    roleTemplateId: 'tpl-praktikant',
+    permissions: getTemplateById(DEFAULT_ROLE_TEMPLATES, 'tpl-praktikant')?.permissions ?? emptyPermissions(),
   },
 ];
 
@@ -28,3 +39,5 @@ export function stripPassword<T extends { password?: string }>(emp: T): Omit<T, 
   const { password: _, ...rest } = emp;
   return rest;
 }
+
+export { templateForLegacyRank };

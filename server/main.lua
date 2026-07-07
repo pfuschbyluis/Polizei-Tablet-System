@@ -37,19 +37,26 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
     end
 
     local sessionToken = Repository.CreateSession(emp.id, src)
+    local resolvedPerms = Repository.ResolveEmployeePermissions(emp)
     local officer = {
         id = emp.id,
         badgeNumber = emp.badgeNumber,
         name = emp.name,
         rank = emp.rank,
         unit = emp.unit,
+        roleTemplateId = emp.roleTemplateId,
+        permissions = resolvedPerms,
         sessionToken = sessionToken,
     }
 
     local employees = {}
-    if Repository.CanViewEmployees(emp.rank) then
+    local roleTemplates = {}
+    if Repository.CanViewEmployees(emp) then
         for _, e in ipairs(Repository.GetAllEmployees()) do
             employees[#employees + 1] = Repository.CopyEmployeePublic(e)
+        end
+        for _, t in ipairs(Repository.GetAllRoleTemplates()) do
+            roleTemplates[#roleTemplates + 1] = Repository.CopyRoleTemplatePublic(t)
         end
     end
 
@@ -57,6 +64,7 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
         success = true,
         officer = officer,
         employees = employees,
+        roleTemplates = roleTemplates,
     })
 
     if Password.NeedsRehash(emp.passwordHash) then
@@ -82,7 +90,7 @@ RegisterNetEvent('polis:server:createEmployee', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
-    if not Repository.CanManageEmployees(session.employee.rank) then
+    if not Repository.CanManageEmployees(session.employee) then
         NuiError(src, reqId, 'Keine Berechtigung.')
         return
     end
@@ -107,7 +115,7 @@ RegisterNetEvent('polis:server:updateEmployee', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
-    if not Repository.CanManageEmployees(session.employee.rank) then
+    if not Repository.CanManageEmployees(session.employee) then
         NuiError(src, reqId, 'Keine Berechtigung.')
         return
     end
@@ -126,7 +134,7 @@ RegisterNetEvent('polis:server:deleteEmployee', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
-    if not Repository.CanManageEmployees(session.employee.rank) then
+    if not Repository.CanManageEmployees(session.employee) then
         NuiError(src, reqId, 'Keine Berechtigung.')
         return
     end
@@ -137,6 +145,80 @@ RegisterNetEvent('polis:server:deleteEmployee', function(reqId, data)
     end
 
     Repository.DeleteEmployee(data.id)
+    NuiOk(src, reqId, { success = true })
+end)
+
+-- Rollenvorlagen
+RegisterNetEvent('polis:server:getRoleTemplates', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageRoles(session.employee) and not Repository.CanManageEmployees(session.employee) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local templates = {}
+    for _, t in ipairs(Repository.GetAllRoleTemplates()) do
+        templates[#templates + 1] = Repository.CopyRoleTemplatePublic(t)
+    end
+    NuiOk(src, reqId, { success = true, roleTemplates = templates })
+end)
+
+RegisterNetEvent('polis:server:createRoleTemplate', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageRoles(session.employee) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local tpl = Repository.CreateRoleTemplate(data)
+    if not tpl then
+        NuiError(src, reqId, 'Vorlage konnte nicht erstellt werden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, roleTemplate = Repository.CopyRoleTemplatePublic(tpl) })
+end)
+
+RegisterNetEvent('polis:server:updateRoleTemplate', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageRoles(session.employee) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    local tpl = Repository.UpdateRoleTemplate(data.id, data)
+    if not tpl then
+        NuiError(src, reqId, 'Vorlage nicht gefunden.')
+        return
+    end
+
+    NuiOk(src, reqId, { success = true, roleTemplate = Repository.CopyRoleTemplatePublic(tpl) })
+end)
+
+RegisterNetEvent('polis:server:deleteRoleTemplate', function(reqId, data)
+    local src = source
+    local session = RequireSession(src, reqId, data)
+    if not session then return end
+
+    if not Repository.CanManageRoles(session.employee) then
+        NuiError(src, reqId, 'Keine Berechtigung.')
+        return
+    end
+
+    if not Repository.DeleteRoleTemplate(data.id) then
+        NuiError(src, reqId, 'Systemvorlagen können nicht gelöscht werden.')
+        return
+    end
+
     NuiOk(src, reqId, { success = true })
 end)
 
@@ -155,7 +237,7 @@ RegisterNetEvent('polis:server:getAuditLog', function(reqId, data)
     local session = RequireSession(src, reqId, data)
     if not session then return end
 
-    if session.employee.rank ~= 'admin' then
+    if not Repository.EmployeeHasPermission(session.employee, 'viewAuditLog') then
         NuiError(src, reqId, 'Keine Berechtigung.')
         return
     end

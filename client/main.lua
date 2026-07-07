@@ -271,6 +271,22 @@ RegisterNUICallback('deleteEmployee', function(data, cb)
     TriggerServerNui('polis:server:deleteEmployee', data, cb)
 end)
 
+RegisterNUICallback('createRoleTemplate', function(data, cb)
+    TriggerServerNui('polis:server:createRoleTemplate', data, cb)
+end)
+
+RegisterNUICallback('updateRoleTemplate', function(data, cb)
+    TriggerServerNui('polis:server:updateRoleTemplate', data, cb)
+end)
+
+RegisterNUICallback('deleteRoleTemplate', function(data, cb)
+    TriggerServerNui('polis:server:deleteRoleTemplate', data, cb)
+end)
+
+RegisterNUICallback('getRoleTemplates', function(data, cb)
+    TriggerServerNui('polis:server:getRoleTemplates', data, cb)
+end)
+
 RegisterNUICallback('getInitialData', function(data, cb)
     TriggerServerNui('polis:server:getInitialData', data, cb)
 end)
