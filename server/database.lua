@@ -273,7 +273,7 @@ function Database.SeedDefaultEmployees()
                     hash,
                     emp.name,
                     emp.rank,
-                    emp.unit,
+                    '',
                     emp.active and 1 or 0,
                     emp.createdAt or os.date('%Y-%m-%d'),
                     tplId,

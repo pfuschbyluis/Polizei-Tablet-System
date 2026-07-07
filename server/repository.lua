@@ -6,7 +6,6 @@ local function rowToEmployee(row)
         badgeNumber = row.badge_number,
         name = row.name,
         rank = row.rank,
-        unit = row.unit,
         active = row.active == 1 or row.active == true,
         createdAt = row.created_at,
         passwordHash = row.password_hash,
@@ -103,7 +102,6 @@ local function rowToWanted(row)
         priority = row.priority,
         description = row.description,
         lastKnownLocation = row.last_known_location,
-        responsibleUnit = row.responsible_unit,
         issuedAt = row.issued_at,
         active = row.active == 1 or row.active == true,
     }
@@ -138,7 +136,6 @@ function Repository.CopyEmployeePublic(emp)
         badgeNumber = emp.badgeNumber,
         name = emp.name,
         rank = emp.rank,
-        unit = emp.unit,
         active = emp.active,
         createdAt = emp.createdAt,
         roleTemplateId = emp.roleTemplateId,
@@ -214,7 +211,7 @@ function Repository.CreateEmployee(data)
             hash,
             data.name,
             data.rank or 'beamter',
-            data.unit or 'Streifenwagen Alpha-1',
+            '',
             1,
             os.date('%Y-%m-%d'),
             tplId,
@@ -232,7 +229,6 @@ function Repository.UpdateEmployee(id, data)
 
     local name = data.name or emp.name
     local rank = data.rank or emp.rank
-    local unit = data.unit or emp.unit
     local active = data.active ~= nil and data.active or emp.active
     local tplId = data.roleTemplateId ~= nil and data.roleTemplateId or emp.roleTemplateId
     local perms = data.permissions and Permissions.FromTable(data.permissions) or emp.permissions
@@ -241,12 +237,12 @@ function Repository.UpdateEmployee(id, data)
         local hash = Password.Hash(data.password)
         MySQL.update.await(
             'UPDATE polis_employees SET name = ?, rank = ?, unit = ?, active = ?, password_hash = ?, role_template_id = ?, permissions = ? WHERE id = ?',
-            { name, rank, unit, active and 1 or 0, hash, tplId, Database.EncodeJson(perms), id }
+            { name, rank, '', active and 1 or 0, hash, tplId, Database.EncodeJson(perms), id }
         )
     else
         MySQL.update.await(
             'UPDATE polis_employees SET name = ?, rank = ?, unit = ?, active = ?, role_template_id = ?, permissions = ? WHERE id = ?',
-            { name, rank, unit, active and 1 or 0, tplId, Database.EncodeJson(perms), id }
+            { name, rank, '', active and 1 or 0, tplId, Database.EncodeJson(perms), id }
         )
     end
 
@@ -358,7 +354,6 @@ function Repository.GetSession(token, source)
         badgeNumber = row.badge_number,
         name = row.name,
         rank = row.rank,
-        unit = row.unit,
         active = true,
         roleTemplateId = row.role_template_id,
         permissions = Permissions.FromTable(Database.DecodeJson(row.permissions, {})),
@@ -840,7 +835,7 @@ function Repository.CreateWanted(data)
             data.priority or 'mittel',
             data.description or '',
             data.lastKnownLocation or 'Unbekannt',
-            data.responsibleUnit or 'Leitstelle Zentral',
+            '',
             now,
         }
     )
@@ -866,7 +861,7 @@ function Repository.UpdateWanted(id, data)
             data.priority or entry.priority,
             data.description ~= nil and data.description or entry.description,
             data.lastKnownLocation or entry.lastKnownLocation,
-            data.responsibleUnit or entry.responsibleUnit,
+            '',
             active and 1 or 0,
             id,
         }

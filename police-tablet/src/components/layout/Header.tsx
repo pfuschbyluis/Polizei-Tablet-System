@@ -1,7 +1,6 @@
 import Icon from '../icons/Icon';
 import { useAuth } from '../../context/AuthContext';
 import { RANK_LABELS, type Rank } from '../../types';
-import Badge from '../ui/Badge';
 import Select from '../ui/Select';
 
 export default function Header() {
@@ -23,7 +22,6 @@ export default function Header() {
           <Icon name="clock" size={14} className="shrink-0" />
           <span className="whitespace-nowrap">{now}</span>
         </div>
-        <Badge variant="blue">{currentOfficer.unit}</Badge>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">

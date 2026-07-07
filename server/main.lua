@@ -43,7 +43,6 @@ RegisterNetEvent('polis:server:login', function(reqId, data)
         badgeNumber = emp.badgeNumber,
         name = emp.name,
         rank = emp.rank,
-        unit = emp.unit,
         roleTemplateId = emp.roleTemplateId,
         permissions = resolvedPerms,
         sessionToken = sessionToken,

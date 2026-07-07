@@ -4,7 +4,6 @@ import PermissionEditor from '../components/employees/PermissionEditor';
 import { useAuth } from '../context/AuthContext';
 import { useNotify } from '../context/NotifyContext';
 import {
-  UNITS,
   type Permission,
   type RoleTemplate,
   type EmployeeInput,
@@ -33,7 +32,6 @@ const emptyForm = (): EmployeeInput & { permissions: Permission } => ({
   password: '',
   name: '',
   rank: 'beamter',
-  unit: UNITS[0],
   active: true,
   roleTemplateId: 'tpl-praktikant',
   permissions: emptyPermissions(),
@@ -87,7 +85,6 @@ export default function MitarbeiterPage() {
     return (
       e.name.toLowerCase().includes(q) ||
       e.badgeNumber.toLowerCase().includes(q) ||
-      e.unit.toLowerCase().includes(q) ||
       (tpl?.name.toLowerCase().includes(q) ?? false)
     );
   });
@@ -119,7 +116,6 @@ export default function MitarbeiterPage() {
       password: '',
       name: emp.name,
       rank: emp.rank,
-      unit: emp.unit,
       active: emp.active,
       roleTemplateId: emp.roleTemplateId,
       permissions: { ...emp.permissions },
@@ -150,7 +146,6 @@ export default function MitarbeiterPage() {
         password: form.password,
         name: form.name,
         rank: form.rank,
-        unit: form.unit,
         active: form.active,
         roleTemplateId: form.roleTemplateId,
         permissions: form.permissions,
@@ -257,7 +252,7 @@ export default function MitarbeiterPage() {
 
       {pageTab === 'mitarbeiter' && (
         <>
-          <SearchBar value={search} onChange={setSearch} placeholder="Name, Dienstnummer, Rolle oder Einheit..." />
+          <SearchBar value={search} onChange={setSearch} placeholder="Name, Dienstnummer oder Rolle..." />
 
           {employees.length === 0 ? (
             <Card>
@@ -279,7 +274,6 @@ export default function MitarbeiterPage() {
                     <tr>
                       <th>Mitarbeiter</th>
                       <th>Rolle / Vorlage</th>
-                      <th>Einheit</th>
                       <th>Rechte</th>
                       <th>Status</th>
                       {permissions.manageEmployees && <th className="text-right">Aktionen</th>}
@@ -305,7 +299,6 @@ export default function MitarbeiterPage() {
                           <td>
                             <Badge variant="blue">{tpl?.name ?? 'Individuell'}</Badge>
                           </td>
-                          <td className="text-sm text-text-secondary">{emp.unit}</td>
                           <td>
                             <span className="text-sm text-text-secondary">{permCount} aktiv</span>
                           </td>
@@ -392,7 +385,6 @@ export default function MitarbeiterPage() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="••••••••"
               />
-              <Select label="Einheit" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} options={UNITS.map((u) => ({ value: u, label: u }))} />
               <Select
                 label="Rollenvorlage"
                 value={form.roleTemplateId ?? ''}

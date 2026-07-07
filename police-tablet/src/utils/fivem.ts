@@ -48,7 +48,6 @@ export interface NuiOpenPayload {
     badgeNumber: string;
     name: string;
     rank: string;
-    unit: string;
   };
 }
 

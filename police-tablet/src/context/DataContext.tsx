@@ -74,7 +74,6 @@ export interface WantedInput {
   priority: WantedPriority;
   description: string;
   lastKnownLocation: string;
-  responsibleUnit: string;
 }
 
 interface DataContextType {

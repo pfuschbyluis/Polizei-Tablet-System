@@ -20,14 +20,6 @@ Config.RankMapping = {
     [5] = 'admin',
 }
 
-Config.Units = {
-    police = 'Streifenwagen Alpha-1',
-    lspd = 'LSPD Streife',
-    bcso = 'BCSO Patrouille',
-    sheriff = 'Sheriff Department',
-    sasp = 'Highway Patrol',
-}
-
 -- MySQL / Sessions
 Config.SessionDurationHours = 8
 
@@ -39,7 +31,6 @@ Config.DefaultEmployees = {
         password = 'admin123',
         name = 'System Administrator',
         rank = 'admin',
-        unit = 'Leitung',
         active = true,
         createdAt = '2026-01-01',
     },
@@ -49,7 +40,6 @@ Config.DefaultEmployees = {
         password = 'beamter123',
         name = 'Polizeiobermeister Demo',
         rank = 'beamter',
-        unit = 'Streifenwagen Alpha-1',
         active = true,
         createdAt = '2026-01-01',
     },

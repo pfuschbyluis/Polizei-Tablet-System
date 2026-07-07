@@ -76,7 +76,6 @@ function devLogin(badgeNumber: string, password: string): LoginResult {
     badgeNumber: publicEmp.badgeNumber,
     name: publicEmp.name,
     rank: publicEmp.rank,
-    unit: publicEmp.unit,
     roleTemplateId: publicEmp.roleTemplateId,
     permissions: publicEmp.permissions,
   };

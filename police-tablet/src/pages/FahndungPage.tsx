@@ -5,7 +5,6 @@ import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotify } from '../context/NotifyContext';
-import { UNITS } from '../types';
 import { Card, SearchBar, StatusBadge, Tabs, Badge, EmptyState, Button, Modal, Input } from '../components/ui';
 import type { WantedType, WantedPriority } from '../types';
 
@@ -14,7 +13,7 @@ const typeLabels = { person: 'Personenfahndung', fahrzeug: 'Fahrzeugfahndung', w
 
 export default function FahndungPage() {
   const { wanted, persons, vehicles, weapons, createWanted, updateWanted } = useData();
-  const { permissions, currentOfficer } = useAuth();
+  const { permissions } = useAuth();
   const { notify } = useNotify();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<WantedType | 'all'>('all');
@@ -26,7 +25,6 @@ export default function FahndungPage() {
     priority: 'mittel' as WantedPriority,
     description: '',
     lastKnownLocation: '',
-    responsibleUnit: currentOfficer?.unit ?? UNITS[0],
   });
 
   const active = wanted.filter((w) => w.active);
@@ -64,7 +62,6 @@ export default function FahndungPage() {
       priority: 'mittel',
       description: '',
       lastKnownLocation: '',
-      responsibleUnit: currentOfficer?.unit ?? UNITS[0],
     });
     setShowModal(true);
   };
@@ -95,7 +92,6 @@ export default function FahndungPage() {
         priority: form.priority,
         description: form.description.trim(),
         lastKnownLocation: form.lastKnownLocation.trim() || 'Unbekannt',
-        responsibleUnit: form.responsibleUnit,
       });
       setShowModal(false);
       notify('Fahndung erstellt.', 'success');
@@ -176,7 +172,6 @@ export default function FahndungPage() {
                         <span className="flex items-center gap-1">
                           <Icon name="map-pin" size={12} /> {w.lastKnownLocation}
                         </span>
-                        <span>Einheit: {w.responsibleUnit}</span>
                         <span>Ausgestellt: {new Date(w.issuedAt).toLocaleDateString('de-DE')}</span>
                       </div>
                     </div>
@@ -252,18 +247,6 @@ export default function FahndungPage() {
             onChange={(e) => setForm({ ...form, lastKnownLocation: e.target.value })}
             placeholder="Unbekannt"
           />
-          <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-text-secondary">Zuständige Einheit</label>
-            <select
-              value={form.responsibleUnit}
-              onChange={(e) => setForm({ ...form, responsibleUnit: e.target.value })}
-              className="w-full rounded-lg border border-border bg-surface-tertiary/60 px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
-            >
-              {UNITS.map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
-            </select>
-          </div>
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="ghost" onClick={() => setShowModal(false)} className="flex-1">Abbrechen</Button>
             <Button type="submit" className="flex-1" disabled={isSaving || getTargetsForType(form.type).length === 0}>

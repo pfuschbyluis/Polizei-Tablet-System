@@ -28,7 +28,6 @@ export interface Officer {
   badgeNumber: string;
   name: string;
   rank: Rank;
-  unit: string;
   avatar?: string;
   roleTemplateId?: string | null;
   permissions?: Permission;
@@ -39,7 +38,6 @@ export interface Employee {
   badgeNumber: string;
   name: string;
   rank: Rank;
-  unit: string;
   active: boolean;
   createdAt: string;
   roleTemplateId: string | null;
@@ -51,7 +49,6 @@ export interface EmployeeInput {
   password: string;
   name: string;
   rank: Rank;
-  unit: string;
   active?: boolean;
   roleTemplateId?: string | null;
   permissions?: Permission;
@@ -176,7 +173,6 @@ export interface WantedEntry {
   priority: WantedPriority;
   description: string;
   lastKnownLocation: string;
-  responsibleUnit: string;
   issuedAt: string;
   active: boolean;
 }
@@ -220,16 +216,4 @@ export const OFFENSES = [
   'Waffendelikt',
   'Hausfriedensbruch',
   'Beschädigung fremden Eigentums',
-];
-
-export const UNITS = [
-  'Streifenwagen Alpha-1',
-  'Streifenwagen Alpha-2',
-  'Streifenwagen Beta-1',
-  'SEK Einheit Nord',
-  'SEK Einheit Süd',
-  'Verkehrsdienst',
-  'Kripo Team A',
-  'Kripo Team B',
-  'Leitstelle Zentral',
 ];

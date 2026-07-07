@@ -72,10 +72,6 @@ local function GetRankFromGrade(grade)
     return Config.RankMapping[grade] or Config.RankMapping[0] or 'beamter'
 end
 
-local function GetUnitForJob(job)
-    return Config.Units[job] or Config.Units.police or 'Streifenwagen Alpha-1'
-end
-
 local function StartTabletAnimation()
     if not Config.UseAnimation then return end
 
@@ -122,7 +118,6 @@ end
 
 local function BuildOfficerData()
     local grade = GetPlayerGrade()
-    local job = GetPlayerJob()
     local rank = GetRankFromGrade(grade)
     local serverId = GetPlayerServerId(PlayerId())
     local playerName = GetPlayerName(PlayerId())
@@ -132,7 +127,6 @@ local function BuildOfficerData()
         badgeNumber = ('PD-%04d'):format(serverId),
         name = playerName,
         rank = rank,
-        unit = GetUnitForJob(job),
     }
 end
 
