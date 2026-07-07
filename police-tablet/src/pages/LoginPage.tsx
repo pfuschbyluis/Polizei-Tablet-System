@@ -19,10 +19,12 @@ export default function LoginPage() {
       return;
     }
 
-    const ok = await login(badgeNumber.trim(), password);
-    if (!ok) {
-      notify('Passwort ist falsch', 'error');
+    const result = await login(badgeNumber.trim(), password);
+    if (!result.success) {
+      notify(result.error ?? 'Anmeldung fehlgeschlagen.', 'error');
+      return;
     }
+    notify('Erfolgreich angemeldet.', 'success');
   };
 
   return (

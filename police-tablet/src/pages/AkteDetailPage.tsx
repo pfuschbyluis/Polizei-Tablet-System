@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
+import { useNotifyAction } from '../hooks/useNotifyAction';
 import {
   Card,
   Button,
@@ -29,6 +30,7 @@ export default function AkteDetailPage() {
     addCaseNote,
   } = useData();
   const { currentOfficer, permissions } = useAuth();
+  const { run, warn } = useNotifyAction();
 
   const [activeTab, setActiveTab] = useState('overview');
   const [showEvidenceModal, setShowEvidenceModal] = useState(false);
@@ -85,7 +87,10 @@ export default function AkteDetailPage() {
             label="Status ändern"
             value={caseFile.status}
             onChange={async (e) => {
-              await updateCaseStatus(caseFile.id, e.target.value as typeof caseFile.status);
+              await run(
+                () => updateCaseStatus(caseFile.id, e.target.value as typeof caseFile.status),
+                { success: 'Status aktualisiert.' }
+              );
             }}
             options={[
               { value: 'offen', label: 'Offen' },
@@ -256,14 +261,23 @@ export default function AkteDetailPage() {
           <Button
             className="w-full"
             onClick={async () => {
-              if (!evidenceForm.name) return;
-              await addCaseEvidence(caseFile.id, {
-                ...evidenceForm,
-                uploadedBy: currentOfficer.name,
-                uploadedAt: new Date().toISOString().split('T')[0],
-              });
-              setEvidenceForm({ name: '', type: 'Dokument', description: '' });
-              setShowEvidenceModal(false);
+              if (!evidenceForm.name.trim()) {
+                warn('Bitte einen Dateinamen angeben.');
+                return;
+              }
+              const result = await run(
+                () =>
+                  addCaseEvidence(caseFile.id, {
+                    ...evidenceForm,
+                    uploadedBy: currentOfficer.name,
+                    uploadedAt: new Date().toISOString().split('T')[0],
+                  }),
+                { success: 'Beweis gespeichert.' }
+              );
+              if (result.ok) {
+                setEvidenceForm({ name: '', type: 'Dokument', description: '' });
+                setShowEvidenceModal(false);
+              }
             }}
           >
             Speichern
@@ -279,10 +293,18 @@ export default function AkteDetailPage() {
           <Button
             className="w-full"
             onClick={async () => {
-              if (!witnessForm.name) return;
-              await addCaseWitness(caseFile.id, witnessForm);
-              setWitnessForm({ name: '', phone: '', statement: '' });
-              setShowWitnessModal(false);
+              if (!witnessForm.name.trim()) {
+                warn('Bitte einen Namen angeben.');
+                return;
+              }
+              const result = await run(
+                () => addCaseWitness(caseFile.id, witnessForm),
+                { success: 'Zeuge eingetragen.' }
+              );
+              if (result.ok) {
+                setWitnessForm({ name: '', phone: '', statement: '' });
+                setShowWitnessModal(false);
+              }
             }}
           >
             Speichern
@@ -318,10 +340,18 @@ export default function AkteDetailPage() {
           <Button
             className="w-full"
             onClick={async () => {
-              if (!participantForm.personId) return;
-              await addCaseParticipant(caseFile.id, participantForm);
-              setParticipantForm({ personId: '', role: 'verdächtig' });
-              setShowParticipantModal(false);
+              if (!participantForm.personId) {
+                warn('Bitte eine Person auswählen.');
+                return;
+              }
+              const result = await run(
+                () => addCaseParticipant(caseFile.id, participantForm),
+                { success: 'Beteiligter hinzugefügt.' }
+              );
+              if (result.ok) {
+                setParticipantForm({ personId: '', role: 'verdächtig' });
+                setShowParticipantModal(false);
+              }
             }}
           >
             Hinzufügen
@@ -335,15 +365,24 @@ export default function AkteDetailPage() {
           <Button
             className="w-full"
             onClick={async () => {
-              if (!noteForm.trim()) return;
-              await addCaseNote(caseFile.id, {
-                officerId: currentOfficer.id,
-                officerName: currentOfficer.name,
-                date: new Date().toISOString().split('T')[0],
-                content: noteForm.trim(),
-              });
-              setNoteForm('');
-              setShowNoteModal(false);
+              if (!noteForm.trim()) {
+                warn('Bitte eine Notiz eingeben.');
+                return;
+              }
+              const result = await run(
+                () =>
+                  addCaseNote(caseFile.id, {
+                    officerId: currentOfficer.id,
+                    officerName: currentOfficer.name,
+                    date: new Date().toISOString().split('T')[0],
+                    content: noteForm.trim(),
+                  }),
+                { success: 'Notiz gespeichert.' }
+              );
+              if (result.ok) {
+                setNoteForm('');
+                setShowNoteModal(false);
+              }
             }}
           >
             Speichern

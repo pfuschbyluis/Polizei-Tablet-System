@@ -37,7 +37,7 @@ interface AuthContextType {
   isDevMode: boolean;
   employees: Employee[];
   roleTemplates: RoleTemplate[];
-  login: (badgeNumber: string, password: string) => Promise<boolean>;
+  login: (badgeNumber: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   switchRank: (rank: Rank) => void;
   createEmployee: (input: EmployeeInput) => Promise<{ success: boolean; error?: string }>;
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
   const rankLabel = currentOfficer ? RANK_LABELS[currentOfficer.rank] : '';
 
-  const login = useCallback(async (badgeNumber: string, password: string): Promise<boolean> => {
+  const login = useCallback(async (badgeNumber: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
       let result: LoginResult;
@@ -123,11 +123,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCurrentOfficer(officer);
         setEmployees(result.employees ?? []);
         setRoleTemplates(result.roleTemplates ?? DEFAULT_ROLE_TEMPLATES);
-        return true;
+        return { success: true };
       }
-      return false;
-    } catch {
-      return false;
+      return { success: false, error: result.error ?? 'Dienstnummer oder Passwort ungültig.' };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Verbindung zum Server fehlgeschlagen.',
+      };
     } finally {
       setIsLoading(false);
     }

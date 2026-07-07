@@ -20,6 +20,7 @@ import type {
 import { useAudit } from './AuditContext';
 import { useAuth } from './AuthContext';
 import { useFiveM } from './FiveMContext';
+import { useNotify } from './NotifyContext';
 import { fetchNui, isFiveM } from '../utils/fivem';
 import { DEV_INITIAL_DATA } from '../data/defaults';
 
@@ -128,6 +129,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { logAction } = useAudit();
   const { isAuthenticated } = useAuth();
   const { isInGame } = useFiveM();
+  const { notify } = useNotify();
   const [persons, setPersons] = useState<Person[]>([]);
   const [cases, setCases] = useState<CaseFile[]>([]);
   const [weapons, setWeapons] = useState<Weapon[]>([]);
@@ -173,6 +175,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         if (result.success && result.data) {
           applyInitialData(result.data);
+        } else if (!result.success) {
+          notify(result.error ?? 'Daten konnten nicht geladen werden.', 'error');
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          notify(err instanceof Error ? err.message : 'Daten konnten nicht geladen werden.', 'error');
         }
       })
       .finally(() => {
@@ -182,7 +191,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, isInGame, applyInitialData, resetData]);
+  }, [isAuthenticated, isInGame, applyInitialData, resetData, notify]);
 
   const getPerson = useCallback((id: string) => persons.find((p) => p.id === id), [persons]);
   const getCase = useCallback((id: string) => cases.find((c) => c.id === id), [cases]);
@@ -216,13 +225,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
           personId,
           note,
         });
-        if (result.note) {
-          setPersons((prev) =>
-            prev.map((p) =>
-              p.id === personId ? { ...p, notes: [...p.notes, result.note!] } : p
-            )
-          );
-        }
+        if (!result.note) throw new Error('Notiz konnte nicht gespeichert werden.');
+        setPersons((prev) =>
+          prev.map((p) =>
+            p.id === personId ? { ...p, notes: [...p.notes, result.note!] } : p
+          )
+        );
       } else {
         setPersons((prev) =>
           prev.map((p) =>
@@ -420,16 +428,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     async (id: string, data: Partial<WantedInput & { active: boolean }>) => {
       if (isFiveM()) {
         const result = await callNui<{ success: boolean; wanted?: WantedEntry }>('updateWanted', { id, ...data });
-        if (result.wanted) {
-          setWanted((prev) => prev.map((w) => (w.id === id ? result.wanted! : w)));
-          const entry = result.wanted;
-          if (entry.type === 'waffe' || entry.type === 'fahrzeug') {
-            const stillActive = entry.active;
-            if (entry.type === 'waffe') {
-              setWeapons((prev) => prev.map((w) => (w.id === entry.targetId ? { ...w, isWanted: stillActive } : w)));
-            } else {
-              setVehicles((prev) => prev.map((v) => (v.id === entry.targetId ? { ...v, isWanted: stillActive } : v)));
-            }
+        if (!result.wanted) throw new Error('Fahndung konnte nicht aktualisiert werden.');
+        setWanted((prev) => prev.map((w) => (w.id === id ? result.wanted! : w)));
+        const entry = result.wanted;
+        if (entry.type === 'waffe' || entry.type === 'fahrzeug') {
+          const stillActive = entry.active;
+          if (entry.type === 'waffe') {
+            setWeapons((prev) => prev.map((w) => (w.id === entry.targetId ? { ...w, isWanted: stillActive } : w)));
+          } else {
+            setVehicles((prev) => prev.map((v) => (v.id === entry.targetId ? { ...v, isWanted: stillActive } : v)));
           }
         }
       } else {
@@ -487,9 +494,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           caseId,
           status,
         });
-        if (result.caseFile) {
-          setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
-        }
+        if (!result.caseFile) throw new Error('Status konnte nicht geändert werden.');
+        setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
       } else {
         setCases((prev) =>
           prev.map((c) =>
@@ -511,9 +517,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           caseId,
           evidence,
         });
-        if (result.caseFile) {
-          setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
-        }
+        if (!result.caseFile) throw new Error('Beweis konnte nicht gespeichert werden.');
+        setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
       } else {
         setCases((prev) =>
           prev.map((c) =>
@@ -539,9 +544,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           caseId,
           witness,
         });
-        if (result.caseFile) {
-          setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
-        }
+        if (!result.caseFile) throw new Error('Zeuge konnte nicht gespeichert werden.');
+        setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
       } else {
         setCases((prev) =>
           prev.map((c) =>
@@ -567,9 +571,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           caseId,
           participant,
         });
-        if (result.caseFile) {
-          setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
-        }
+        if (!result.caseFile) throw new Error('Beteiligter konnte nicht hinzugefügt werden.');
+        setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
       } else {
         setCases((prev) =>
           prev.map((c) =>
@@ -595,9 +598,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           caseId,
           note,
         });
-        if (result.caseFile) {
-          setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
-        }
+        if (!result.caseFile) throw new Error('Notiz konnte nicht gespeichert werden.');
+        setCases((prev) => prev.map((c) => (c.id === caseId ? result.caseFile! : c)));
       } else {
         setCases((prev) =>
           prev.map((c) =>

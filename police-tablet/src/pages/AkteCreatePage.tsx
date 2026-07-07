@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
-import { useNotify } from '../context/NotifyContext';
+import { useNotifyAction } from '../hooks/useNotifyAction';
 import { OFFENSES } from '../types';
 import { Card, Button, Input, Select } from '../components/ui';
 
@@ -11,7 +11,7 @@ export default function AkteCreatePage() {
   const navigate = useNavigate();
   const { createCase } = useData();
   const { currentOfficer, permissions } = useAuth();
-  const { notify } = useNotify();
+  const { run, warn } = useNotifyAction();
 
   const [form, setForm] = useState({
     title: '',
@@ -32,25 +32,30 @@ export default function AkteCreatePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim()) return;
-    try {
-      const id = await createCase({
-        title: form.title.trim(),
-        offense: form.offense,
-        status: 'offen',
-        assignedOfficerId: currentOfficer.id,
-        assignedOfficerName: currentOfficer.name,
-        participants: [],
-        evidence: [],
-        witnesses: [],
-        internalNotes: [],
-        linkedVehicleIds: [],
-        description: form.description.trim() || 'Keine Beschreibung.',
-      });
-      navigate(`/akten/${id}`);
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Akte konnte nicht erstellt werden.', 'error');
+    if (!form.title.trim()) {
+      warn('Bitte einen Titel angeben.');
+      return;
     }
+    const result = await run(
+      () =>
+        createCase({
+          title: form.title.trim(),
+          offense: form.offense,
+          status: 'offen',
+          assignedOfficerId: currentOfficer.id,
+          assignedOfficerName: currentOfficer.name,
+          participants: [],
+          evidence: [],
+          witnesses: [],
+          internalNotes: [],
+          linkedVehicleIds: [],
+          description: form.description.trim() || 'Keine Beschreibung.',
+        }).then((id) => {
+          navigate(`/akten/${id}`);
+        }),
+      { success: 'Akte erfolgreich erstellt.' }
+    );
+    if (!result.ok) return;
   };
 
   return (

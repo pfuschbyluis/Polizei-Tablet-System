@@ -3,6 +3,7 @@ import type { IconName } from '../icons/Icon';
 import Icon from '../icons/Icon';
 import { useAuth } from '../../context/AuthContext';
 import { useFiveM } from '../../context/FiveMContext';
+import { useNotify } from '../../context/NotifyContext';
 import { useState } from 'react';
 
 const navItems: { to: string; icon: IconName; label: string; perm: 'viewDashboard' | 'viewPersons' | 'viewCases' | 'viewWeapons' | 'viewVehicles' | 'viewWanted' | 'viewEmployees' | 'viewAuditLog' }[] = [
@@ -19,7 +20,13 @@ const navItems: { to: string; icon: IconName; label: string; perm: 'viewDashboar
 export default function Sidebar() {
   const { permissions, logout } = useAuth();
   const { isInGame } = useFiveM();
+  const { notify } = useNotify();
   const [collapsed, setCollapsed] = useState(isInGame);
+
+  const handleLogout = () => {
+    logout();
+    notify('Erfolgreich abgemeldet.', 'info');
+  };
 
   const visibleItems = navItems.filter((item) => permissions[item.perm]);
 
@@ -55,7 +62,7 @@ export default function Sidebar() {
       <div className="shrink-0 border-t border-border p-2 space-y-0.5">
         <button
           type="button"
-          onClick={logout}
+          onClick={handleLogout}
           title="Abmelden"
           className={`flux-sidebar-logout flex w-full items-center rounded-lg text-sm text-text-secondary transition-all ${
             collapsed ? 'justify-center px-2 py-2' : 'gap-2.5 px-3 py-2'

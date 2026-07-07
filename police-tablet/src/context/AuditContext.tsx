@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { AuditEntry } from '../types';
+import { useNotify } from '../context/NotifyContext';
 import { useAuth } from './AuthContext';
 import { useFiveM } from './FiveMContext';
 import { fetchNui } from '../utils/fivem';
@@ -15,6 +16,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const { currentOfficer, permissions, isAuthenticated } = useAuth();
   const { isInGame } = useFiveM();
+  const { notify } = useNotify();
 
   useEffect(() => {
     if (!isAuthenticated || !isInGame || !permissions.viewAuditLog) {
@@ -22,14 +24,18 @@ export function AuditProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    fetchNui<{ success: boolean; entries?: AuditEntry[] }>('getAuditLog', {})
+    fetchNui<{ success: boolean; entries?: AuditEntry[]; error?: string }>('getAuditLog', {})
       .then((result) => {
         if (result.success && result.entries) {
           setEntries(result.entries);
+        } else if (!result.success) {
+          notify(result.error ?? 'Protokoll konnte nicht geladen werden.', 'error');
         }
       })
-      .catch(() => {});
-  }, [isAuthenticated, isInGame, permissions.viewAuditLog]);
+      .catch((err) => {
+        notify(err instanceof Error ? err.message : 'Protokoll konnte nicht geladen werden.', 'error');
+      });
+  }, [isAuthenticated, isInGame, permissions.viewAuditLog, notify]);
 
   const logAction = useCallback(
     (action: string, module: string, details: string) => {

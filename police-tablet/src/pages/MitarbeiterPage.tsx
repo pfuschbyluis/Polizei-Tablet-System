@@ -61,7 +61,6 @@ export default function MitarbeiterPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formTab, setFormTab] = useState<FormTab>('stammdaten');
   const [form, setForm] = useState(emptyForm());
-  const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -109,7 +108,6 @@ export default function MitarbeiterPage() {
     const tpl = getTemplateById(roleTemplates, initial.roleTemplateId);
     if (tpl) initial.permissions = { ...tpl.permissions };
     setForm(initial);
-    setError('');
     setShowModal(true);
   };
 
@@ -126,32 +124,25 @@ export default function MitarbeiterPage() {
       roleTemplateId: emp.roleTemplateId,
       permissions: { ...emp.permissions },
     });
-    setError('');
     setShowModal(true);
   };
 
   const closeModal = () => {
     if (isSaving) return;
     setShowModal(false);
-    setError('');
   };
 
   const handleSubmit = async () => {
     if (!form.badgeNumber.trim() || !form.name.trim()) {
-      const message = 'Fehlende Daten eingeben';
-      setError(message);
-      notify(message, 'warning');
+      notify('Fehlende Daten eingeben', 'warning');
       return;
     }
     if (!editingId && !form.password) {
-      const message = 'Passwort ist erforderlich';
-      setError(message);
-      notify(message, 'warning');
+      notify('Passwort ist erforderlich', 'warning');
       return;
     }
 
     setIsSaving(true);
-    setError('');
 
     try {
       const payload: EmployeeInput = {
@@ -178,9 +169,7 @@ export default function MitarbeiterPage() {
         setShowModal(false);
         setForm(emptyForm());
       } else {
-        const message = result.error ?? 'Speichern fehlgeschlagen.';
-        setError(message);
-        notify(message, 'error');
+        notify(result.error ?? 'Speichern fehlgeschlagen.', 'error');
       }
     } finally {
       setIsSaving(false);
@@ -444,7 +433,6 @@ export default function MitarbeiterPage() {
             </>
           )}
 
-          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex gap-2 pt-2">
             <Button variant="secondary" className="flex-1" onClick={closeModal} disabled={isSaving}>
               Abbrechen
