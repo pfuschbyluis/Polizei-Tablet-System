@@ -11,15 +11,6 @@ Config.Framework = 'standalone' -- 'standalone' | 'esx' | 'qb'
 Config.AllowEveryone = true
 Config.AllowedJobs = { 'police', 'lspd', 'bcso', 'sheriff', 'sasp' }
 
-Config.RankMapping = {
-    [0] = 'beamter',
-    [1] = 'beamter',
-    [2] = 'beamter',
-    [3] = 'ermittler',
-    [4] = 'leitstelle',
-    [5] = 'admin',
-}
-
 -- MySQL / Sessions
 Config.SessionDurationHours = 8
 

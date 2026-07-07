@@ -65,7 +65,7 @@ Config.Framework = 'esx'      -- oder 'qb'
 Config.AllowEveryone = false
 ```
 
-Ränge werden über `Config.RankMapping` aus dem Job-Grade abgeleitet.
+Ränge und Berechtigungen werden über die Mitarbeiterverwaltung und Rollenvorlagen im Tablet gesteuert, nicht über Job-Grades.
 
 ## Exports (Client)
 
