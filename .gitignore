@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+police-tablet/node_modules/.tmp/
 
 # Build artifacts (police-tablet outputs to html/ via build:fivem)
 police-tablet/dist/

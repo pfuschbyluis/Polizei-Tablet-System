@@ -99,16 +99,23 @@ npm run dev
 
 Im Browser sind Demo-Beamte und Ränge im Header umschaltbar.
 
+## Git-Workflow
+
+Alle Entwicklung erfolgt **ausschließlich auf dem Branch `main`**. Es werden keine Feature-Branches angelegt; Änderungen werden direkt in `main` committet und gepusht.
+
 ## Projektstruktur
 
 ```
-polis/                    ← FiveM Resource (Repo-Root)
+polis/                         ← FiveM Resource (Repo-Root)
 ├── fxmanifest.lua
 ├── config.lua
-├── client/main.lua
-├── server/main.lua
-├── html/                 ← Build-Output (npm run build:fivem)
-└── police-tablet/        ← React-Quellcode
+├── client/                    ← Client-Module (Tablet, NUI, Steuerung)
+├── server/
+│   ├── handlers/              ← NUI-Endpunkte
+│   └── repository/            ← Datenzugriff (MySQL)
+├── shared/
+├── html/                      ← Build-Output (npm run build:fivem)
+└── police-tablet/             ← React-Quellcode (Shell, Seiten, Contexts)
 ```
 
 ## Module
