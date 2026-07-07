@@ -1,6 +1,5 @@
 local isOpen = false
 local tabletProp = nil
-local loggedInOfficer = nil
 local sessionToken = nil
 local pendingCallbacks = {}
 
@@ -34,42 +33,6 @@ local function HasAccess()
     end
 
     return false
-end
-
-local function GetPlayerGrade()
-    if Config.Framework == 'esx' then
-        local ESX = exports['es_extended']:getSharedObject()
-        local playerData = ESX.GetPlayerData()
-        return playerData and playerData.job and playerData.job.grade or 0
-    end
-
-    if Config.Framework == 'qb' then
-        local QBCore = exports['qb-core']:GetCoreObject()
-        local playerData = QBCore.Functions.GetPlayerData()
-        return playerData and playerData.job and playerData.job.grade.level or 0
-    end
-
-    return 0
-end
-
-local function GetPlayerJob()
-    if Config.Framework == 'esx' then
-        local ESX = exports['es_extended']:getSharedObject()
-        local playerData = ESX.GetPlayerData()
-        return playerData and playerData.job and playerData.job.name or 'police'
-    end
-
-    if Config.Framework == 'qb' then
-        local QBCore = exports['qb-core']:GetCoreObject()
-        local playerData = QBCore.Functions.GetPlayerData()
-        return playerData and playerData.job and playerData.job.name or 'police'
-    end
-
-    return 'police'
-end
-
-local function GetRankFromGrade(grade)
-    return Config.RankMapping[grade] or Config.RankMapping[0] or 'beamter'
 end
 
 local function StartTabletAnimation()
@@ -116,20 +79,6 @@ local function StopTabletAnimation()
     end
 end
 
-local function BuildOfficerData()
-    local grade = GetPlayerGrade()
-    local rank = GetRankFromGrade(grade)
-    local serverId = GetPlayerServerId(PlayerId())
-    local playerName = GetPlayerName(PlayerId())
-
-    return {
-        id = ('off-%s'):format(serverId),
-        badgeNumber = ('PD-%04d'):format(serverId),
-        name = playerName,
-        rank = rank,
-    }
-end
-
 local function OpenTablet()
     if isOpen then return end
 
@@ -143,7 +92,6 @@ local function OpenTablet()
     end
 
     isOpen = true
-    loggedInOfficer = nil
     sessionToken = nil
     StartTabletAnimation()
     SetNuiFocus(true, true)
@@ -157,7 +105,6 @@ local function CloseTablet()
     if not isOpen then return end
 
     isOpen = false
-    loggedInOfficer = nil
     sessionToken = nil
     SetNuiFocus(false, false)
     StopTabletAnimation()
@@ -231,7 +178,6 @@ RegisterNUICallback('login', function(data, cb)
     local reqId = math.random(100000, 999999)
     pendingCallbacks[reqId] = function(result)
         if result.success and result.officer then
-            loggedInOfficer = result.officer
             sessionToken = result.officer.sessionToken
         end
         cb(result)
@@ -247,7 +193,6 @@ RegisterNUICallback('login', function(data, cb)
 end)
 
 RegisterNUICallback('logout', function(_, cb)
-    loggedInOfficer = nil
     sessionToken = nil
     TriggerServerEvent('polis:server:logout', 0, {})
     cb({ ok = true })

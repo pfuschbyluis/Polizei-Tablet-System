@@ -26,7 +26,7 @@ ensure polis
 
 Beim ersten Start werden **alle Tabellen automatisch erstellt** – es sind keine manuellen SQL-Importe nötig. Vor jeder Datenbankoperation prüft das Skript, ob die Tabellen existieren, und legt fehlende Strukturen an.
 
-Passwörter werden **niemals im Klartext** gespeichert, sondern mit PBKDF2-HMAC-SHA256 gehasht. Standard-Mitarbeiter aus `config.lua` werden beim ersten Start einmalig angelegt (nur wenn die Tabelle leer ist).
+Passwörter werden **niemals im Klartext** gespeichert. Beim Login werden ältere Hashes automatisch auf ein schnelles Format migriert. Standard-Mitarbeiter aus `config.lua` werden beim ersten Start einmalig angelegt (nur wenn die Tabelle leer ist).
 
 ## Steuerung im Spiel
 
@@ -114,9 +114,9 @@ polis/                    ← FiveM Resource (Repo-Root)
 ## Module
 
 - Dashboard, Personenakten, Akten-System
-- Waffen- & Fahrzeugregister
+- Waffen- & Fahrzeugregister (Anlegen & Bearbeiten)
 - Fahndungssystem
-- Rang- & Rechtesystem
+- Mitarbeiterverwaltung mit Rollen & Berechtigungen
 - Audit-Protokoll
 
 ## Hinweis

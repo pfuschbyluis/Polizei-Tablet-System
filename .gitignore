@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build artifacts (police-tablet outputs to html/ via build:fivem)
+police-tablet/dist/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.log
