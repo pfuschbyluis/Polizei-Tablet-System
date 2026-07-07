@@ -10,6 +10,7 @@ import { NotifyProvider } from './context/NotifyContext';
 import ProtectedLayout from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import { TabletShell } from './components/shell/TabletShell';
+import DesktopShell from './components/shell/DesktopShell';
 import Dashboard from './pages/Dashboard';
 import PersonenPage from './pages/PersonenPage';
 import PersonDetailPage from './pages/PersonDetailPage';
@@ -75,10 +76,12 @@ function AppRoutes() {
   );
 }
 
-function TabletShellRoutes() {
+function TabletApp() {
   return (
     <AppProviders>
-      <AppRoutes />
+      <DesktopShell>
+        <AppRoutes />
+      </DesktopShell>
     </AppProviders>
   );
 }
@@ -89,7 +92,7 @@ export default function App() {
       <ThemeProvider>
         <BrandingProvider>
           <TabletShell>
-            <TabletShellRoutes />
+            <TabletApp />
           </TabletShell>
         </BrandingProvider>
       </ThemeProvider>
