@@ -9,7 +9,7 @@ import { DataProvider } from './context/DataContext';
 import { NotifyProvider } from './context/NotifyContext';
 import ProtectedLayout from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
-import { TabletShell, AppRouter } from './components/shell/TabletShell';
+import { TabletShell } from './components/shell/TabletShell';
 import Dashboard from './pages/Dashboard';
 import PersonenPage from './pages/PersonenPage';
 import PersonDetailPage from './pages/PersonDetailPage';
@@ -77,11 +77,9 @@ function AppRoutes() {
 
 function TabletShellRoutes() {
   return (
-    <AppRouter>
-      <AppProviders>
-        <AppRoutes />
-      </AppProviders>
-    </AppRouter>
+    <AppProviders>
+      <AppRoutes />
+    </AppProviders>
   );
 }
 

@@ -19,14 +19,12 @@ export function TabletShell({ children }: { children: React.ReactNode }) {
   return (
     <div className={isInGame ? 'fivem-tablet-shell' : 'dev-shell'}>
       <ShellProvider>
-        <ShellKeyboardLayer>
-          <DesktopShell>{children}</DesktopShell>
-        </ShellKeyboardLayer>
+        <HashRouter>
+          <ShellKeyboardLayer>
+            <DesktopShell>{children}</DesktopShell>
+          </ShellKeyboardLayer>
+        </HashRouter>
       </ShellProvider>
     </div>
   );
-}
-
-export function AppRouter({ children }: { children: React.ReactNode }) {
-  return <HashRouter>{children}</HashRouter>;
 }
