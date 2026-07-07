@@ -1,0 +1,110 @@
+/* ── Flux Design System – original palette, Win11-inspired layout only ── */
+
+/* Fallback / default (dark) – prevents flash before data-theme is set */
+:root {
+  --flux-surface-base: #1f2028;
+  --flux-surface: #282932;
+  --flux-surface-secondary: #32333e;
+  --flux-surface-tertiary: #3a3b48;
+  --flux-surface-card: #2a2b35;
+  --flux-surface-hover: #40414f;
+  --flux-border: rgba(255, 255, 255, 0.07);
+  --flux-border-strong: rgba(255, 255, 255, 0.13);
+  --flux-accent: #4f7cff;
+  --flux-accent-hover: #3d6bef;
+  --flux-accent-light: #7ea4ff;
+  --flux-accent-subtle: rgba(79, 124, 255, 0.14);
+  --flux-text-primary: #f0f0f5;
+  --flux-text-secondary: #a8a8b8;
+  --flux-text-muted: #6b6b7a;
+  --flux-success: #4ade80;
+  --flux-warning: #fbbf24;
+  --flux-danger: #f87171;
+  --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --flux-titlebar-bg: #28282e;
+  --flux-backdrop: radial-gradient(ellipse at 20% 20%, #1a1a2e 0%, #0f0f14 50%, #121218 100%);
+  --flux-scrollbar: #454550;
+}
+
+:root[data-theme="dark"] {
+  --flux-surface-base: #1f2028;
+  --flux-surface: #282932;
+  --flux-surface-secondary: #32333e;
+  --flux-surface-tertiary: #3a3b48;
+  --flux-surface-card: #2a2b35;
+  --flux-surface-hover: #40414f;
+  --flux-border: rgba(255, 255, 255, 0.07);
+  --flux-border-strong: rgba(255, 255, 255, 0.13);
+  --flux-accent: #4f7cff;
+  --flux-accent-hover: #3d6bef;
+  --flux-accent-light: #7ea4ff;
+  --flux-accent-subtle: rgba(79, 124, 255, 0.14);
+  --flux-text-primary: #f0f0f5;
+  --flux-text-secondary: #a8a8b8;
+  --flux-text-muted: #6b6b7a;
+  --flux-success: #4ade80;
+  --flux-warning: #fbbf24;
+  --flux-danger: #f87171;
+  --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --flux-titlebar-bg: #28282e;
+  --flux-backdrop: radial-gradient(ellipse at 20% 20%, #1a1a2e 0%, #0f0f14 50%, #121218 100%);
+  --flux-scrollbar: #454550;
+}
+
+:root[data-theme="light"] {
+  --flux-surface-base: #eef0f6;
+  --flux-surface: #ffffff;
+  --flux-surface-secondary: #f8f9fc;
+  --flux-surface-tertiary: #eef1f7;
+  --flux-surface-card: #ffffff;
+  --flux-surface-hover: #e4e8f0;
+  --flux-border: rgba(0, 0, 0, 0.08);
+  --flux-border-strong: rgba(0, 0, 0, 0.14);
+  --flux-accent: #3b6de8;
+  --flux-accent-hover: #2d5fd4;
+  --flux-accent-light: #5b84f0;
+  --flux-accent-subtle: rgba(59, 109, 232, 0.12);
+  --flux-text-primary: #1a1a24;
+  --flux-text-secondary: #5c5c6e;
+  --flux-text-muted: #9494a8;
+  --flux-success: #22c55e;
+  --flux-warning: #d97706;
+  --flux-danger: #ef4444;
+  --flux-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --flux-titlebar-bg: #f3f4f8;
+  --flux-backdrop: radial-gradient(ellipse at 30% 20%, #dce4f5 0%, #c8d4ea 40%, #b8c8e0 100%);
+  --flux-scrollbar: #c4c8d4;
+}
+
+@theme {
+  --color-surface-base: var(--flux-surface-base);
+  --color-surface: var(--flux-surface);
+  --color-surface-secondary: var(--flux-surface-secondary);
+  --color-surface-tertiary: var(--flux-surface-tertiary);
+  --color-surface-card: var(--flux-surface-card);
+  --color-surface-hover: var(--flux-surface-hover);
+  --color-border: var(--flux-border);
+  --color-border-strong: var(--flux-border-strong);
+  --color-accent: var(--flux-accent);
+  --color-accent-hover: var(--flux-accent-hover);
+  --color-accent-light: var(--flux-accent-light);
+  --color-accent-subtle: var(--flux-accent-subtle);
+  --color-text-primary: var(--flux-text-primary);
+  --color-text-secondary: var(--flux-text-secondary);
+  --color-text-muted: var(--flux-text-muted);
+  --color-success: var(--flux-success);
+  --color-warning: var(--flux-warning);
+  --color-danger: var(--flux-danger);
+  --color-police-50: #f0f4ff;
+  --color-police-100: #e0e9ff;
+  --color-police-200: #c7d6fe;
+  --color-police-300: #a4b8fc;
+  --color-police-400: var(--flux-accent-light);
+  --color-police-500: var(--flux-accent);
+  --color-police-600: var(--flux-accent-hover);
+  --color-police-700: var(--flux-surface-tertiary);
+  --color-police-800: var(--flux-surface-secondary);
+  --color-police-900: var(--flux-surface);
+  --color-police-950: var(--flux-surface-base);
+  --color-police-accent: var(--flux-accent);
+}

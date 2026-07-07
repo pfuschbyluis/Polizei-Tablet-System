@@ -1,0 +1,16 @@
+.flux-start-menu, .flux-search-panel, .flux-flyout {
+  position: fixed;
+  z-index: 10001;
+  border: 1px solid var(--flux-border-strong);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--flux-surface-secondary) 88%, transparent);
+  backdrop-filter: blur(28px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  animation: flux-flyout-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flux-flyout { right: 0.75rem; bottom: calc(var(--flux-taskbar-size, 52px) + 12px); width: min(360px, calc(100vw - 1.5rem)); padding: 1rem; }
+.flux-flyout__header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+.flux-flyout__header h3 { margin: 0; flex: 1; font-size: 0.9375rem; }
+.flux-flyout__badge { font-size: 0.625rem; padding: 0.2rem 0.45rem; border-radius: 999px; background: var(--flux-accent-subtle); color: var(--flux-accent-light); }
+.flux-flyout__empty { margin: 0; padding: 1.5rem 0; text-align: center; font-size: 0.8125rem; color: var(--flux-text-muted); }
+.flux-flyout__close { width: 100%; margin-top: 0.75rem; padding: 0.625rem; border: 1px solid var(--flux-border); border-radius: 10px; background: var(--flux-surface-tertiary); color: var(--flux-text-primary); cursor: pointer; }

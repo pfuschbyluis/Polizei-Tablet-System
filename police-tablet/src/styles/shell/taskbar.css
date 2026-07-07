@@ -1,0 +1,83 @@
+.flux-taskbar {
+  --flux-taskbar-size: 52px;
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  background: color-mix(in srgb, var(--flux-surface-secondary) calc(var(--flux-shell-transparency, 0.78) * 100%), transparent);
+  backdrop-filter: blur(28px) saturate(1.25);
+  border: 1px solid var(--flux-border);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.flux-taskbar--bottom { left: 0; right: 0; bottom: 0; height: var(--flux-taskbar-size); }
+.flux-taskbar--top { left: 0; right: 0; top: 0; height: var(--flux-taskbar-size); }
+.flux-taskbar--left { left: 0; top: 0; bottom: 0; width: var(--flux-taskbar-size); flex-direction: column; }
+.flux-taskbar--right { right: 0; top: 0; bottom: 0; width: var(--flux-taskbar-size); flex-direction: column; }
+.flux-taskbar--align-center .flux-taskbar__cluster--apps { margin-inline: auto; }
+
+.flux-taskbar__cluster { display: flex; align-items: center; gap: 0.25rem; }
+
+.flux-taskbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 0.625rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--flux-text-primary);
+  cursor: pointer;
+  transition: background 0.16s ease, transform 0.16s ease;
+}
+
+.flux-taskbar-btn:hover { background: var(--flux-surface-hover); transform: translateY(-1px); }
+.flux-taskbar-btn--active, .flux-shell-icon-btn--active { background: var(--flux-accent-subtle); color: var(--flux-accent-light); }
+.flux-taskbar-btn__label { font-size: 0.75rem; font-weight: 500; }
+.flux-taskbar-btn__indicator { width: 12px; height: 3px; border-radius: 999px; background: var(--flux-accent); }
+.flux-start-btn { width: 44px; }
+
+.flux-system-tray { display: flex; align-items: center; gap: 0.25rem; margin-left: auto; position: relative; }
+.flux-system-tray__status { display: flex; align-items: center; gap: 0.35rem; padding: 0 0.35rem; opacity: 0.85; }
+
+.flux-shell-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--flux-text-secondary);
+  cursor: pointer;
+}
+
+.flux-shell-icon-btn:hover { background: var(--flux-surface-hover); color: var(--flux-text-primary); }
+
+.flux-tray-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0.35rem 0.625rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.flux-tray-clock:hover, .flux-tray-clock--active { background: var(--flux-surface-hover); }
+.flux-tray-clock__time { font-size: 0.8125rem; font-weight: 600; }
+.flux-tray-clock__date { font-size: 0.625rem; color: var(--flux-text-muted); }
+.flux-tray-bell { position: relative; }
+.flux-tray-bell__badge {
+  position: absolute; top: 4px; right: 4px; min-width: 14px; height: 14px;
+  border-radius: 999px; background: var(--flux-accent); color: white;
+  font-size: 0.5625rem; font-weight: 700; line-height: 14px; text-align: center;
+}

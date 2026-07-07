@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useShell } from '../../context/ShellContext';
-import { WALLPAPERS } from '../../types/shell';
+import { WALLPAPERS } from '../../shell/constants';
 
 export default function DesktopContextMenu() {
   const { contextMenu, setContextMenu, updateSettings, settings, setVirtualDesktop, virtualDesktop } =

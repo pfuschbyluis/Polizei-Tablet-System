@@ -1,0 +1,9 @@
+.flux-quick-settings__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+.flux-quick-tile { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.875rem 0.5rem; border: 1px solid var(--flux-border); border-radius: 12px; background: var(--flux-surface-tertiary); font-size: 0.6875rem; cursor: pointer; }
+.flux-quick-tile--on { background: var(--flux-accent-subtle); color: var(--flux-accent-light); }
+.flux-quick-slider { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.75rem; font-size: 0.75rem; }
+.flux-quick-settings__row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.flux-quick-chip { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; padding: 0.5rem; border: 1px solid var(--flux-border); border-radius: 10px; background: var(--flux-surface-tertiary); font-size: 0.75rem; cursor: pointer; }
+.flux-accent-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.flux-accent-swatch { width: 28px; height: 28px; border-radius: 999px; border: 2px solid transparent; cursor: pointer; }
+.flux-accent-swatch--active { border-color: white; transform: scale(1.08); }

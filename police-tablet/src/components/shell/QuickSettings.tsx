@@ -1,7 +1,9 @@
 import Icon from '../icons/Icon';
 import { useTheme } from '../../context/ThemeContext';
 import { useShell } from '../../context/ShellContext';
-import { ACCENT_PRESETS, WALLPAPERS, type AccentPreset } from '../../types/shell';
+import { WALLPAPERS } from '../../shell/constants';
+import AccentSwatchPicker from '../settings/AccentSwatchPicker';
+import TransparencySlider from '../settings/TransparencySlider';
 
 export default function QuickSettings() {
   const { quickSettingsOpen, settings, updateSettings, systemStatus, setSystemStatus, closeAllOverlays } =
@@ -9,8 +11,6 @@ export default function QuickSettings() {
   const { theme, setTheme } = useTheme();
 
   if (!quickSettingsOpen) return null;
-
-  const accents = Object.keys(ACCENT_PRESETS) as AccentPreset[];
 
   return (
     <div className="flux-flyout flux-quick-settings" onClick={(e) => e.stopPropagation()}>
@@ -65,16 +65,13 @@ export default function QuickSettings() {
           onChange={(e) => setSystemStatus({ volume: Number(e.target.value) })}
         />
       </label>
-      <label className="flux-quick-slider">
-        <span>Transparenz</span>
-        <input
-          type="range"
-          min={40}
-          max={100}
-          value={settings.transparency}
-          onChange={(e) => updateSettings({ transparency: Number(e.target.value) })}
-        />
-      </label>
+
+      <TransparencySlider
+        value={settings.transparency}
+        onChange={(transparency) => updateSettings({ transparency })}
+        label="Transparenz"
+        className="flux-quick-slider"
+      />
 
       <div className="flux-quick-settings__row">
         <button type="button" className="flux-quick-chip" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
@@ -91,18 +88,10 @@ export default function QuickSettings() {
         </button>
       </div>
 
-      <div className="flux-accent-row">
-        {accents.map((accent) => (
-          <button
-            key={accent}
-            type="button"
-            className={`flux-accent-swatch ${settings.accent === accent ? 'flux-accent-swatch--active' : ''}`}
-            style={{ background: ACCENT_PRESETS[accent].accent }}
-            title={accent}
-            onClick={() => updateSettings({ accent })}
-          />
-        ))}
-      </div>
+      <AccentSwatchPicker
+        value={settings.accent}
+        onChange={(accent) => updateSettings({ accent })}
+      />
 
       <button type="button" className="flux-flyout__close" onClick={closeAllOverlays}>
         Schließen

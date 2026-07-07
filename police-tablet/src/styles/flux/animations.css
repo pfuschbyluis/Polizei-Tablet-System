@@ -1,0 +1,49 @@
+/* ── Animations ── */
+@keyframes flux-open {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes flux-minimize {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flux-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-flux-open {
+  animation: flux-open 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-flux-minimize {
+  animation: flux-minimize 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-flux-fade-up {
+  animation: flux-fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes flux-flyout-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

@@ -4,7 +4,7 @@ import Icon from '../icons/Icon';
 import PoliceIcon from '../icons/PoliceIcon';
 import { useAuth } from '../../context/AuthContext';
 import { useShell } from '../../context/ShellContext';
-import { DEFAULT_SHORTCUTS } from '../../types/shell';
+import { DEFAULT_SHORTCUTS } from '../../shell/constants';
 
 export default function StartMenu() {
   const navigate = useNavigate();

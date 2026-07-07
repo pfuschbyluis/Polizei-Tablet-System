@@ -1,0 +1,10 @@
+.flux-window-layer {
+  position: absolute;
+  inset: 0;
+  padding-bottom: var(--flux-taskbar-size, 52px);
+  pointer-events: none;
+}
+
+.flux-window-layer .flux-window {
+  pointer-events: auto;
+}

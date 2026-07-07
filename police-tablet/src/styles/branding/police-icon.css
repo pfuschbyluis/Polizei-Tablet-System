@@ -1,0 +1,63 @@
+.flux-app-icon:has(.police-icon--custom),
+.flux-os-toast-app-icon:has(.police-icon--custom) {
+  background: transparent;
+}
+
+.flux-app-icon:has(.police-icon--custom) {
+  width: auto;
+  height: auto;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+}
+
+.flux-os-toast-app-icon:has(.police-icon--custom) {
+  width: auto;
+  height: auto;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+}
+
+.flux-app-icon-sm {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.police-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.police-icon--prominent {
+  filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.35));
+}
+
+.police-icon--custom.police-icon--prominent {
+  filter: none;
+}
+
+.police-icon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.police-icon-image--cover {
+  object-fit: cover;
+  transform: scale(1.08);
+}
+
+.police-icon-default {
+  display: block;
+}
+
+.police-icon-default--prominent {
+  transform: scale(1.05);
+}
+

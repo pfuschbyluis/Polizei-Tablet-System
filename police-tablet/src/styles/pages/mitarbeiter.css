@@ -1,0 +1,143 @@
+/* ── Mitarbeiterverwaltung ── */
+.flux-employee-table thead {
+  background: var(--flux-surface-secondary);
+  border-bottom: 1px solid var(--flux-border);
+}
+
+.flux-employee-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--flux-text-muted);
+}
+
+.flux-employee-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--flux-border);
+  vertical-align: middle;
+}
+
+.flux-employee-table tbody tr:hover {
+  background: var(--flux-surface-hover);
+}
+
+.flux-employee-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.flux-employee-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--flux-accent-subtle);
+  color: var(--flux-accent-light);
+  flex-shrink: 0;
+}
+
+.flux-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 8px;
+  border: 1px solid var(--flux-border-strong);
+  background: var(--flux-surface-tertiary);
+  color: var(--flux-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.flux-action-btn:hover:not(:disabled) {
+  background: var(--flux-surface-hover);
+  color: var(--flux-text-primary);
+  border-color: var(--flux-accent-light);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+}
+
+.flux-action-btn--edit {
+  border-color: rgba(126, 164, 255, 0.45);
+  background: rgba(79, 124, 255, 0.16);
+  color: var(--flux-accent-light);
+}
+
+.flux-action-btn--edit:hover:not(:disabled) {
+  background: rgba(79, 124, 255, 0.26);
+  color: #ffffff;
+  border-color: var(--flux-accent-light);
+}
+
+.flux-action-btn--delete {
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--flux-danger);
+}
+
+.flux-action-btn--delete:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.22);
+  color: #ffffff;
+  border-color: var(--flux-danger);
+}
+
+.flux-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.flux-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.3125rem 0.6875rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.flux-status-pill__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.flux-status-pill--active {
+  background: rgba(74, 222, 128, 0.16);
+  border-color: rgba(74, 222, 128, 0.42);
+  color: #86efac;
+}
+
+.flux-status-pill--active .flux-status-pill__dot {
+  background: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.65);
+}
+
+.flux-status-pill--inactive {
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.42);
+  color: #fca5a5;
+}
+
+.flux-status-pill--inactive .flux-status-pill__dot {
+  background: #f87171;
+  box-shadow: 0 0 6px rgba(248, 113, 113, 0.55);
+}
+
+.flux-btn-primary {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}

@@ -1,0 +1,43 @@
+.flux-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--flux-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.flux-icon-btn:hover {
+  background: var(--flux-surface-hover);
+  color: var(--flux-text-primary);
+}
+
+/* ── Window Controls ── */
+.flux-win-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--flux-text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.flux-win-btn:hover {
+  background: var(--flux-surface-hover);
+  color: var(--flux-text-primary);
+}
+
+.flux-win-btn-close:hover {
+  background: var(--flux-danger);
+  color: #fff;
+}

@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import Icon from '../icons/Icon';
-import CalendarPopup from './CalendarPopup';
-import QuickSettings from './QuickSettings';
-import NotificationCenter from './NotificationCenter';
+import ShellFlyouts from './ShellFlyouts';
 import { useShell } from '../../context/ShellContext';
 
 export default function SystemTray() {
@@ -28,7 +26,6 @@ export default function SystemTray() {
 
   const time = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
   const date = now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
-
   const unread = settings.doNotDisturb ? 0 : notificationHistory.length;
 
   return (
@@ -78,9 +75,7 @@ export default function SystemTray() {
         <span className="flux-tray-clock__date">{date}</span>
       </button>
 
-      <QuickSettings />
-      <NotificationCenter />
-      <CalendarPopup now={now} />
+      <ShellFlyouts now={now} />
     </div>
   );
 }

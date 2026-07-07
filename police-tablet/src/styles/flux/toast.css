@@ -1,0 +1,168 @@
+.flux-notify-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: visible;
+}
+
+/* ── OS-style toast notifications (Win11-inspired) ── */
+.flux-os-toast-stack {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: min(360px, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.flux-os-toast {
+  pointer-events: auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-rows: auto;
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.875rem 0.875rem 0.875rem 1rem;
+  border-radius: 8px;
+  background: var(--flux-surface-secondary);
+  border: 1px solid var(--flux-border-strong);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  animation: flux-toast-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  min-height: 64px;
+}
+
+:root[data-theme='light'] .flux-os-toast {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.flux-os-toast-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.flux-os-toast--error .flux-os-toast-accent {
+  background: var(--flux-danger);
+}
+
+.flux-os-toast--warning .flux-os-toast-accent {
+  background: var(--flux-warning);
+}
+
+.flux-os-toast--success .flux-os-toast-accent {
+  background: var(--flux-success);
+}
+
+.flux-os-toast--info .flux-os-toast-accent {
+  background: var(--flux-accent);
+}
+
+.flux-os-toast-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--flux-accent-subtle);
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.flux-os-toast-body {
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.flux-os-toast-title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--flux-text-primary);
+  line-height: 1.3;
+}
+
+.flux-os-toast-message {
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--flux-text-secondary);
+  line-height: 1.4;
+}
+
+.flux-os-toast-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.flux-os-toast--error .flux-os-toast-type-icon {
+  color: var(--flux-danger);
+}
+
+.flux-os-toast--warning .flux-os-toast-type-icon {
+  color: var(--flux-warning);
+}
+
+.flux-os-toast--success .flux-os-toast-type-icon {
+  color: var(--flux-success);
+}
+
+.flux-os-toast--info .flux-os-toast-type-icon {
+  color: var(--flux-accent-light);
+}
+
+.flux-os-toast-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--flux-text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.flux-os-toast-close:hover {
+  background: var(--flux-surface-hover);
+  color: var(--flux-text-primary);
+}
+
+@keyframes flux-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+html.fivem-nui .flux-desktop-icons, html.fivem-nui .flux-desktop-widgets { display: none; }
+
+.flux-os-toast-stack { bottom: calc(var(--flux-taskbar-size, 52px) + 16px); }

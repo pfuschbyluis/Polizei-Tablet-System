@@ -1,0 +1,54 @@
+html.fivem-nui,
+html.fivem-nui body,
+html.fivem-nui #root,
+html.fivem-nui .fivem-tablet-shell {
+  background: transparent !important;
+}
+
+/* FiveM: undurchsichtige Flächen – kein Schwarz durch Transparenz */
+html.fivem-nui {
+  --flux-surface-base: #1f2028;
+  --flux-surface: #282932;
+  --flux-surface-secondary: #32333e;
+  --flux-surface-tertiary: #3a3b48;
+  --flux-surface-card: #2a2b35;
+  --flux-surface-hover: #40414f;
+  --flux-titlebar-bg: #282932;
+  --flux-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--flux-border-strong);
+}
+
+html.fivem-nui .flux-window,
+html.fivem-nui .flux-window-content,
+html.fivem-nui .flux-titlebar {
+  background-color: var(--flux-surface-base);
+}
+
+html.fivem-nui .flux-titlebar {
+  background-color: var(--flux-surface-secondary);
+}
+
+html.fivem-nui[data-theme='light'] {
+  --flux-surface-base: #eef0f6;
+  --flux-surface: #ffffff;
+  --flux-surface-secondary: #f3f4f8;
+  --flux-surface-tertiary: #e8ebf2;
+  --flux-surface-card: #ffffff;
+  --flux-surface-hover: #e4e8f0;
+  --flux-titlebar-bg: #f3f4f8;
+}
+html.fivem-nui .flux-window-in-game {
+  box-shadow: 0 0 0 1px var(--flux-border-strong);
+}
+
+html.fivem-nui .flux-titlebar {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--flux-surface-secondary);
+  border-radius: 11px 11px 0 0;
+}
+
+html.fivem-nui .flux-window-content {
+  border-radius: 0 0 11px 11px;
+}
+html.fivem-nui .flux-desktop-surface { background: transparent !important; }
+html.fivem-nui .flux-desktop-icons, html.fivem-nui .flux-desktop-widgets { display: none; }

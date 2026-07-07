@@ -1,12 +1,6 @@
+import { toastTypeTitles } from './toast/toastConfig';
 import Icon from '../icons/Icon';
 import { useShell } from '../../context/ShellContext';
-
-const typeTitles = {
-  error: 'Fehler',
-  warning: 'Warnung',
-  success: 'Erfolgreich',
-  info: 'Info',
-};
 
 export default function NotificationCenter() {
   const { notificationsOpen, notificationHistory, clearNotifications, settings, closeAllOverlays } = useShell();
@@ -28,7 +22,7 @@ export default function NotificationCenter() {
         ) : (
           notificationHistory.map((item) => (
             <div key={item.id} className={`flux-notification-item flux-notification-item--${item.type}`}>
-              <p className="flux-notification-item__title">{typeTitles[item.type]}</p>
+              <p className="flux-notification-item__title">{toastTypeTitles[item.type]}</p>
               <p className="flux-notification-item__message">{item.message}</p>
               <p className="flux-notification-item__time">
                 {new Date(item.timestamp).toLocaleString('de-DE')}

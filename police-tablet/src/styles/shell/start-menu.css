@@ -1,0 +1,27 @@
+.flux-start-menu {
+  left: 50%; bottom: calc(var(--flux-taskbar-size, 52px) + 12px);
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 2rem));
+  padding: 1rem;
+}
+
+.flux-start-menu__search, .flux-search-panel__input {
+  display: flex; align-items: center; gap: 0.625rem;
+  padding: 0.625rem 0.875rem; border-radius: 12px;
+  background: var(--flux-surface-tertiary); border: 1px solid var(--flux-border);
+}
+
+.flux-start-menu__search input, .flux-search-panel__input input {
+  flex: 1; border: none; background: transparent; color: var(--flux-text-primary); font-size: 0.875rem; outline: none;
+}
+
+.flux-start-menu__heading { margin: 1rem 0 0.5rem; font-size: 0.6875rem; text-transform: uppercase; color: var(--flux-text-muted); }
+.flux-start-menu__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.flux-start-menu__app {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  padding: 0.875rem 0.5rem; border: none; border-radius: 12px; background: transparent;
+  color: var(--flux-text-primary); font-size: 0.75rem; cursor: pointer;
+}
+.flux-start-menu__app:hover { background: var(--flux-surface-hover); transform: translateY(-2px); }
+.flux-start-menu__app-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--flux-accent-subtle); display: flex; align-items: center; justify-content: center; }
+.flux-start-menu__footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding-top: 0.875rem; border-top: 1px solid var(--flux-border); }

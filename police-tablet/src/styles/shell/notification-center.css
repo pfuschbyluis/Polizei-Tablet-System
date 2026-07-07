@@ -1,0 +1,5 @@
+.flux-notification-center__list { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+.flux-notification-item { padding: 0.75rem; border-radius: 10px; background: var(--flux-surface-tertiary); border-left: 3px solid var(--flux-accent); }
+.flux-notification-item__title { margin: 0; font-size: 0.75rem; font-weight: 600; }
+.flux-notification-item__message { margin: 0.25rem 0 0; font-size: 0.8125rem; }
+.flux-notification-item__time { margin: 0.35rem 0 0; font-size: 0.625rem; color: var(--flux-text-muted); }

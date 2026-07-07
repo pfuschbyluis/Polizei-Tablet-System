@@ -1,36 +1,14 @@
-import { useEffect, useState } from 'react';
 import PoliceIcon from '../components/icons/PoliceIcon';
-import Icon from '../components/icons/Icon';
 import { useAuth } from '../context/AuthContext';
-import { useBranding } from '../context/BrandingContext';
-import { useNotify } from '../context/NotifyContext';
-import { useShell } from '../context/ShellContext';
-import { WALLPAPERS, type AccentPreset, type FontScale, type TaskbarAlign, type TaskbarPosition } from '../types/shell';
-import { Card, Button, Input, Select } from '../components/ui';
-
-function isValidIconUrl(url: string): boolean {
-  return url === '' || /^https?:\/\/.+/i.test(url);
-}
+import { useBrandingIconEditor } from '../hooks/useBrandingIconEditor';
+import BrandingIconSettings from '../components/settings/BrandingIconSettings';
+import ShellPersonalizationSettings from '../components/settings/ShellPersonalizationSettings';
+import { Card } from '../components/ui';
 
 export default function EinstellungenPage() {
   const { permissions } = useAuth();
-  const { customIconUrl, updateBranding } = useBranding();
-  const { notify } = useNotify();
-  const [urlInput, setUrlInput] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewError, setPreviewError] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const { settings, updateSettings } = useShell();
   const canEdit = permissions.adminFunctions;
-  const activePreviewUrl = previewUrl ?? (urlInput.trim() || customIconUrl);
-  const showingCustom = Boolean(activePreviewUrl) && !previewError;
-
-  useEffect(() => {
-    setUrlInput(customIconUrl);
-    setPreviewUrl(null);
-    setPreviewError(false);
-  }, [customIconUrl]);
+  const editor = useBrandingIconEditor();
 
   if (!permissions.viewSettings) {
     return (
@@ -41,46 +19,6 @@ export default function EinstellungenPage() {
     );
   }
 
-  const handlePreview = () => {
-    const trimmed = urlInput.trim();
-    if (trimmed && !isValidIconUrl(trimmed)) {
-      notify('Bitte eine gültige http(s)-URL eingeben.', 'warning');
-      return;
-    }
-    setPreviewError(false);
-    setPreviewUrl(trimmed);
-  };
-
-  const handleSave = async () => {
-    const trimmed = urlInput.trim();
-    if (trimmed && !isValidIconUrl(trimmed)) {
-      notify('Bitte eine gültige http(s)-URL eingeben.', 'warning');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const result = await updateBranding(trimmed);
-      if (result.success) {
-        notify(trimmed ? 'Polizei-Icon gespeichert.' : 'Standard-Icon wiederhergestellt.', 'success');
-        setPreviewUrl(null);
-        setPreviewError(false);
-      } else {
-        notify(result.error ?? 'Speichern fehlgeschlagen.', 'error');
-      }
-    } catch (error) {
-      notify(error instanceof Error ? error.message : 'Speichern fehlgeschlagen.', 'error');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleReset = () => {
-    setUrlInput('');
-    setPreviewUrl('');
-    setPreviewError(false);
-  };
-
   return (
     <div className="space-y-6">
       <div>
@@ -89,206 +27,24 @@ export default function EinstellungenPage() {
       </div>
 
       <Card>
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-base font-semibold text-text-primary">Polizei-Icon</h2>
-            <p className="mt-1 text-sm text-text-secondary">
-              Hinterlegen Sie ein eigenes Icon per Bild-URL. Es ersetzt das Standard-Icon systemweit
-              (Login, Titelleiste, Benachrichtigungen).
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
-            <div className="flex-1 space-y-4">
-              <Input
-                label="Bild-URL"
-                value={urlInput}
-                onChange={(e) => {
-                  setUrlInput(e.target.value);
-                  setPreviewError(false);
-                }}
-                placeholder="https://example.com/polizei-logo.png"
-                disabled={!canEdit || isSaving}
-              />
-
-              {canEdit && (
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="secondary" onClick={handlePreview} disabled={isSaving}>
-                    <Icon name="eye" size={16} />
-                    Vorschau
-                  </Button>
-                  <Button type="button" onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? 'Speichern…' : 'Speichern'}
-                  </Button>
-                  <Button type="button" variant="ghost" onClick={handleReset} disabled={isSaving}>
-                    Zurücksetzen
-                  </Button>
-                </div>
-              )}
-
-              {!canEdit && (
-                <p className="text-xs text-text-muted">
-                  Nur Benutzer mit Administrationsrechten können das Icon ändern.
-                </p>
-              )}
-            </div>
-
-            <div className="settings-icon-preview xl:w-[420px]">
-              <p className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">Vorschau</p>
-
-              {activePreviewUrl && !previewError ? (
-                <div className="settings-icon-preview-hero settings-icon-preview-slot--custom">
-                  <img
-                    key={activePreviewUrl}
-                    src={activePreviewUrl}
-                    alt="Icon-Vorschau"
-                    className="settings-icon-preview-hero-image"
-                    referrerPolicy="no-referrer"
-                    onError={() => setPreviewError(true)}
-                  />
-                </div>
-              ) : (
-                <div className="settings-icon-preview-hero settings-icon-preview-hero--empty">
-                  {previewError ? (
-                    <p className="text-sm text-amber-400">Bild konnte nicht geladen werden.</p>
-                  ) : (
-                    <PoliceIcon size={72} prominent />
-                  )}
-                </div>
-              )}
-
-              <div className="settings-icon-preview-grid mt-4">
-                <div className="settings-icon-preview-item">
-                  <div className={`settings-icon-preview-login ${showingCustom ? 'settings-icon-preview-slot--custom' : ''}`}>
-                    {activePreviewUrl && !previewError ? (
-                      <img
-                        src={activePreviewUrl}
-                        alt=""
-                        className="settings-icon-preview-slot-image settings-icon-preview-slot-image--lg"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <PoliceIcon size={52} prominent />
-                    )}
-                  </div>
-                  <span className="text-[11px] text-text-muted">Login</span>
-                </div>
-                <div className="settings-icon-preview-item">
-                  <div className={`settings-icon-preview-titlebar ${showingCustom ? 'settings-icon-preview-slot--custom' : ''}`}>
-                    {activePreviewUrl && !previewError ? (
-                      <img
-                        src={activePreviewUrl}
-                        alt=""
-                        className="settings-icon-preview-slot-image"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <PoliceIcon size={22} />
-                    )}
-                  </div>
-                  <span className="text-[11px] text-text-muted">Titelleiste</span>
-                </div>
-                <div className="settings-icon-preview-item">
-                  <div className={`settings-icon-preview-toast ${showingCustom ? 'settings-icon-preview-slot--custom' : ''}`}>
-                    {activePreviewUrl && !previewError ? (
-                      <img
-                        src={activePreviewUrl}
-                        alt=""
-                        className="settings-icon-preview-slot-image settings-icon-preview-slot-image--sm"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <PoliceIcon size={20} />
-                    )}
-                  </div>
-                  <span className="text-[11px] text-text-muted">Benachrichtigung</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BrandingIconSettings
+          canEdit={canEdit}
+          urlInput={editor.urlInput}
+          onUrlChange={editor.setUrlInput}
+          onPreviewErrorReset={() => editor.setPreviewError(false)}
+          onPreview={editor.handlePreview}
+          onSave={editor.handleSave}
+          onReset={editor.handleReset}
+          isSaving={editor.isSaving}
+          activePreviewUrl={editor.activePreviewUrl}
+          previewError={editor.previewError}
+          showingCustom={editor.showingCustom}
+          onPreviewError={() => editor.setPreviewError(true)}
+        />
       </Card>
 
       <Card title="Personalisierung">
-        <div className="grid gap-4 md:grid-cols-2">
-          <Select
-            label="Taskleiste Position"
-            value={settings.taskbarPosition}
-            onChange={(e) => updateSettings({ taskbarPosition: e.target.value as TaskbarPosition })}
-            options={[
-              { value: 'bottom', label: 'Unten' },
-              { value: 'top', label: 'Oben' },
-              { value: 'left', label: 'Links' },
-              { value: 'right', label: 'Rechts' },
-            ]}
-          />
-          <Select
-            label="Taskleiste Ausrichtung"
-            value={settings.taskbarAlign}
-            onChange={(e) => updateSettings({ taskbarAlign: e.target.value as TaskbarAlign })}
-            options={[
-              { value: 'center', label: 'Zentriert' },
-              { value: 'start', label: 'Links' },
-            ]}
-          />
-          <Select
-            label="Schriftgröße"
-            value={settings.fontScale}
-            onChange={(e) => updateSettings({ fontScale: e.target.value as FontScale })}
-            options={[
-              { value: 'sm', label: 'Klein' },
-              { value: 'md', label: 'Normal' },
-              { value: 'lg', label: 'Groß' },
-            ]}
-          />
-          <Select
-            label="Hintergrund"
-            value={String(settings.wallpaperIndex)}
-            onChange={(e) => updateSettings({ wallpaperIndex: Number(e.target.value) })}
-            options={WALLPAPERS.map((w, i) => ({ value: String(i), label: w.label }))}
-          />
-        </div>
-        <label className="mt-4 flex flex-col gap-2 text-sm text-text-secondary">
-          Transparenz ({settings.transparency}%)
-          <input
-            type="range"
-            min={40}
-            max={100}
-            value={settings.transparency}
-            onChange={(e) => updateSettings({ transparency: Number(e.target.value) })}
-          />
-        </label>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {(['blue', 'purple', 'teal', 'amber', 'rose'] as AccentPreset[]).map((accent) => (
-            <button
-              key={accent}
-              type="button"
-              className={`flux-accent-swatch ${settings.accent === accent ? 'flux-accent-swatch--active' : ''}`}
-              style={{
-                background:
-                  accent === 'blue'
-                    ? '#4f7cff'
-                    : accent === 'purple'
-                      ? '#8b5cf6'
-                      : accent === 'teal'
-                        ? '#14b8a6'
-                        : accent === 'amber'
-                          ? '#f59e0b'
-                          : '#f43f5e',
-              }}
-              onClick={() => updateSettings({ accent })}
-              title={accent}
-            />
-          ))}
-        </div>
-        <label className="mt-4 flex items-center gap-2 text-sm text-text-secondary">
-          <input
-            type="checkbox"
-            checked={settings.autoWallpaper}
-            onChange={(e) => updateSettings({ autoWallpaper: e.target.checked })}
-          />
-          Hintergrund automatisch wechseln
-        </label>
+        <ShellPersonalizationSettings />
       </Card>
     </div>
   );

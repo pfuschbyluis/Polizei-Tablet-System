@@ -1,0 +1,40 @@
+/* ── Title Bar ── */
+.flux-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0.75rem 0.625rem 1rem;
+  background: color-mix(in srgb, var(--flux-titlebar-bg) calc(var(--flux-shell-transparency, 0.85) * 100%), transparent);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border-bottom: 1px solid var(--flux-border);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.flux-titlebar--draggable {
+  cursor: grab;
+}
+
+.flux-titlebar--draggable:active {
+  cursor: grabbing;
+}
+
+.flux-app-icon--lg {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.flux-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--flux-accent-subtle);
+  flex-shrink: 0;
+}
+
