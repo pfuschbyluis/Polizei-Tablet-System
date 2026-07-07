@@ -138,6 +138,27 @@ local SCHEMA = {
         setting_key VARCHAR(64) NOT NULL PRIMARY KEY,
         setting_value TEXT NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
+
+    [[CREATE TABLE IF NOT EXISTS polis_person_notes (
+        id VARCHAR(64) NOT NULL PRIMARY KEY,
+        person_id VARCHAR(64) NOT NULL,
+        officer_id VARCHAR(64) NOT NULL,
+        officer_name VARCHAR(128) NOT NULL,
+        note_date DATE NOT NULL,
+        content TEXT NOT NULL,
+        INDEX idx_person_notes (person_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
+
+    [[CREATE TABLE IF NOT EXISTS polis_case_evidence (
+        id VARCHAR(64) NOT NULL PRIMARY KEY,
+        case_id VARCHAR(64) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        file_url TEXT NOT NULL,
+        uploaded_at DATE NOT NULL,
+        officer_id VARCHAR(64) NOT NULL,
+        officer_name VARCHAR(128) NOT NULL,
+        INDEX idx_case_evidence (case_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci]],
 }
 
 function Database.EnsureSchema()

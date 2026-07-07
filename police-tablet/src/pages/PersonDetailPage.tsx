@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
 import { useData } from '../context/DataContext';
@@ -8,13 +8,17 @@ import { Card, Button, StatusBadge, Badge, Input, EmptyState, Modal } from '../c
 
 export default function PersonDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { getPerson, getVehicle, getWeapon, addPersonNote, updatePerson } = useData();
+  const { getPerson, getVehicle, getWeapon, addPersonNote, updatePerson, ensurePersonDetail } = useData();
   const { currentOfficer, permissions } = useAuth();
   const { notify } = useNotify();
   const [newNote, setNewNote] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ firstName: '', lastName: '', dateOfBirth: '', address: '', city: '', phone: '' });
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (id) void ensurePersonDetail(id);
+  }, [id, ensurePersonDetail]);
 
   if (!currentOfficer) return null;
 

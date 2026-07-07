@@ -88,6 +88,8 @@ interface DataContextType {
   getCase: (id: string) => CaseFile | undefined;
   getWeapon: (id: string) => Weapon | undefined;
   getVehicle: (id: string) => Vehicle | undefined;
+  ensurePersonDetail: (id: string) => Promise<void>;
+  ensureCaseDetail: (id: string) => Promise<void>;
   addPersonNote: (personId: string, note: Omit<OfficerNote, 'id'>) => Promise<void>;
   createPerson: (data: PersonInput) => Promise<string>;
   updatePerson: (id: string, data: Partial<PersonInput>) => Promise<void>;
@@ -114,6 +116,37 @@ function generateCaseNumber(): string {
 
 function generateId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+}
+
+type DataModule = keyof InitialDataPayload;
+
+const DATA_MODULES: DataModule[] = ['persons', 'cases', 'weapons', 'vehicles', 'wanted', 'internalMessages'];
+
+async function loadModulesParallel(): Promise<InitialDataPayload> {
+  const results = await Promise.all(
+    DATA_MODULES.map((module) =>
+      fetchNui<{ success: boolean; rows?: InitialDataPayload[DataModule]; error?: string }>('getDataModule', {
+        module,
+      }).then((result) => ({ module, result }))
+    )
+  );
+
+  const payload: InitialDataPayload = {
+    persons: [],
+    cases: [],
+    weapons: [],
+    vehicles: [],
+    wanted: [],
+    internalMessages: [],
+  };
+
+  for (const { module, result } of results) {
+    if (result.success && result.rows) {
+      payload[module] = result.rows as never;
+    }
+  }
+
+  return payload;
 }
 
 async function callNui<T extends NuiResult>(event: string, data: unknown): Promise<T> {
@@ -170,12 +203,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
 
     fetchNui<{ success: boolean; data?: InitialDataPayload; error?: string }>('getInitialData', {})
-      .then((result) => {
+      .then(async (result) => {
         if (cancelled) return;
         if (result.success && result.data) {
           applyInitialData(result.data);
-        } else if (!result.success) {
-          notify(result.error ?? 'Daten konnten nicht geladen werden.', 'error');
+          return;
+        }
+        try {
+          const modular = await loadModulesParallel();
+          if (!cancelled) applyInitialData(modular);
+        } catch {
+          if (!cancelled) notify(result.error ?? 'Daten konnten nicht geladen werden.', 'error');
         }
       })
       .catch((err) => {
@@ -196,6 +234,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const getCase = useCallback((id: string) => cases.find((c) => c.id === id), [cases]);
   const getWeapon = useCallback((id: string) => weapons.find((w) => w.id === id), [weapons]);
   const getVehicle = useCallback((id: string) => vehicles.find((v) => v.id === id), [vehicles]);
+
+  const ensurePersonDetail = useCallback(
+    async (id: string) => {
+      if (!isInGame) return;
+      const result = await fetchNui<{ success: boolean; person?: Person }>('getPersonDetail', { id });
+      if (result.success && result.person) {
+        setPersons((prev) => prev.map((p) => (p.id === id ? result.person! : p)));
+      }
+    },
+    [isInGame]
+  );
+
+  const ensureCaseDetail = useCallback(
+    async (id: string) => {
+      if (!isInGame) return;
+      const result = await fetchNui<{ success: boolean; caseFile?: CaseFile }>('getCaseDetail', { id });
+      if (result.success && result.caseFile) {
+        setCases((prev) => prev.map((c) => (c.id === id ? result.caseFile! : c)));
+      }
+    },
+    [isInGame]
+  );
 
   const linkWeaponToPerson = useCallback((personId: string, weaponId: string) => {
     setPersons((prev) =>
@@ -631,6 +691,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         getCase,
         getWeapon,
         getVehicle,
+        ensurePersonDetail,
+        ensureCaseDetail,
         addPersonNote,
         createPerson,
         updatePerson,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Icon from '../components/icons/Icon';
 import PersonSelect from '../components/cases/PersonSelect';
@@ -32,6 +32,7 @@ export default function AkteDetailPage() {
     addCaseWitness,
     addCaseParticipant,
     addCaseNote,
+    ensureCaseDetail,
   } = useData();
   const { currentOfficer, permissions } = useAuth();
   const { run, warn } = useNotifyAction();
@@ -45,6 +46,10 @@ export default function AkteDetailPage() {
   const [witnessForm, setWitnessForm] = useState({ name: '', phone: '', statement: '' });
   const [participantForm, setParticipantForm] = useState({ personId: '', role: 'verdächtig' as const });
   const [noteForm, setNoteForm] = useState('');
+
+  useEffect(() => {
+    if (id) void ensureCaseDetail(id);
+  }, [id, ensureCaseDetail]);
 
   if (!currentOfficer) return null;
 

@@ -42,3 +42,13 @@ Config.AnimName = 'base'
 Config.PropModel = 'prop_cs_tablet'
 Config.PropBone = 60309
 Config.NoAccessMessage = 'Du hast keinen Zugriff auf das POLIS-Tablet.'
+
+-- Daten-Limits beim Initial-Load (pro Modul)
+Config.DataLoadLimits = {
+    persons = 500,
+    cases = 250,
+    weapons = 500,
+    vehicles = 500,
+    wanted = 200,
+    messages = 50,
+}
